@@ -1,0 +1,221 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA1111111111111111111111 /* FolderMind.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FolderMind.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		AA2222222222222222222222 = {
+			isa = PBXGroup;
+			children = (
+				AA3333333333333333333333 /* FolderMind */,
+				AA4444444444444444444444 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA3333333333333333333333 /* FolderMind */ = {
+			isa = PBXGroup;
+			children = (
+				AA5555555555555555555555 /* FolderMindApp.swift */,
+				AA6666666666666666666666 /* Info.plist */,
+				AA7777777777777777777777 /* FolderMind.entitlements */,
+			);
+			path = FolderMind;
+			sourceTree = "<group>";
+		};
+		AA4444444444444444444444 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA1111111111111111111111 /* FolderMind.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA8888888888888888888888 /* FolderMind */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA9999999999999999999999 /* Build configuration list for PBXNativeTarget "FolderMind" */;
+			buildPhases = (
+				AABBBBBBBBBBBBBBBBBBBBBB /* Sources */,
+				AACCCCCCCCCCCCCCCCCCCCCC /* Frameworks */,
+				AADDDDDDDDDDDDDDDDDDDDDD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FolderMind;
+			productName = FolderMind;
+			productReference = AA1111111111111111111111 /* FolderMind.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AAEEEEEEEEEEEEEEEEEEEEEE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+			};
+			buildConfigurationList = AAFFFFFFFFFFFFFFFFFFFFFF /* Build configuration list for PBXProject "FolderMind" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AA2222222222222222222222;
+			productRefGroup = AA4444444444444444444444 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AA8888888888888888888888 /* FolderMind */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		AA111111111111111111111A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AA111111111111111111111B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		AA222222222222222222222A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = FolderMind/FolderMind.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FolderMind/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.foldermind.mac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		AA222222222222222222222B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = FolderMind/FolderMind.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FolderMind/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.foldermind.mac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AAFFFFFFFFFFFFFFFFFFFFFF /* Build configuration list for PBXProject "FolderMind" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA111111111111111111111A /* Debug */,
+				AA111111111111111111111B /* Release */,
+			);
+			defaultConfigurationIsName = "Release";
+			defaultConfigurationName = "Release";
+		};
+		AA9999999999999999999999 /* Build configuration list for PBXNativeTarget "FolderMind" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA222222222222222222222A /* Debug */,
+				AA222222222222222222222B /* Release */,
+			);
+			defaultConfigurationIsName = "Release";
+			defaultConfigurationName = "Release";
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AAEEEEEEEEEEEEEEEEEEEEEE /* Project object */;
+}
