@@ -45,6 +45,8 @@ struct MainWindowView_Tahoe: View {
     @EnvironmentObject var ruleStore: RuleStore
     @EnvironmentObject var undoManager: FMUndoManager
     @State private var selection: MainWindowSection? = .rules
+    @State private var editingRule: FMRule?
+    @State private var isShowingRuleBuilder = false
 
     var body: some View {
         NavigationSplitView {
@@ -52,7 +54,14 @@ struct MainWindowView_Tahoe: View {
         } detail: {
             switch selection ?? .rules {
             case .rules:
-                RuleListView()
+                RuleListView(
+                    onEdit: { rule in
+                        editingRule = rule
+                        isShowingRuleBuilder = true
+                    },
+                    onToggle: { ruleStore.toggleRule($0) },
+                    onDelete: { ruleStore.deleteRule($0) }
+                )
                     .environmentObject(ruleStore)
             case .activity:
                 ActivityFeedView()
@@ -60,6 +69,18 @@ struct MainWindowView_Tahoe: View {
             }
         }
         .navigationTitle("FolderMind")
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button("Add Rule", systemImage: "plus") {
+                    editingRule = nil
+                    isShowingRuleBuilder = true
+                }
+            }
+        }
+        .sheet(isPresented: $isShowingRuleBuilder) {
+            RuleBuilderView(existingRule: editingRule)
+                .environmentObject(ruleStore)
+        }
     }
 }
 

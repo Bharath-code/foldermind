@@ -5,6 +5,8 @@ struct MainWindowView: View {
     @EnvironmentObject var ruleStore: RuleStore
     @EnvironmentObject var undoManager: FMUndoManager
     @State private var selection: MainWindowSection? = .rules
+    @State private var editingRule: FMRule?
+    @State private var isShowingRuleBuilder = false
 
     var body: some View {
         NavigationSplitView {
@@ -12,7 +14,14 @@ struct MainWindowView: View {
         } detail: {
             switch selection ?? .rules {
             case .rules:
-                RuleListView()
+                RuleListView(
+                    onEdit: { rule in
+                        editingRule = rule
+                        isShowingRuleBuilder = true
+                    },
+                    onToggle: { ruleStore.toggleRule($0) },
+                    onDelete: { ruleStore.deleteRule($0) }
+                )
                     .environmentObject(ruleStore)
             case .activity:
                 ActivityFeedView()
@@ -23,9 +32,14 @@ struct MainWindowView: View {
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button("Add Rule", systemImage: "plus") {
-                    // Add rule action
+                    editingRule = nil
+                    isShowingRuleBuilder = true
                 }
             }
+        }
+        .sheet(isPresented: $isShowingRuleBuilder) {
+            RuleBuilderView(existingRule: editingRule)
+                .environmentObject(ruleStore)
         }
     }
 }
@@ -68,6 +82,9 @@ struct SidebarView: View {
 
 struct RuleListView: View {
     @EnvironmentObject var ruleStore: RuleStore
+    var onEdit: (FMRule) -> Void
+    var onToggle: (FMRule) -> Void
+    var onDelete: (FMRule) -> Void
 
     var body: some View {
         Group {
@@ -79,7 +96,12 @@ struct RuleListView: View {
                 )
             } else {
                 List(ruleStore.rules) { rule in
-                    RuleRowView(rule: rule)
+                    RuleRowView(
+                        rule: rule,
+                        onEdit: { onEdit(rule) },
+                        onToggle: { onToggle(rule) },
+                        onDelete: { onDelete(rule) }
+                    )
                 }
             }
         }
@@ -174,6 +196,9 @@ struct ActivityRowView: View {
 
 struct RuleRowView: View {
     let rule: FMRule
+    var onEdit: () -> Void
+    var onToggle: () -> Void
+    var onDelete: () -> Void
 
     var body: some View {
         HStack {
@@ -185,11 +210,20 @@ struct RuleRowView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Toggle("", isOn: .constant(rule.isEnabled))
+            Toggle("", isOn: Binding(
+                get: { rule.isEnabled },
+                set: { _ in onToggle() }
+            ))
                 .toggleStyle(.switch)
                 .labelsHidden()
                 .scaleEffect(0.8)
         }
         .padding(.vertical, 4)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onEdit)
+        .contextMenu {
+            Button("Edit", systemImage: "pencil", action: onEdit)
+            Button("Delete", systemImage: "trash", role: .destructive, action: onDelete)
+        }
     }
 }

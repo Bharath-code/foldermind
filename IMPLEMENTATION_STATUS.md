@@ -1,7 +1,7 @@
 # FolderMind — Implementation Status & Roadmap
 
 > Source of truth for all development work
-> Last updated: 2025-05-07
+> Last updated: 2026-05-08
 > Target: macOS 13+ with Tahoe progressive enhancement
 > Price: $14.99 one-time
 
@@ -28,9 +28,9 @@
 | 1.2 | OnboardingStep enum (6 steps) | ✅ | All 6 cases defined, `CaseIterable` for iteration |
 | 1.3 | WelcomeStepView | ✅ | Logo animation, tagline, "Get started" button, auto-advance |
 | 1.4 | FolderPickerStepView | ✅ | Drag-and-drop + browse, shows selected folder path, Continue disabled until selection |
-| 1.5 | StarterRulesStepView | 🚧 | 8 preset rules with toggles — **needs binding to save enabled state** |
+| 1.5 | StarterRulesStepView | ✅ | 8 preset rules with toggles, binding saves enabled state into onboarding coordinator |
 | 1.6 | PermissionsStepView | ✅ | FDA check loop, opens System Settings, auto-detects permission grant |
-| 1.7 | ProcessingStepView | 🚧 | Live file feed animation — **needs `matchRule()` implementation** |
+| 1.7 | ProcessingStepView | ✅ | Live file feed animation, starter rule matching, file moves, activity logging |
 | 1.8 | DoneStepView | ✅ | Big number animation, time-saved pill, "Start using" button |
 | 1.9 | OnboardingCoordinatorView | ✅ | Step navigation, transitions, state passing between steps |
 | 1.10 | FMPrimaryButtonStyle | ✅ | Enabled/disabled states, press animation, rounded corners |
@@ -47,13 +47,13 @@
 | 2.4 | ConditionLogic (AND/OR) | ✅ | `.all` and `.any` with correct evaluation in RuleEngine |
 | 2.5 | FMRuleModel (SwiftData) | ✅ | JSON-encoded conditions/actions, `toFMRule()` decoder |
 | 2.6 | RuleStore (CRUD) | ✅ | Load, save, delete, toggle — persists to SwiftData |
-| 2.7 | RuleBuilderView | ⬜ | Chip-based condition/action builder, inline editing, no modals |
-| 2.8 | ConditionChipRow | ⬜ | Menu for condition type, value chips, delete button |
+| 2.7 | RuleBuilderView | 🚧 | First usable builder implemented — needs richer chip-based editing polish |
+| 2.8 | ConditionChipRow | 🚧 | Basic condition picker implemented inside RuleBuilderView — needs final chip row component |
 | 2.9 | ExtensionPickerChips | ⬜ | Tappable extension chips, + add menu, common extensions list |
-| 2.10 | RenameTemplateBuilder | ⬜ | Token insert buttons, live preview with example filename |
-| 2.11 | AddConditionButton | ⬜ | Shows condition type picker, appends to rule.conditions |
-| 2.12 | AddActionButton | ⬜ | Shows action type picker, appends to rule.actions |
-| 2.13 | Dry-run preview | ⬜ | Debounced 400ms, shows up to 10 matching files with results |
+| 2.10 | RenameTemplateBuilder | 🚧 | Rename template field implemented — needs token insert buttons |
+| 2.11 | AddConditionButton | 🚧 | Single condition editor implemented — needs multiple condition append flow |
+| 2.12 | AddActionButton | 🚧 | Single action editor implemented — needs multiple action append flow |
+| 2.13 | Dry-run preview | ✅ | Shows up to 10 matching files with results via RuleEngine.dryRun |
 | 2.14 | Rule priority ordering | ✅ | `priority: Int` field, RuleStore sorts by priority desc |
 | 2.15 | Rule enable/disable toggle | ✅ | `isEnabled: Bool` on FMRule, toggle in RuleStore |
 
@@ -93,8 +93,8 @@
 | 5.2 | ActionType enum | ✅ | moved, copied, renamed, deleted, createdFolder with `reverseAction` |
 | 5.3 | FMUndoManager | ✅ | Log, undo latest, undo all, clear older than N days |
 | 5.4 | Per-entry undo | ✅ | `performUndo()` reverses moved/copied actions, marks `isUndone` |
-| 5.5 | ActivityFeedView | ⬜ | List of entries, swipe-to-undo, undo button in toolbar |
-| 5.6 | ActivityRowView | ⬜ | Shows icon, filename, destination, timestamp, rule name, undone state |
+| 5.5 | ActivityFeedView | 🚧 | List of entries and undo button in toolbar — needs per-entry undo affordance |
+| 5.6 | ActivityRowView | ✅ | Shows icon, filename, destination, timestamp, rule name, undone state |
 | 5.7 | Activity log persistence | ✅ | SwiftData auto-persists, survives app restart |
 | 5.8 | Auto-cleanup old entries | ✅ | `clearOlderThan(_ days:)` method |
 
@@ -103,11 +103,11 @@
 | # | Item | Status | Acceptance Criteria |
 |---|------|--------|---------------------|
 | 6.1 | MainWindowView | 🚧 | NavigationSplitView with sidebar + detail — **needs toolbar actions** |
-| 6.2 | SidebarView | 🚧 | List with "Rules" and "Activity" navigation — **needs selection state** |
-| 6.3 | RuleListView | 🚧 | Shows rules or empty state — **needs rule selection to show detail** |
-| 6.4 | RuleRowView | 🚧 | Shows rule name, condition/action count, enable toggle |
+| 6.2 | SidebarView | ✅ | List with "Rules" and "Activity" navigation with selection state |
+| 6.3 | RuleListView | 🚧 | Shows rules or empty state, rows open builder — needs richer rule detail view |
+| 6.4 | RuleRowView | 🚧 | Shows rule name, condition/action count, enable toggle, edit/delete context menu |
 | 6.5 | Empty state (no rules) | ✅ | `ContentUnavailableView` with icon and description |
-| 6.6 | Toolbar "Add Rule" button | ⬜ | Opens RuleBuilderView for new rule creation |
+| 6.6 | Toolbar "Add Rule" button | ✅ | Opens RuleBuilderView for new rule creation |
 | 6.7 | Settings/Preferences window | ⬜ | License key input, watched folder management, auto-start toggle |
 | 6.8 | Window state persistence | ⬜ | Remembers window size/position across launches |
 
@@ -294,12 +294,13 @@ FolderMind/
 │   │   ├── OnboardingCoordinatorView.swift ✅ Step coordinator
 │   │   ├── WelcomeStepView.swift          ✅ Welcome screen
 │   │   ├── FolderPickerStepView.swift     ✅ Folder selection
-│   │   ├── StarterRulesStepView.swift     🚧 Rule toggles (needs binding)
+│   │   ├── StarterRulesStepView.swift     ✅ Rule toggles with coordinator binding
 │   │   ├── PermissionsStepView.swift      ✅ FDA permission
-│   │   ├── ProcessingStepView.swift       🚧 Live sorting (needs matchRule)
+│   │   ├── ProcessingStepView.swift       ✅ Live sorting with starter rule matching
 │   │   └── DoneStepView.swift             ✅ Completion screen
 │   ├── MainWindow/
-│   │   └── MainWindowView.swift           🚧 Main UI (needs toolbar/actions)
+│   │   ├── MainWindowView.swift           🚧 Main UI with rule builder entry points
+│   │   └── RuleBuilderView.swift          🚧 First usable custom rule builder
 │   ├── Components/
 │   │   ├── FMPrimaryButtonStyle.swift     ✅ Primary button style
 │   │   └── MenuBarView.swift              ✅ Menu bar extras
@@ -311,11 +312,11 @@ FolderMind/
 
 | File | Phase | Priority |
 |------|-------|----------|
-| `Services/RuleBuilderView.swift` | 1 | HIGH |
+| `Views/MainWindow/RuleBuilderView.swift` | 1 | HIGH — first usable version implemented |
 | `Services/Tahoe/SmartFileClassifier.swift` | 2 | MEDIUM |
 | `Services/Tahoe/MLXImageClassifier.swift` | 2 | LOW |
 | `Services/Tahoe/ContinuityMonitor.swift` | 2 | LOW |
-| `Views/MainWindow/ActivityFeedView.swift` | 1 | HIGH |
+| `Views/MainWindow/ActivityFeedView.swift` | 1 | HIGH — currently embedded in MainWindowView |
 | `Views/MainWindow/SettingsView.swift` | 1 | MEDIUM |
 | `Views/Components/ToastView.swift` | 3 | MEDIUM |
 | `Views/Tahoe/LiquidGlassModifiers.swift` | 2 | MEDIUM |
@@ -328,10 +329,10 @@ FolderMind/
 
 ## Sprint 1 — Finish Phase 1 Core (Ship-able MVP)
 
-1. **RuleBuilderView** (#2.7-2.13) — Without this, users can't create custom rules
-2. **ActivityFeedView** (#5.5-5.6) — Trust builder, undo access
-3. **Onboarding completion** (#1.7, 1.11, 1.12) — ProcessingStepView matchRule, window config
-4. **MainWindow polish** (#6.6-6.8) — Toolbar, settings, window persistence
+1. **File watching lifecycle** (#3.7) — Start watching saved rule folders and process new files automatically
+2. **RuleBuilder polish** (#2.8-2.12, #16.1-16.5) — Multiple chips/actions, token buttons, inline editing polish
+3. **Onboarding window config** (#1.11, 1.12) — Proper compact onboarding window behavior
+4. **MainWindow polish** (#6.3, #6.7-6.8) — Rule detail, settings, window persistence
 5. **Trial enforcement** (#8.6) — 7-day trial gate
 
 ## Sprint 2 — Polish & Distribute
