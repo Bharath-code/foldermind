@@ -4,14 +4,20 @@ struct MainWindowView: View {
     @EnvironmentObject var appVM: AppViewModel
     @EnvironmentObject var ruleStore: RuleStore
     @EnvironmentObject var undoManager: FMUndoManager
+    @State private var selection: MainWindowSection? = .rules
 
     var body: some View {
         NavigationSplitView {
-            SidebarView()
-                .environmentObject(ruleStore)
+            SidebarView(selection: $selection)
         } detail: {
-            RuleListView()
-                .environmentObject(ruleStore)
+            switch selection ?? .rules {
+            case .rules:
+                RuleListView()
+                    .environmentObject(ruleStore)
+            case .activity:
+                ActivityFeedView()
+                    .environmentObject(undoManager)
+            }
         }
         .navigationTitle("FolderMind")
         .toolbar {
@@ -24,13 +30,36 @@ struct MainWindowView: View {
     }
 }
 
+enum MainWindowSection: String, CaseIterable, Identifiable, Hashable {
+    case rules
+    case activity
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .rules: return "Rules"
+        case .activity: return "Activity"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .rules: return "list.bullet"
+        case .activity: return "clock.arrow.circlepath"
+        }
+    }
+}
+
 struct SidebarView: View {
-    @EnvironmentObject var ruleStore: RuleStore
+    @Binding var selection: MainWindowSection?
 
     var body: some View {
-        List {
-            Label("Rules", systemImage: "list.bullet")
-            Label("Activity", systemImage: "clock.arrow.circlepath")
+        List(selection: $selection) {
+            ForEach(MainWindowSection.allCases) { section in
+                Label(section.title, systemImage: section.systemImage)
+                    .tag(section)
+            }
         }
         .listStyle(.sidebar)
         .frame(minWidth: 180)
@@ -53,6 +82,92 @@ struct RuleListView: View {
                     RuleRowView(rule: rule)
                 }
             }
+        }
+    }
+}
+
+struct ActivityFeedView: View {
+    @EnvironmentObject var undoManager: FMUndoManager
+
+    var body: some View {
+        Group {
+            if undoManager.entries.isEmpty {
+                ContentUnavailableView(
+                    "No activity yet",
+                    systemImage: "clock.arrow.circlepath",
+                    description: Text("File operations will appear here as FolderMind organises your folders.")
+                )
+            } else {
+                List {
+                    ForEach(undoManager.entries) { entry in
+                        ActivityRowView(entry: entry)
+                    }
+                }
+                .listStyle(.inset(alternatesRowBackgrounds: true))
+            }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                if undoManager.canUndo {
+                    Button("Undo Last", systemImage: "arrow.uturn.backward") {
+                        Task { await undoManager.undoLatest() }
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct ActivityRowView: View {
+    let entry: ActivityEntry
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: iconForAction(entry.actionType))
+                .foregroundStyle(colorForAction(entry.actionType))
+                .frame(width: 20)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(entry.actionType.displayName): \(entry.sourceURL.lastPathComponent)")
+                    .font(.system(size: 13))
+                Text("→ \(entry.destinationURL.lastPathComponent)")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(entry.timestamp, style: .time)
+                    .font(.system(size: 11))
+                Text(entry.ruleName)
+                    .font(.system(size: 10))
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .opacity(entry.isUndone ? 0.5 : 1.0)
+        .padding(.vertical, 4)
+    }
+
+    private func iconForAction(_ action: ActionType) -> String {
+        switch action {
+        case .moved: return "arrow.right"
+        case .copied: return "doc.on.doc"
+        case .renamed: return "pencil"
+        case .deleted: return "trash"
+        case .createdFolder: return "folder.badge.plus"
+        }
+    }
+
+    private func colorForAction(_ action: ActionType) -> Color {
+        switch action {
+        case .moved: return .blue
+        case .copied: return .purple
+        case .renamed: return .orange
+        case .deleted: return .red
+        case .createdFolder: return .green
         }
     }
 }

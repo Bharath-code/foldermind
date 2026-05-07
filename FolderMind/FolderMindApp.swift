@@ -16,6 +16,8 @@ struct FolderMindApp: App {
                 if appVM.appState == .needsOnboarding {
                     TahoeWindowWrappers.onboardingView()
                         .environmentObject(appVM)
+                        .environmentObject(ruleStore)
+                        .environmentObject(undoManager)
                 } else {
                     TahoeWindowWrappers.mainWindowView()
                         .environmentObject(appVM)

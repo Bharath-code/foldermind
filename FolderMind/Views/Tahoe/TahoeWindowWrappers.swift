@@ -44,14 +44,20 @@ struct OnboardingWindowView_Legacy: View {
 struct MainWindowView_Tahoe: View {
     @EnvironmentObject var ruleStore: RuleStore
     @EnvironmentObject var undoManager: FMUndoManager
+    @State private var selection: MainWindowSection? = .rules
 
     var body: some View {
         NavigationSplitView {
-            SidebarView()
-                .environmentObject(ruleStore)
+            SidebarView(selection: $selection)
         } detail: {
-            RuleListView()
-                .environmentObject(ruleStore)
+            switch selection ?? .rules {
+            case .rules:
+                RuleListView()
+                    .environmentObject(ruleStore)
+            case .activity:
+                ActivityFeedView()
+                    .environmentObject(undoManager)
+            }
         }
         .navigationTitle("FolderMind")
     }

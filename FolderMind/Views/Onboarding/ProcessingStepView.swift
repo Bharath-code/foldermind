@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ProcessingStepView: View {
+    @EnvironmentObject var undoManager: FMUndoManager
+
     let folderURL: URL
     let enabledRules: [StarterRule]
     var onAdvance: (Int) -> Void
@@ -201,6 +203,14 @@ struct ProcessingStepView: View {
                 originalName: fileURL.lastPathComponent
             )
             try fm.moveItem(at: fileURL, to: destinationURL)
+            undoManager.logAction(
+                ActivityEntry(
+                    ruleName: ruleName,
+                    sourceURL: fileURL,
+                    destinationURL: destinationURL,
+                    actionType: .moved
+                )
+            )
             return ProcessedFile(
                 originalName: fileURL.lastPathComponent,
                 destinationFolder: folderName,

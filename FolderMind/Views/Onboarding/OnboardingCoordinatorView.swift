@@ -2,6 +2,7 @@ import SwiftUI
 
 struct OnboardingCoordinatorView: View {
     @EnvironmentObject var appVM: AppViewModel
+    @EnvironmentObject var ruleStore: RuleStore
     @State private var step: OnboardingStep = .welcome
     @State private var watchedFolderURL: URL? = nil
     @State private var enabledRules: [StarterRule] = StarterRule.defaults
@@ -31,6 +32,7 @@ struct OnboardingCoordinatorView: View {
                     filesProcessed: filesProcessed,
                     minutesSaved: filesProcessed / 3
                 ) {
+                    saveStarterRules()
                     appVM.completeOnboarding()
                 }
             }
@@ -45,5 +47,13 @@ struct OnboardingCoordinatorView: View {
     func advance() {
         guard let nextStep = OnboardingStep(rawValue: step.rawValue + 1) else { return }
         withAnimation { step = nextStep }
+    }
+
+    private func saveStarterRules() {
+        guard let watchedFolderURL else { return }
+
+        for rule in enabledRules where rule.isEnabled {
+            ruleStore.saveRule(rule.asFMRule(watchedFolderURL: watchedFolderURL))
+        }
     }
 }

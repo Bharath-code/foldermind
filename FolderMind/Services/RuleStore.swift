@@ -33,6 +33,10 @@ class RuleStore: ObservableObject {
     func saveRule(_ rule: FMRule) {
         if let idx = rules.firstIndex(where: { $0.id == rule.id }) {
             rules[idx] = rule
+        } else if let idx = rules.firstIndex(where: {
+            $0.name == rule.name && $0.watchedFolderURL == rule.watchedFolderURL
+        }) {
+            rules[idx] = rule
         } else {
             rules.append(rule)
         }
