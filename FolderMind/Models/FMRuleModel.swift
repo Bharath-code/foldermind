@@ -3,18 +3,31 @@ import SwiftData
 
 @Model
 final class FMRuleModel {
-    @Attribute(.unique) var id: UUID
-    var name: String
-    var isEnabled: Bool
-    var watchedFolderURL: URL
-    var conditionsData: Data
-    var conditionLogic: ConditionLogic
-    var actionsData: Data
-    var priority: Int
-    var createdAt: Date
-    var updatedAt: Date
+    @Attribute(.unique) var id: UUID = UUID()
+    var name: String = ""
+    var isEnabled: Bool = true
+    var watchedFolderPath: String = ""
+    var conditionsData: Data = Data()
+    var conditionLogicRaw: String = "all"
+    var actionsData: Data = Data()
+    var priority: Int = 0
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
 
-    init(from rule: FMRule) {
+    var watchedFolderURL: URL {
+        get { URL(fileURLWithPath: watchedFolderPath) }
+        set { watchedFolderPath = newValue.path }
+    }
+
+    var conditionLogic: ConditionLogic {
+        get { ConditionLogic(rawValue: conditionLogicRaw) ?? .all }
+        set { conditionLogicRaw = newValue.rawValue }
+    }
+
+    init() {}
+
+    convenience init(from rule: FMRule) {
+        self.init()
         self.id = rule.id
         self.name = rule.name
         self.isEnabled = rule.isEnabled

@@ -22,7 +22,7 @@ struct SpotlightQuickActions {
         case "app.foldermind.organizeFolder":
             return true
         case "app.foldermind.toggleRule":
-            if let ruleID = activity.userInfo?["ruleID"] as? String {
+            if activity.userInfo?["ruleID"] as? String != nil {
                 // Toggle rule logic
                 return true
             }

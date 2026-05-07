@@ -1,20 +1,13 @@
 import SwiftUI
-import SwiftData
 
 @main
 struct FolderMindApp: App {
     @StateObject private var appVM = AppViewModel()
-    @StateObject private var ruleStore: RuleStore
+    @StateObject private var ruleStore = RuleStore()
     @StateObject private var undoManager: FMUndoManager
 
     init() {
-        let container = try! ModelContainer(
-            for: ActivityEntry.self, FMRuleModel.self,
-            configurations: ModelConfiguration(cloudKitDatabase: .none)
-        )
-        let context = container.mainContext
-        _ruleStore = StateObject(wrappedValue: RuleStore(modelContext: context))
-        _undoManager = StateObject(wrappedValue: FMUndoManager(modelContext: context))
+        _undoManager = StateObject(wrappedValue: FMUndoManager())
     }
 
     var body: some Scene {

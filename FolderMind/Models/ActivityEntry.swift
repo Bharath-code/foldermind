@@ -1,20 +1,35 @@
 import Foundation
-import SwiftData
 
-@Model
-final class ActivityEntry {
-    @Attribute(.unique) var id: UUID
-    var timestamp: Date
-    var ruleName: String
-    var sourceURL: URL
-    var destinationURL: URL
-    var actionType: ActionType
-    var canUndo: Bool
+struct ActivityEntry: Identifiable, Codable {
+    var id: UUID = UUID()
+    var timestamp: Date = Date()
+    var ruleName: String = ""
+    var sourcePath: String = ""
+    var destinationPath: String = ""
+    var actionTypeRaw: String = ""
+    var canUndo: Bool = true
     var isUndone: Bool = false
 
-    init(id: UUID = UUID(), timestamp: Date = Date(), ruleName: String,
+    var sourceURL: URL {
+        get { URL(fileURLWithPath: sourcePath) }
+        set { sourcePath = newValue.path }
+    }
+
+    var destinationURL: URL {
+        get { URL(fileURLWithPath: destinationPath) }
+        set { destinationPath = newValue.path }
+    }
+
+    var actionType: ActionType {
+        get { ActionType(rawValue: actionTypeRaw) ?? .moved }
+        set { actionTypeRaw = newValue.rawValue }
+    }
+
+    init() {}
+
+    init(timestamp: Date = Date(), ruleName: String,
          sourceURL: URL, destinationURL: URL, actionType: ActionType, canUndo: Bool = true) {
-        self.id = id
+        self.id = UUID()
         self.timestamp = timestamp
         self.ruleName = ruleName
         self.sourceURL = sourceURL

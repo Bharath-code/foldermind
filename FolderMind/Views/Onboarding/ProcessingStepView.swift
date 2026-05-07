@@ -42,7 +42,7 @@ struct ProcessingStepView: View {
                     }
                     .padding(.horizontal, 24)
                 }
-                .onChange(of: processedFiles.count) { _ in
+                .onChange(of: processedFiles.count) { oldValue, newValue in
                     if let last = processedFiles.last {
                         withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
                     }

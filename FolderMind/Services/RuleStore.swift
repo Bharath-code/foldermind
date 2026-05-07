@@ -1,45 +1,47 @@
 import Foundation
-import SwiftData
+import SwiftUI
 
 @MainActor
 class RuleStore: ObservableObject {
     @Published var rules: [FMRule] = []
-    private let modelContext: ModelContext
 
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    private let storageURL: URL
+
+    init() {
+        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let folder = dir.appendingPathComponent("app.foldermind.mac", isDirectory: true)
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        storageURL = folder.appendingPathComponent("rules.json")
         loadRules()
     }
 
     func loadRules() {
-        let descriptor = FetchDescriptor<FMRuleModel>(
-            sortBy: [SortDescriptor(\.priority, order: .reverse)]
-        )
-        let models = (try? modelContext.fetch(descriptor)) ?? []
-        rules = models.compactMap { $0.toFMRule() }
+        guard let data = try? Data(contentsOf: storageURL),
+              let decoded = try? JSONDecoder().decode([FMRule].self, from: data) else {
+            rules = []
+            return
+        }
+        rules = decoded
+    }
+
+    func save() {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        try? encoder.encode(rules).write(to: storageURL)
     }
 
     func saveRule(_ rule: FMRule) {
-        if let existing = rules.firstIndex(where: { $0.id == rule.id }) {
-            rules[existing] = rule
+        if let idx = rules.firstIndex(where: { $0.id == rule.id }) {
+            rules[idx] = rule
         } else {
             rules.append(rule)
         }
-
-        let model = FMRuleModel(from: rule)
-        modelContext.insert(model)
-        try? modelContext.save()
+        save()
     }
 
     func deleteRule(_ rule: FMRule) {
         rules.removeAll { $0.id == rule.id }
-        let descriptor = FetchDescriptor<FMRuleModel>(
-            predicate: #Predicate { $0.id == rule.id }
-        )
-        if let model = (try? modelContext.fetch(descriptor))?.first {
-            modelContext.delete(model)
-            try? modelContext.save()
-        }
+        save()
     }
 
     func toggleRule(_ rule: FMRule) {
