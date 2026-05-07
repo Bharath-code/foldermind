@@ -1,0 +1,369 @@
+# FolderMind — Implementation Status & Roadmap
+
+> Source of truth for all development work
+> Last updated: 2025-05-07
+> Target: macOS 13+ with Tahoe progressive enhancement
+> Price: $14.99 one-time
+
+---
+
+## Legend
+
+| Symbol | Meaning |
+|--------|---------|
+| ✅ | Implemented & scaffolded |
+| 🚧 | Scaffolded, needs completion |
+| ⬜ | Not started |
+| 🔮 | Phase 2+ (Tahoe-only or future) |
+
+---
+
+# Phase 1 — Core Product (macOS 13+)
+
+## 1. Onboarding Flow
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 1.1 | AppState state machine | ✅ | `needsOnboarding` → `onboarded` via `@AppStorage` flag |
+| 1.2 | OnboardingStep enum (6 steps) | ✅ | All 6 cases defined, `CaseIterable` for iteration |
+| 1.3 | WelcomeStepView | ✅ | Logo animation, tagline, "Get started" button, auto-advance |
+| 1.4 | FolderPickerStepView | ✅ | Drag-and-drop + browse, shows selected folder path, Continue disabled until selection |
+| 1.5 | StarterRulesStepView | 🚧 | 8 preset rules with toggles — **needs binding to save enabled state** |
+| 1.6 | PermissionsStepView | ✅ | FDA check loop, opens System Settings, auto-detects permission grant |
+| 1.7 | ProcessingStepView | 🚧 | Live file feed animation — **needs `matchRule()` implementation** |
+| 1.8 | DoneStepView | ✅ | Big number animation, time-saved pill, "Start using" button |
+| 1.9 | OnboardingCoordinatorView | ✅ | Step navigation, transitions, state passing between steps |
+| 1.10 | FMPrimaryButtonStyle | ✅ | Enabled/disabled states, press animation, rounded corners |
+| 1.11 | OnboardingWindowController | ⬜ | 600×480 window, transparent titlebar, hidden traffic lights, vibrancy |
+| 1.12 | Window config (no close/minimize during onboarding) | ⬜ | Hide traffic lights, prevent window dismissal mid-flow |
+
+## 2. Rule System
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 2.1 | FMRule data model | ✅ | Codable, Identifiable, conditions + actions arrays |
+| 2.2 | RuleCondition enum (11 types) | ✅ | Extension, name contains/starts/ends/regex, size, date, location |
+| 2.3 | RuleAction enum (7 types) | ✅ | Move, copy, rename, tag, shell script, delete, open with |
+| 2.4 | ConditionLogic (AND/OR) | ✅ | `.all` and `.any` with correct evaluation in RuleEngine |
+| 2.5 | FMRuleModel (SwiftData) | ✅ | JSON-encoded conditions/actions, `toFMRule()` decoder |
+| 2.6 | RuleStore (CRUD) | ✅ | Load, save, delete, toggle — persists to SwiftData |
+| 2.7 | RuleBuilderView | ⬜ | Chip-based condition/action builder, inline editing, no modals |
+| 2.8 | ConditionChipRow | ⬜ | Menu for condition type, value chips, delete button |
+| 2.9 | ExtensionPickerChips | ⬜ | Tappable extension chips, + add menu, common extensions list |
+| 2.10 | RenameTemplateBuilder | ⬜ | Token insert buttons, live preview with example filename |
+| 2.11 | AddConditionButton | ⬜ | Shows condition type picker, appends to rule.conditions |
+| 2.12 | AddActionButton | ⬜ | Shows action type picker, appends to rule.actions |
+| 2.13 | Dry-run preview | ⬜ | Debounced 400ms, shows up to 10 matching files with results |
+| 2.14 | Rule priority ordering | ✅ | `priority: Int` field, RuleStore sorts by priority desc |
+| 2.15 | Rule enable/disable toggle | ✅ | `isEnabled: Bool` on FMRule, toggle in RuleStore |
+
+## 3. File Watching Engine
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 3.1 | FileWatcher actor | ✅ | FSEventStream creation, start/stop, callback dispatch |
+| 3.2 | EventDebouncer actor | ✅ | 0.5s window, coalesces bursts, returns stable events |
+| 3.3 | FileEvent struct | ✅ | Path, type (created/modified/moved/deleted), timestamp |
+| 3.4 | Event classification from FSEvent flags | ✅ | Maps `kFSEventStreamEventFlag*` to `FileEvent.EventType` |
+| 3.5 | Ignore metadata-only events | ✅ | Returns `nil` for non-file-change events |
+| 3.6 | FileWatcherError enum | ✅ | `streamCreationFailed` case |
+| 3.7 | Watcher lifecycle management | ⬜ | Start on app launch, stop on quit, restart on folder change |
+| 3.8 | Multiple folder watching | ⬜ | Support watching multiple folders simultaneously |
+| 3.9 | Recursive subfolder watching | ✅ | FSEvents handles this natively via `kFSEventStreamCreateFlagFileEvents` |
+
+## 4. Rule Engine
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 4.1 | RuleEngine actor | ✅ | Singleton, `evaluate()` with AND/OR logic |
+| 4.2 | Condition evaluation (all 11 types) | ✅ | Extension, name matching, regex, size, date, location |
+| 4.3 | Dry-run preview | ✅ | Scans folder, filters by rule, returns up to N matches |
+| 4.4 | Action execution | ✅ | Move/copy with conflict resolution, rename via template |
+| 4.5 | ActionResult enum | ✅ | `.moved`, `.copied`, `.skipped`, `.failed` with URLs/messages |
+| 4.6 | RenameEngine | ✅ | Token replacement: {name}, {ext}, {date}, {year}, {month}, {day}, {time}, {counter}, {parent} |
+| 4.7 | ConflictResolver | ✅ | Counter-based rename (`file_001.pdf`), auto-create destination folder |
+| 4.8 | Error handling (permission denied, disk full) | 🚧 | ConflictResolver returns `.error()` — **needs integration into executeActions** |
+| 4.9 | Rename preview function | ✅ | `RenameEngine.preview(template:for:date:)` for dry-run |
+
+## 5. Activity Log & Undo
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 5.1 | ActivityEntry model (SwiftData) | ✅ | Timestamp, rule name, source/dest URLs, action type, undo state |
+| 5.2 | ActionType enum | ✅ | moved, copied, renamed, deleted, createdFolder with `reverseAction` |
+| 5.3 | FMUndoManager | ✅ | Log, undo latest, undo all, clear older than N days |
+| 5.4 | Per-entry undo | ✅ | `performUndo()` reverses moved/copied actions, marks `isUndone` |
+| 5.5 | ActivityFeedView | ⬜ | List of entries, swipe-to-undo, undo button in toolbar |
+| 5.6 | ActivityRowView | ⬜ | Shows icon, filename, destination, timestamp, rule name, undone state |
+| 5.7 | Activity log persistence | ✅ | SwiftData auto-persists, survives app restart |
+| 5.8 | Auto-cleanup old entries | ✅ | `clearOlderThan(_ days:)` method |
+
+## 6. Main Window UI
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 6.1 | MainWindowView | 🚧 | NavigationSplitView with sidebar + detail — **needs toolbar actions** |
+| 6.2 | SidebarView | 🚧 | List with "Rules" and "Activity" navigation — **needs selection state** |
+| 6.3 | RuleListView | 🚧 | Shows rules or empty state — **needs rule selection to show detail** |
+| 6.4 | RuleRowView | 🚧 | Shows rule name, condition/action count, enable toggle |
+| 6.5 | Empty state (no rules) | ✅ | `ContentUnavailableView` with icon and description |
+| 6.6 | Toolbar "Add Rule" button | ⬜ | Opens RuleBuilderView for new rule creation |
+| 6.7 | Settings/Preferences window | ⬜ | License key input, watched folder management, auto-start toggle |
+| 6.8 | Window state persistence | ⬜ | Remembers window size/position across launches |
+
+## 7. Menu Bar Integration
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 7.1 | MenuBarExtra | ✅ | Folder gear icon in system menu bar |
+| 7.2 | MenuBarView | ✅ | Shows active rules, undo button, quit |
+| 7.3 | Open main window from menu bar | ⬜ | Menu bar item click opens/restores main window |
+| 7.4 | Real-time rule status in menu bar | 🚧 | Shows enabled rules — **needs refresh on rule change** |
+
+## 8. Permissions & Licensing
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 8.1 | PermissionChecker | ✅ | `hasFullDiskAccess` bool, `openSystemSettings()` URL |
+| 8.2 | FDA usage description in Info.plist | ✅ | `NSFullDiskAccessUsageDescription` key present |
+| 8.3 | Entitlements (non-sandboxed) | ✅ | `com.apple.security.app-sandbox = false`, `user-selected.read-write = true` |
+| 8.4 | LicenseManager | ✅ | Validate key, store in UserDefaults, `isLicensed` check |
+| 8.5 | License validation UI | ⬜ | Settings panel with key input, validate button, status indicator |
+| 8.6 | Trial enforcement (7-day) | ⬜ | Track first launch date, block after 7 days without license |
+| 8.7 | Paddle/Gumroad SDK integration | ⬜ | Purchase flow, license key delivery, receipt validation |
+
+## 9. App Lifecycle
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 9.1 | FolderMindApp @main | ✅ | SwiftData container, StateObject injection, WindowGroup + MenuBarExtra |
+| 9.2 | SwiftData ModelContainer | ✅ | ActivityEntry + FMRuleModel, local-only (no CloudKit) |
+| 9.3 | Auto-start on login | ⬜ | `SMLoginItemSetEnabled` or `LaunchAtLogin` package |
+| 9.4 | Graceful shutdown | ⬜ | Stop FileWatcher, save pending state, close database |
+| 9.5 | App delegate for URL handling | ⬜ | Handle `file://` opens, Spotlight activity continuation |
+| 9.6 | Keyboard shortcuts | ⬜ | Cmd+L (activity log), Cmd+N (new rule), Cmd+, (settings) |
+
+---
+
+# Phase 2 — Tahoe Progressive Enhancement (macOS 26+)
+
+## 10. Spotlight Integration
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 10.1 | SpotlightIndexer | ✅ | Index organized files with metadata, remove on undo |
+| 10.2 | SpotlightQuickActions | ✅ | Register "Organize Folder" and "Toggle Rule" activities |
+| 10.3 | Index on file move | ⬜ | Call `SpotlightIndexer.indexOrganizedFile()` after successful move |
+| 10.4 | Remove index on undo | ⬜ | Call `SpotlightIndexer.removeIndexedFile()` when undoing |
+| 10.5 | Index rules for search | ⬜ | Call `SpotlightIndexer.indexRule()` when rule is saved |
+| 10.6 | Handle Spotlight activity continuation | ⬜ | AppDelegate `continue userActivity` routes to correct action |
+
+## 11. Liquid Glass UI
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 11.1 | TahoeWindowWrappers | ✅ | Version-agnostic view selectors for onboarding + main window |
+| 11.2 | OnboardingWindowView_Tahoe | 🚧 | Uses Liquid Glass panel style — **needs actual Liquid Glass API** |
+| 11.3 | MainWindowView_Tahoe | 🚧 | Glass sidebar, glass controls — **needs actual Liquid Glass API** |
+| 11.4 | LiquidGlassModifiers | ⬜ | `glassPanel()`, `glassButton()` view modifiers |
+| 11.5 | Legacy fallback views | ✅ | `OnboardingWindowView_Legacy`, `MainWindowView_Legacy` use current UI |
+| 11.6 | @available guards everywhere | ⬜ | All Tahoe-specific code wrapped in `@available(macOS 26, *)` |
+
+## 12. Foundation Models (Smart File Classification)
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 12.1 | SmartFileClassifier | ⬜ | Actor, loads text/vision models, `classifyFile()` method |
+| 12.2 | Text file classification | ⬜ | Reads first 2000 chars, prompts model, returns category |
+| 12.3 | Image file classification | ⬜ | Vision model analyzes image content, returns category |
+| 12.4 | FileClassification struct | ⬜ | Category, confidence, source (AI vs rule-based) |
+| 12.5 | On-device processing guarantee | ⬜ | `processingLocation = .onDevice` enforced |
+| 12.6 | Fallback to rule-based | ⬜ | If AI unavailable or returns nil, RuleEngine.evaluate() runs |
+| 12.7 | Integration with RuleEngine | ⬜ | `evaluateWithAI()` method that tries AI first, falls back to rules |
+| 12.8 | Graceful degradation on pre-Tahoe | ⬜ | `if #available(macOS 26, *)` guard, no crash on older OS |
+
+## 13. MLX Image Recognition
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 13.1 | MLXImageClassifier | ⬜ | Actor, loads MLX model, configures neural accelerators |
+| 13.2 | M5 neural engine optimization | ⬜ | `MLX.configuration.useNeuralAccelerators = true` |
+| 13.3 | Image classification output | ⬜ | Returns category (screenshot/photo/document/receipt) + confidence |
+| 13.4 | OCR on images | ⬜ | Extracts text from document/receipt images |
+| 13.5 | Fallback chain | ⬜ | MLX → Foundation Model vision → rule-based |
+| 13.6 | Model bundling | ⬜ | Pre-trained classifier model included in app bundle |
+
+## 14. Continuity (iPhone → Mac)
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 14.1 | ContinuityMonitor | ⬜ | Watches for files from iPhone (EXIF metadata, creator app) |
+| 14.2 | File source detection | ⬜ | `determineFileSource()` checks creator, EXIF make/model |
+| 14.3 | High-priority processing | ⬜ | Continuity files processed immediately, not debounced |
+| 14.4 | User notification | ⬜ | Shows notification: "Sorted 'photo.jpg' into Receipts/" |
+| 14.5 | FileSource enum | ⬜ | `.continuity` vs `.local` cases |
+
+---
+
+# Phase 3 — Polish & Distribution
+
+## 15. UI Polish
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 15.1 | Micro-animations | ⬜ | File move animations, toast notifications, expansion/collapse |
+| 15.2 | Drag & drop (into app) | ⬜ | Drop files onto app window to trigger rule evaluation |
+| 15.3 | Drag & drop (out of app) | ⬜ | Drag organized files from activity log to Finder |
+| 15.4 | Toast/notification system | ⬜ | Non-intrusive banners for file operations, errors, undo confirmations |
+| 15.5 | Loading states | ⬜ | Progress indicators for bulk operations, rule dry-runs |
+| 15.6 | Error states | ⬜ | User-friendly error messages with recovery suggestions |
+| 15.7 | Dark mode support | ⬜ | All views tested and polished in both light and dark modes |
+| 15.8 | Accessibility | ⬜ | VoiceOver labels, keyboard navigation, Dynamic Type support |
+
+## 16. Rule Builder (Detailed)
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 16.1 | Inline condition editing | ⬜ | Click condition chip → inline editor appears (no modal) |
+| 16.2 | Inline action editing | ⬜ | Click action chip → inline editor appears (no modal) |
+| 16.3 | Live preview updates | ⬜ | Dry-run triggers 400ms after any condition/action change |
+| 16.4 | AND/OR toggle visibility | ⬜ | Only shows when 2+ conditions exist, animates in/out |
+| 16.5 | Rule name editing | ⬜ | TextField at top of builder, placeholder "e.g. Sort invoices" |
+| 16.6 | Delete rule confirmation | ⬜ | Confirmation dialog before deleting a rule |
+| 16.7 | Duplicate rule | ⬜ | Right-click context menu → "Duplicate" creates copy |
+| 16.8 | Rule reordering | ⬜ | Drag to reorder rules (changes priority) |
+| 16.9 | Export/import rules | ⬜ | JSON export/import via `RuleBackupManager` |
+
+## 17. Testing
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 17.1 | Unit tests: RuleEngine | ⬜ | Test all 11 condition types with sample files |
+| 17.2 | Unit tests: ConflictResolver | ⬜ | Test collision detection, counter naming, folder creation |
+| 17.3 | Unit tests: RenameEngine | ⬜ | Test all token replacements with sample filenames |
+| 17.4 | Unit tests: FileWatcher | ⬜ | Test event classification, debouncing behavior |
+| 17.5 | Integration tests: Full pipeline | ⬜ | File arrives → watched → matched → moved → logged |
+| 17.6 | UI tests: Onboarding flow | ⬜ | Complete all 6 steps, verify state persistence |
+| 17.7 | UI tests: Rule CRUD | ⬜ | Create, edit, delete, toggle rules in main window |
+
+## 18. Distribution
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 18.1 | App icon | ⬜ | 1024×1024 icon, all required @1x/@2x sizes |
+| 18.2 | Code signing | ⬜ | Developer ID certificate, notarization |
+| 18.3 | DMG installer | ⬜ | Custom background, drag-to-Applications layout |
+| 18.4 | Sparkle updates | ⬜ | In-app update checking, release notes, download |
+| 18.5 | Landing page | ⬜ | Hero, problem, how it works, pricing, FAQ, download CTA |
+| 18.6 | Privacy policy | ⬜ | "Files never leave your Mac" statement, data collection (none) |
+| 18.7 | Payment integration | ⬜ | Paddle or Gumroad SDK, license key delivery |
+| 18.8 | Analytics (optional) | ⬜ | Anonymous usage metrics (rules created, files sorted) — opt-in |
+
+---
+
+# File Inventory
+
+## Implemented (28 files)
+
+```
+FolderMind/
+├── FolderMindApp.swift                    ✅ App entry, SwiftData, scenes
+├── Info.plist                             ✅ FDA permission description
+├── FolderMind.entitlements                ✅ Non-sandboxed config
+├── Models/
+│   ├── AppState.swift                     ✅ Onboarding state machine
+│   ├── OnboardingStep.swift               ✅ 6-step enum
+│   ├── RuleModel.swift                    ✅ FMRule, conditions, actions
+│   ├── FMRuleModel.swift                  ✅ SwiftData persistence model
+│   ├── ActivityEntry.swift                ✅ Activity log + undo model
+│   └── StarterRule.swift                  ✅ Onboarding preset rules
+├── Services/
+│   ├── FileWatcher.swift                  ✅ FSEvents + debouncer
+│   ├── RuleEngine.swift                   ✅ Condition evaluation + dry-run
+│   ├── ConflictResolver.swift             ✅ Filename collision handling
+│   ├── RenameEngine.swift                 ✅ Template token replacement
+│   ├── RuleStore.swift                    ✅ CRUD for rules
+│   ├── FMUndoManager.swift                ✅ Undo/redo with SwiftData
+│   ├── PermissionChecker.swift            ✅ FDA verification
+│   ├── LicenseManager.swift               ✅ One-time license validation
+│   └── Tahoe/
+│       ├── SpotlightIndexer.swift         ✅ CoreSpotlight indexing
+│       └── SpotlightQuickActions.swift    ✅ NSUserActivity quick actions
+├── Views/
+│   ├── Onboarding/
+│   │   ├── OnboardingCoordinatorView.swift ✅ Step coordinator
+│   │   ├── WelcomeStepView.swift          ✅ Welcome screen
+│   │   ├── FolderPickerStepView.swift     ✅ Folder selection
+│   │   ├── StarterRulesStepView.swift     🚧 Rule toggles (needs binding)
+│   │   ├── PermissionsStepView.swift      ✅ FDA permission
+│   │   ├── ProcessingStepView.swift       🚧 Live sorting (needs matchRule)
+│   │   └── DoneStepView.swift             ✅ Completion screen
+│   ├── MainWindow/
+│   │   └── MainWindowView.swift           🚧 Main UI (needs toolbar/actions)
+│   ├── Components/
+│   │   ├── FMPrimaryButtonStyle.swift     ✅ Primary button style
+│   │   └── MenuBarView.swift              ✅ Menu bar extras
+│   └── Tahoe/
+│       └── TahoeWindowWrappers.swift      ✅ Version-agnostic view selectors
+```
+
+## Not Yet Created (0 files)
+
+| File | Phase | Priority |
+|------|-------|----------|
+| `Services/RuleBuilderView.swift` | 1 | HIGH |
+| `Services/Tahoe/SmartFileClassifier.swift` | 2 | MEDIUM |
+| `Services/Tahoe/MLXImageClassifier.swift` | 2 | LOW |
+| `Services/Tahoe/ContinuityMonitor.swift` | 2 | LOW |
+| `Views/MainWindow/ActivityFeedView.swift` | 1 | HIGH |
+| `Views/MainWindow/SettingsView.swift` | 1 | MEDIUM |
+| `Views/Components/ToastView.swift` | 3 | MEDIUM |
+| `Views/Tahoe/LiquidGlassModifiers.swift` | 2 | MEDIUM |
+| `Helpers/RuleBackupManager.swift` | 3 | LOW |
+| `Helpers/BookmarkManager.swift` | 2 | LOW (MAS Phase) |
+
+---
+
+# Priority Order for Next Work
+
+## Sprint 1 — Finish Phase 1 Core (Ship-able MVP)
+
+1. **RuleBuilderView** (#2.7-2.13) — Without this, users can't create custom rules
+2. **ActivityFeedView** (#5.5-5.6) — Trust builder, undo access
+3. **Onboarding completion** (#1.7, 1.11, 1.12) — ProcessingStepView matchRule, window config
+4. **MainWindow polish** (#6.6-6.8) — Toolbar, settings, window persistence
+5. **Trial enforcement** (#8.6) — 7-day trial gate
+
+## Sprint 2 — Polish & Distribute
+
+6. **UI polish** (#15.1-15.8) — Animations, drag-drop, toasts, dark mode, a11y
+7. **Rule builder advanced** (#16.1-16.9) — Inline editing, duplicate, export/import
+8. **Distribution** (#18.1-18.7) — Icon, signing, DMG, Sparkle, landing page, payments
+9. **Testing** (#17.1-17.7) — Unit + integration + UI tests
+
+## Sprint 3 — Tahoe Features
+
+10. **Spotlight integration** (#10.3-10.6) — Wire up existing indexer to actual operations
+11. **Liquid Glass UI** (#11.2-11.6) — Actual Tahoe API integration
+12. **Foundation Models** (#12.1-12.8) — Smart file classification
+13. **MLX** (#13.1-13.6) — Image recognition (requires M5 Mac)
+14. **Continuity** (#14.1-14.5) — iPhone photo auto-sort
+
+---
+
+# Acceptance Criteria: "Ready to Ship"
+
+The product is ready to sell at $14.99 when ALL Phase 1 items are ✅:
+
+- [ ] User can complete onboarding in < 90 seconds
+- [ ] User can pick a folder, toggle starter rules, see files sorted
+- [ ] User can create custom rules with the chip-based builder
+- [ ] Files are watched and sorted automatically in real-time
+- [ ] Every action is logged and reversible (undo)
+- [ ] Filename conflicts are handled gracefully (no data loss)
+- [ ] Menu bar shows active status and quick controls
+- [ ] 7-day trial works, license key unlocks full version
+- [ ] App auto-starts on login (optional)
+- [ ] Dark mode works without visual bugs
+- [ ] App is notarized and distributable as .dmg
+- [ ] Landing page converts visitors to downloads

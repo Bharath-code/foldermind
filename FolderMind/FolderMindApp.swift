@@ -21,10 +21,10 @@ struct FolderMindApp: App {
         WindowGroup {
             Group {
                 if appVM.appState == .needsOnboarding {
-                    OnboardingCoordinatorView()
+                    TahoeWindowWrappers.onboardingView()
                         .environmentObject(appVM)
                 } else {
-                    MainWindowView()
+                    TahoeWindowWrappers.mainWindowView()
                         .environmentObject(appVM)
                         .environmentObject(ruleStore)
                         .environmentObject(undoManager)
