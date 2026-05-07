@@ -3,11 +3,13 @@ import SwiftUI
 struct ProcessingStepView: View {
     let folderURL: URL
     let enabledRules: [StarterRule]
-    var onAdvance: () -> Void
+    var onAdvance: (Int) -> Void
 
     @State private var processedFiles: [ProcessedFile] = []
-    @State private var isScanning = false
+    @State private var isScanning = true
     @State private var totalProcessed = 0
+    @State private var scanCompleted = false
+    @State private var didStartProcessing = false
 
     struct ProcessedFile: Identifiable {
         let id = UUID()
@@ -51,45 +53,186 @@ struct ProcessingStepView: View {
 
             Spacer()
 
-            if totalProcessed > 0 {
+            if scanCompleted {
                 VStack(spacing: 12) {
-                    Text("Sorted \(totalProcessed) file\(totalProcessed == 1 ? "" : "s")")
+                    Text(resultMessage)
                         .font(.system(size: 15, weight: .medium))
-                    Button("See the results") { onAdvance() }
+                    Button(totalProcessed > 0 ? "See the results" : "Continue") {
+                        onAdvance(totalProcessed)
+                    }
                         .buttonStyle(FMPrimaryButtonStyle())
                 }
                 .padding(.bottom, 32)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .onAppear { startProcessing() }
+        .task(id: folderURL) {
+            await startProcessing()
+        }
+        .onAppear {
+            scheduleCompletionFallback()
+        }
     }
 
-    func startProcessing() {
-        DispatchQueue.global(qos: .userInitiated).async {
-            guard let files = try? FileManager.default.contentsOfDirectory(
-                at: folderURL, includingPropertiesForKeys: nil) else { return }
+    private var resultMessage: String {
+        if totalProcessed == 0 {
+            return "No matching files found"
+        }
+        return "Sorted \(totalProcessed) file\(totalProcessed == 1 ? "" : "s")"
+    }
 
-            for (i, fileURL) in files.enumerated() {
-                if let match = matchRule(for: fileURL) {
-                    let processed = ProcessedFile(
-                        originalName: fileURL.lastPathComponent,
-                        destinationFolder: match.destination,
-                        rule: match.ruleName
-                    )
-                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.08) {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                            processedFiles.append(processed)
-                            totalProcessed += 1
-                        }
-                    }
+    @MainActor
+    func startProcessing() async {
+        guard !didStartProcessing else { return }
+        didStartProcessing = true
+
+        guard let files = try? FileManager.default.contentsOfDirectory(
+            at: folderURL,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            completeScan()
+            return
+        }
+
+        var matches: [ProcessedFile] = []
+
+        for fileURL in files where isRegularFile(fileURL) {
+            if let match = matchRule(for: fileURL) {
+                guard let processed = move(fileURL, toFolderNamed: match.destination, ruleName: match.ruleName) else {
+                    continue
                 }
+                matches.append(processed)
+            }
+        }
+
+        guard !matches.isEmpty else {
+            completeScan()
+            return
+        }
+
+        for processed in matches {
+            if Task.isCancelled { return }
+
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                processedFiles.append(processed)
+                totalProcessed += 1
+            }
+
+            try? await Task.sleep(for: .milliseconds(80))
+        }
+
+        completeScan()
+    }
+
+    @MainActor
+    private func completeScan() {
+        isScanning = false
+        scanCompleted = true
+    }
+
+    private func scheduleCompletionFallback() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            if !scanCompleted {
+                completeScan()
             }
         }
     }
 
     func matchRule(for url: URL) -> (destination: String, ruleName: String)? {
+        let name = url.deletingPathExtension().lastPathComponent.lowercased()
+        let ext = url.pathExtension.lowercased()
+
+        for rule in enabledRules where rule.isEnabled {
+            switch rule.name {
+            case "Screenshots":
+                if ext == "png" && (name.contains("screen shot") || name.contains("screenshot")) {
+                    return ("Screenshots", rule.name)
+                }
+            case "Invoices & receipts":
+                if ext == "pdf" && (name.contains("invoice") || name.contains("receipt")) {
+                    return ("Finance", rule.name)
+                }
+            case "Archives":
+                if ["zip", "tar", "gz", "tgz", "rar", "7z"].contains(ext) {
+                    return ("Archives", rule.name)
+                }
+            case "Photos & images":
+                if ["jpg", "jpeg", "heic", "webp", "gif", "tiff"].contains(ext) {
+                    return ("Photos", rule.name)
+                }
+            case "Videos":
+                if ["mp4", "mov", "mkv", "avi", "webm"].contains(ext) {
+                    return ("Videos", rule.name)
+                }
+            case "Documents":
+                if ["txt", "md", "rtf", "doc", "docx", "pages", "xls", "xlsx", "numbers", "key", "ppt", "pptx", "csv", "pdf"].contains(ext) {
+                    return ("Documents", rule.name)
+                }
+            case "Disk images":
+                if ["dmg", "pkg"].contains(ext) {
+                    return ("Installers", rule.name)
+                }
+            case "Audio":
+                if ["mp3", "m4a", "flac", "wav", "aac"].contains(ext) {
+                    return ("Music", rule.name)
+                }
+            default:
+                continue
+            }
+        }
+
         return nil
+    }
+
+    private func isRegularFile(_ url: URL) -> Bool {
+        let values = try? url.resourceValues(forKeys: [.isRegularFileKey])
+        return values?.isRegularFile == true
+    }
+
+    private func move(_ fileURL: URL, toFolderNamed folderName: String, ruleName: String) -> ProcessedFile? {
+        let fm = FileManager.default
+        let destinationFolder = folderURL.appendingPathComponent(folderName, isDirectory: true)
+
+        do {
+            try fm.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
+            let destinationURL = uniqueDestinationURL(
+                in: destinationFolder,
+                originalName: fileURL.lastPathComponent
+            )
+            try fm.moveItem(at: fileURL, to: destinationURL)
+            return ProcessedFile(
+                originalName: fileURL.lastPathComponent,
+                destinationFolder: folderName,
+                rule: ruleName
+            )
+        } catch {
+            return nil
+        }
+    }
+
+    private func uniqueDestinationURL(in folder: URL, originalName: String) -> URL {
+        let fm = FileManager.default
+        let originalURL = folder.appendingPathComponent(originalName)
+
+        guard fm.fileExists(atPath: originalURL.path) else {
+            return originalURL
+        }
+
+        let name = (originalName as NSString).deletingPathExtension
+        let ext = (originalName as NSString).pathExtension
+
+        for index in 1...999 {
+            let candidateName = ext.isEmpty
+                ? "\(name) \(index)"
+                : "\(name) \(index).\(ext)"
+            let candidateURL = folder.appendingPathComponent(candidateName)
+            if !fm.fileExists(atPath: candidateURL.path) {
+                return candidateURL
+            }
+        }
+
+        return folder.appendingPathComponent(UUID().uuidString + "-" + originalName)
     }
 }
 

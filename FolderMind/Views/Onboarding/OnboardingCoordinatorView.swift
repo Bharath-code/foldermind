@@ -15,14 +15,17 @@ struct OnboardingCoordinatorView: View {
             case .folderPicker:
                 FolderPickerStepView(watchedFolderURL: $watchedFolderURL) { advance() }
             case .starterRules:
-                StarterRulesStepView { advance() }
+                StarterRulesStepView(rules: $enabledRules) { advance() }
             case .permissions:
                 PermissionsStepView { advance() }
             case .processing:
                 ProcessingStepView(
                     folderURL: watchedFolderURL!,
                     enabledRules: enabledRules.filter(\.isEnabled)
-                ) { advance() }
+                ) { count in
+                    filesProcessed = count
+                    advance()
+                }
             case .done:
                 DoneStepView(
                     filesProcessed: filesProcessed,

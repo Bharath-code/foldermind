@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct StarterRulesStepView: View {
-    @State private var rules = StarterRule.defaults
+    @Binding var rules: [StarterRule]
     var onAdvance: () -> Void
 
     private var enabledCount: Int { rules.filter(\.isEnabled).count }
@@ -20,8 +20,8 @@ struct StarterRulesStepView: View {
 
             ScrollView {
                 LazyVStack(spacing: 8) {
-                    ForEach(rules) { rule in
-                        StarterRuleRow(rule: rule)
+                    ForEach($rules) { $rule in
+                        StarterRuleRow(rule: $rule)
                     }
                 }
                 .padding(.horizontal, 24)
@@ -46,23 +46,17 @@ struct StarterRulesStepView: View {
 }
 
 struct StarterRuleRow: View {
-    let rule: StarterRule
-    @State private var isEnabled: Bool
-
-    init(rule: StarterRule) {
-        self.rule = rule
-        _isEnabled = State(initialValue: rule.isEnabled)
-    }
+    @Binding var rule: StarterRule
 
     var body: some View {
         HStack(spacing: 12) {
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(rule.color.opacity(isEnabled ? 0.15 : 0.06))
+                    .fill(rule.color.opacity(rule.isEnabled ? 0.15 : 0.06))
                     .frame(width: 36, height: 36)
                 Image(systemName: rule.icon)
                     .font(.system(size: 15))
-                    .foregroundStyle(isEnabled ? rule.color : .secondary)
+                    .foregroundStyle(rule.isEnabled ? rule.color : .secondary)
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -76,7 +70,7 @@ struct StarterRuleRow: View {
 
             Spacer()
 
-            Toggle("", isOn: $isEnabled)
+            Toggle("", isOn: $rule.isEnabled)
                 .toggleStyle(.switch)
                 .labelsHidden()
                 .scaleEffect(0.8)
@@ -85,19 +79,19 @@ struct StarterRuleRow: View {
         .padding(.vertical, 10)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(isEnabled
+                .fill(rule.isEnabled
                       ? rule.color.opacity(0.04)
                       : Color(nsColor: .controlBackgroundColor))
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(isEnabled
+                        .strokeBorder(rule.isEnabled
                                       ? rule.color.opacity(0.2)
                                       : Color.secondary.opacity(0.15),
                                       lineWidth: 0.5)
                 )
         )
-        .animation(.easeInOut(duration: 0.15), value: isEnabled)
+        .animation(.easeInOut(duration: 0.15), value: rule.isEnabled)
         .contentShape(Rectangle())
-        .onTapGesture { isEnabled.toggle() }
+        .onTapGesture { rule.isEnabled.toggle() }
     }
 }
