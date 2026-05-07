@@ -34,7 +34,7 @@ class RuleStore: ObservableObject {
     func deleteRule(_ rule: FMRule) {
         rules.removeAll { $0.id == rule.id }
         let descriptor = FetchDescriptor<FMRuleModel>(
-            where: #Predicate<FMRuleModel> { $0.id == rule.id }
+            predicate: #Predicate { $0.id == rule.id }
         )
         if let model = (try? modelContext.fetch(descriptor))?.first {
             modelContext.delete(model)

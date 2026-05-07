@@ -3,219 +3,503 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0816844ABDB2E7CCB834F955 /* RenameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1824A342A2C925CDB953A67 /* RenameEngine.swift */; };
+		0BB295AB93B794D7BEEF25A3 /* OnboardingStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F760D6A87EAAAEF9ED5B73B /* OnboardingStep.swift */; };
+		16DA7864BC01CE0D5FB2184B /* OnboardingCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB610479F62A2165FAFE31CD /* OnboardingCoordinatorView.swift */; };
+		1E68D3606E068084F929F678 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F68492F4F3043B8A32AD5B44 /* Assets.xcassets */; };
+		216BB1BC5767FC2A7E97BBC4 /* DoneStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B1860C32DFA52A8450BB411 /* DoneStepView.swift */; };
+		22CC5DCE1D9CB8247EF9A662 /* FolderPickerStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F098FF32830ABB2850328805 /* FolderPickerStepView.swift */; };
+		23BB235AC414AFA505BC9E0E /* ConflictResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A86AB54E7595097CB2BEF24E /* ConflictResolver.swift */; };
+		24369344BA142631E9B5421F /* SpotlightQuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9762FBC9D7145ECD07C38927 /* SpotlightQuickActions.swift */; };
+		30C1FDC50A0120DFC4E34E7E /* FMUndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E11EE0A2BB2AFE12FE7FE63 /* FMUndoManager.swift */; };
+		3F1366CA77D5467689A4E7C8 /* PermissionChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A363661774C29744144EA8F4 /* PermissionChecker.swift */; };
+		4BBC6C954E0E2EB83767056E /* FMPrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A573477EBF0D10975071261 /* FMPrimaryButtonStyle.swift */; };
+		4E8A84548BF2C1F00FBF0E3B /* FileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4935603205F3723FDB2C2524 /* FileWatcher.swift */; };
+		5D3BA5322340281FD3C5A428 /* MainWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCCDF34AE9B997BC3F32A4F /* MainWindowView.swift */; };
+		5F467E109414A645EFBA76F1 /* ActivityEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6267399C058252AB54AEB251 /* ActivityEntry.swift */; };
+		7E5305359078854957525D3D /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E449584CC3A6EBA056061356 /* AppState.swift */; };
+		872512DDE8710A8498F5EDDF /* WelcomeStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B19BE2476A4459C27FEDEB9 /* WelcomeStepView.swift */; };
+		99C75CE3E8AF6019BF10231D /* LicenseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0510EEE496DD1C8A366CC2 /* LicenseManager.swift */; };
+		9D4FB07D5EF5A509445777B9 /* FolderMindApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563640F452E64C9B40B2632B /* FolderMindApp.swift */; };
+		9EE3B264B59C9E3898C15E77 /* StarterRulesStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CA812293372CF39BEF7EE0 /* StarterRulesStepView.swift */; };
+		B30C5E2F6721CC2419D9F773 /* ProcessingStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBFFDFC2B6BC4828D23DE92B /* ProcessingStepView.swift */; };
+		BE1516C7421682458E003766 /* FMRuleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F718136EF901251F0BBC398F /* FMRuleModel.swift */; };
+		C7B11BE8F0E6E11347A014F6 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */; };
+		CA8C108EEF2C5531EFFB6936 /* StarterRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96B8B63DBC67873B8E574CF /* StarterRule.swift */; };
+		D5D5E4ECDA7C6DAA55FCE277 /* SpotlightIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6A9FC7E6A7E1803DCA0F18 /* SpotlightIndexer.swift */; };
+		D7230AFD7378F03954B6ECC6 /* RuleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F19C59304352326E013A20 /* RuleEngine.swift */; };
+		DDE7CDAF17070E6A48742A4E /* TahoeWindowWrappers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180F7EA55434288AC9612111 /* TahoeWindowWrappers.swift */; };
+		DE5185F22712019A5D283C38 /* RuleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC9121573B82F320BC730B5 /* RuleModel.swift */; };
+		F2DB6C34640B6B5E80C03F15 /* PermissionsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012678B9C81503603DCE2843 /* PermissionsStepView.swift */; };
+		F8C8C519EE9DDE025834FEF3 /* RuleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEC3AED58D2B463255C28D3E /* RuleStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		AA1111111111111111111111 /* FolderMind.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FolderMind.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		012678B9C81503603DCE2843 /* PermissionsStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsStepView.swift; sourceTree = "<group>"; };
+		180F7EA55434288AC9612111 /* TahoeWindowWrappers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TahoeWindowWrappers.swift; sourceTree = "<group>"; };
+		3B6B3268DC677FD747741038 /* FolderMind.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FolderMind.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3E11EE0A2BB2AFE12FE7FE63 /* FMUndoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FMUndoManager.swift; sourceTree = "<group>"; };
+		416DC71769B924C0EF5ACB35 /* FolderMind.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FolderMind.entitlements; sourceTree = "<group>"; };
+		4935603205F3723FDB2C2524 /* FileWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatcher.swift; sourceTree = "<group>"; };
+		4A573477EBF0D10975071261 /* FMPrimaryButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FMPrimaryButtonStyle.swift; sourceTree = "<group>"; };
+		563640F452E64C9B40B2632B /* FolderMindApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderMindApp.swift; sourceTree = "<group>"; };
+		6267399C058252AB54AEB251 /* ActivityEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityEntry.swift; sourceTree = "<group>"; };
+		64CA812293372CF39BEF7EE0 /* StarterRulesStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarterRulesStepView.swift; sourceTree = "<group>"; };
+		6B1860C32DFA52A8450BB411 /* DoneStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoneStepView.swift; sourceTree = "<group>"; };
+		7D6A9FC7E6A7E1803DCA0F18 /* SpotlightIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightIndexer.swift; sourceTree = "<group>"; };
+		7DCCDF34AE9B997BC3F32A4F /* MainWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowView.swift; sourceTree = "<group>"; };
+		8B19BE2476A4459C27FEDEB9 /* WelcomeStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStepView.swift; sourceTree = "<group>"; };
+		94F19C59304352326E013A20 /* RuleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleEngine.swift; sourceTree = "<group>"; };
+		9762FBC9D7145ECD07C38927 /* SpotlightQuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightQuickActions.swift; sourceTree = "<group>"; };
+		9F0510EEE496DD1C8A366CC2 /* LicenseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseManager.swift; sourceTree = "<group>"; };
+		9F760D6A87EAAAEF9ED5B73B /* OnboardingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStep.swift; sourceTree = "<group>"; };
+		A363661774C29744144EA8F4 /* PermissionChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionChecker.swift; sourceTree = "<group>"; };
+		A86AB54E7595097CB2BEF24E /* ConflictResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictResolver.swift; sourceTree = "<group>"; };
+		AB610479F62A2165FAFE31CD /* OnboardingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinatorView.swift; sourceTree = "<group>"; };
+		B96B8B63DBC67873B8E574CF /* StarterRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarterRule.swift; sourceTree = "<group>"; };
+		C1824A342A2C925CDB953A67 /* RenameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenameEngine.swift; sourceTree = "<group>"; };
+		E25B9785E7E283E24194E327 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E449584CC3A6EBA056061356 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		EBFFDFC2B6BC4828D23DE92B /* ProcessingStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingStepView.swift; sourceTree = "<group>"; };
+		EEC3AED58D2B463255C28D3E /* RuleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleStore.swift; sourceTree = "<group>"; };
+		F098FF32830ABB2850328805 /* FolderPickerStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderPickerStepView.swift; sourceTree = "<group>"; };
+		F68492F4F3043B8A32AD5B44 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		F718136EF901251F0BBC398F /* FMRuleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FMRuleModel.swift; sourceTree = "<group>"; };
+		FAC9121573B82F320BC730B5 /* RuleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		AA2222222222222222222222 = {
+		00DED5E944CC75C50A117CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				AA3333333333333333333333 /* FolderMind */,
-				AA4444444444444444444444 /* Products */,
+				F68492F4F3043B8A32AD5B44 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		324244AE60484BB942814AE1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3B6B3268DC677FD747741038 /* FolderMind.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		42535BBD1747929D3A1931AB /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6267399C058252AB54AEB251 /* ActivityEntry.swift */,
+				E449584CC3A6EBA056061356 /* AppState.swift */,
+				F718136EF901251F0BBC398F /* FMRuleModel.swift */,
+				9F760D6A87EAAAEF9ED5B73B /* OnboardingStep.swift */,
+				FAC9121573B82F320BC730B5 /* RuleModel.swift */,
+				B96B8B63DBC67873B8E574CF /* StarterRule.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		4F25D7D7BC7D945CF1FE4870 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				4A573477EBF0D10975071261 /* FMPrimaryButtonStyle.swift */,
+				F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		720EAE2956089F0D0E64D7C3 /* Tahoe */ = {
+			isa = PBXGroup;
+			children = (
+				180F7EA55434288AC9612111 /* TahoeWindowWrappers.swift */,
+			);
+			path = Tahoe;
+			sourceTree = "<group>";
+		};
+		7D8ABB0E951EB0D85D174155 = {
+			isa = PBXGroup;
+			children = (
+				BAA8FC4A8569681697F66A2D /* FolderMind */,
+				324244AE60484BB942814AE1 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		AA3333333333333333333333 /* FolderMind */ = {
+		93353F4C83C3966F118F152B /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
-				AA5555555555555555555555 /* FolderMindApp.swift */,
-				AA6666666666666666666666 /* Info.plist */,
-				AA7777777777777777777777 /* FolderMind.entitlements */,
+				6B1860C32DFA52A8450BB411 /* DoneStepView.swift */,
+				F098FF32830ABB2850328805 /* FolderPickerStepView.swift */,
+				AB610479F62A2165FAFE31CD /* OnboardingCoordinatorView.swift */,
+				012678B9C81503603DCE2843 /* PermissionsStepView.swift */,
+				EBFFDFC2B6BC4828D23DE92B /* ProcessingStepView.swift */,
+				64CA812293372CF39BEF7EE0 /* StarterRulesStepView.swift */,
+				8B19BE2476A4459C27FEDEB9 /* WelcomeStepView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		9A744F13E204DF8CC691AC63 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4F25D7D7BC7D945CF1FE4870 /* Components */,
+				F02BB492A663E9976A2879E4 /* MainWindow */,
+				93353F4C83C3966F118F152B /* Onboarding */,
+				720EAE2956089F0D0E64D7C3 /* Tahoe */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		BAA8FC4A8569681697F66A2D /* FolderMind */ = {
+			isa = PBXGroup;
+			children = (
+				42535BBD1747929D3A1931AB /* Models */,
+				00DED5E944CC75C50A117CEA /* Resources */,
+				E355BD793DB026AC13C3D724 /* Services */,
+				9A744F13E204DF8CC691AC63 /* Views */,
+				416DC71769B924C0EF5ACB35 /* FolderMind.entitlements */,
+				563640F452E64C9B40B2632B /* FolderMindApp.swift */,
+				E25B9785E7E283E24194E327 /* Info.plist */,
 			);
 			path = FolderMind;
 			sourceTree = "<group>";
 		};
-		AA4444444444444444444444 /* Products */ = {
+		E1D3D53EFA65051AF2C16AF2 /* Tahoe */ = {
 			isa = PBXGroup;
 			children = (
-				AA1111111111111111111111 /* FolderMind.app */,
+				7D6A9FC7E6A7E1803DCA0F18 /* SpotlightIndexer.swift */,
+				9762FBC9D7145ECD07C38927 /* SpotlightQuickActions.swift */,
 			);
-			name = Products;
+			path = Tahoe;
+			sourceTree = "<group>";
+		};
+		E355BD793DB026AC13C3D724 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				E1D3D53EFA65051AF2C16AF2 /* Tahoe */,
+				A86AB54E7595097CB2BEF24E /* ConflictResolver.swift */,
+				4935603205F3723FDB2C2524 /* FileWatcher.swift */,
+				3E11EE0A2BB2AFE12FE7FE63 /* FMUndoManager.swift */,
+				9F0510EEE496DD1C8A366CC2 /* LicenseManager.swift */,
+				A363661774C29744144EA8F4 /* PermissionChecker.swift */,
+				C1824A342A2C925CDB953A67 /* RenameEngine.swift */,
+				94F19C59304352326E013A20 /* RuleEngine.swift */,
+				EEC3AED58D2B463255C28D3E /* RuleStore.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		F02BB492A663E9976A2879E4 /* MainWindow */ = {
+			isa = PBXGroup;
+			children = (
+				7DCCDF34AE9B997BC3F32A4F /* MainWindowView.swift */,
+			);
+			path = MainWindow;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AA8888888888888888888888 /* FolderMind */ = {
+		BC679BF877AFD51B0784FA2E /* FolderMind */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AA9999999999999999999999 /* Build configuration list for PBXNativeTarget "FolderMind" */;
+			buildConfigurationList = D184B3D82C40FF24CCF681EE /* Build configuration list for PBXNativeTarget "FolderMind" */;
 			buildPhases = (
-				AABBBBBBBBBBBBBBBBBBBBBB /* Sources */,
-				AACCCCCCCCCCCCCCCCCCCCCC /* Frameworks */,
-				AADDDDDDDDDDDDDDDDDDDDDD /* Resources */,
+				BE457E41ECB9746B4F0083F3 /* Sources */,
+				FE8C088E107CD9CA1846ACE4 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = FolderMind;
+			packageProductDependencies = (
+			);
 			productName = FolderMind;
-			productReference = AA1111111111111111111111 /* FolderMind.app */;
+			productReference = 3B6B3268DC677FD747741038 /* FolderMind.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		AAEEEEEEEEEEEEEEEEEEEEEE /* Project object */ = {
+		B30A4CFDD9A34D460D50C860 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1500;
+				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					BC679BF877AFD51B0784FA2E = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
-			buildConfigurationList = AAFFFFFFFFFFFFFFFFFFFFFF /* Build configuration list for PBXProject "FolderMind" */;
-			compatibilityVersion = "Xcode 14.0";
+			buildConfigurationList = 490D68F97FABFE1807DB1B7B /* Build configuration list for PBXProject "FolderMind" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				Base,
+				en,
 			);
-			mainGroup = AA2222222222222222222222;
-			productRefGroup = AA4444444444444444444444 /* Products */;
+			mainGroup = 7D8ABB0E951EB0D85D174155;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 324244AE60484BB942814AE1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AA8888888888888888888888 /* FolderMind */,
+				BC679BF877AFD51B0784FA2E /* FolderMind */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin XCBuildConfiguration section */
-		AA111111111111111111111A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_TESTABILITY = YES;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-			};
-			name = Debug;
+/* Begin PBXResourcesBuildPhase section */
+		FE8C088E107CD9CA1846ACE4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1E68D3606E068084F929F678 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AA111111111111111111111B /* Release */ = {
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BE457E41ECB9746B4F0083F3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5F467E109414A645EFBA76F1 /* ActivityEntry.swift in Sources */,
+				7E5305359078854957525D3D /* AppState.swift in Sources */,
+				23BB235AC414AFA505BC9E0E /* ConflictResolver.swift in Sources */,
+				216BB1BC5767FC2A7E97BBC4 /* DoneStepView.swift in Sources */,
+				4BBC6C954E0E2EB83767056E /* FMPrimaryButtonStyle.swift in Sources */,
+				BE1516C7421682458E003766 /* FMRuleModel.swift in Sources */,
+				30C1FDC50A0120DFC4E34E7E /* FMUndoManager.swift in Sources */,
+				4E8A84548BF2C1F00FBF0E3B /* FileWatcher.swift in Sources */,
+				9D4FB07D5EF5A509445777B9 /* FolderMindApp.swift in Sources */,
+				22CC5DCE1D9CB8247EF9A662 /* FolderPickerStepView.swift in Sources */,
+				99C75CE3E8AF6019BF10231D /* LicenseManager.swift in Sources */,
+				5D3BA5322340281FD3C5A428 /* MainWindowView.swift in Sources */,
+				C7B11BE8F0E6E11347A014F6 /* MenuBarView.swift in Sources */,
+				16DA7864BC01CE0D5FB2184B /* OnboardingCoordinatorView.swift in Sources */,
+				0BB295AB93B794D7BEEF25A3 /* OnboardingStep.swift in Sources */,
+				3F1366CA77D5467689A4E7C8 /* PermissionChecker.swift in Sources */,
+				F2DB6C34640B6B5E80C03F15 /* PermissionsStepView.swift in Sources */,
+				B30C5E2F6721CC2419D9F773 /* ProcessingStepView.swift in Sources */,
+				0816844ABDB2E7CCB834F955 /* RenameEngine.swift in Sources */,
+				D7230AFD7378F03954B6ECC6 /* RuleEngine.swift in Sources */,
+				DE5185F22712019A5D283C38 /* RuleModel.swift in Sources */,
+				F8C8C519EE9DDE025834FEF3 /* RuleStore.swift in Sources */,
+				D5D5E4ECDA7C6DAA55FCE277 /* SpotlightIndexer.swift in Sources */,
+				24369344BA142631E9B5421F /* SpotlightQuickActions.swift in Sources */,
+				CA8C108EEF2C5531EFFB6936 /* StarterRule.swift in Sources */,
+				9EE3B264B59C9E3898C15E77 /* StarterRulesStepView.swift in Sources */,
+				DDE7CDAF17070E6A48742A4E /* TahoeWindowWrappers.swift in Sources */,
+				872512DDE8710A8498F5EDDF /* WelcomeStepView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		04BF408C2F1302710D592BF9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = FolderMind/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.foldermind.mac;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		3728D6230609DE53DD6D8CD6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = FolderMind/FolderMind.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = FolderMind;
+				INFOPLIST_KEY_NSFullDiskAccessUsageDescription = "FolderMind needs Full Disk Access to watch and organise your folders. Your files never leave your Mac.";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
 			};
 			name = Release;
 		};
-		AA222222222222222222222A /* Debug */ = {
+		3999C327900F42FDB4F30BC3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = FolderMind/FolderMind.entitlements;
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = FolderMind/Info.plist;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSMainStoryboardFile = "";
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
-					"@executable_path/../Frameworks",
+					"DEBUG=1",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.foldermind.mac;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = FolderMind;
+				INFOPLIST_KEY_NSFullDiskAccessUsageDescription = "FolderMind needs Full Disk Access to watch and organise your folders. Your files never leave your Mac.";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
 			};
 			name = Debug;
 		};
-		AA222222222222222222222B /* Release */ = {
+		B2B7887145E10980000F7F68 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = FolderMind/FolderMind.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
-				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FolderMind/Info.plist;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSMainStoryboardFile = "";
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.foldermind.mac;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.9;
+				SDKROOT = macosx;
 			};
-			name = Release;
+			name = Debug;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AAFFFFFFFFFFFFFFFFFFFFFF /* Build configuration list for PBXProject "FolderMind" */ = {
+		490D68F97FABFE1807DB1B7B /* Build configuration list for PBXProject "FolderMind" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				AA111111111111111111111A /* Debug */,
-				AA111111111111111111111B /* Release */,
+				3999C327900F42FDB4F30BC3 /* Debug */,
+				3728D6230609DE53DD6D8CD6 /* Release */,
 			);
-			defaultConfigurationIsName = "Release";
-			defaultConfigurationName = "Release";
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
 		};
-		AA9999999999999999999999 /* Build configuration list for PBXNativeTarget "FolderMind" */ = {
+		D184B3D82C40FF24CCF681EE /* Build configuration list for PBXNativeTarget "FolderMind" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				AA222222222222222222222A /* Debug */,
-				AA222222222222222222222B /* Release */,
+				B2B7887145E10980000F7F68 /* Debug */,
+				04BF408C2F1302710D592BF9 /* Release */,
 			);
-			defaultConfigurationIsName = "Release";
-			defaultConfigurationName = "Release";
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = AAEEEEEEEEEEEEEEEEEEEEEE /* Project object */;
+	rootObject = B30A4CFDD9A34D460D50C860 /* Project object */;
 }

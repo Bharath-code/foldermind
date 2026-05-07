@@ -34,7 +34,7 @@ struct DoneStepView: View {
             .padding(.vertical, 8)
             .background(
                 Capsule()
-                    .fill(Color.accentColor.opacity(0.08))
+                    .fill(Color.blue.opacity(0.08))
             )
 
             Text("All reversible. Every action is logged in the activity feed.")

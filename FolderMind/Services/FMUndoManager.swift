@@ -72,7 +72,7 @@ class FMUndoManager: ObservableObject {
     func clearOlderThan(_ days: Int) {
         let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
         let descriptor = FetchDescriptor<ActivityEntry>(
-            where: #Predicate<ActivityEntry> { $0.timestamp < cutoff }
+            predicate: #Predicate { $0.timestamp < cutoff }
         )
         if let old = try? modelContext.fetch(descriptor) {
             for entry in old {

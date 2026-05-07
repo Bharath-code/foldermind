@@ -70,11 +70,11 @@ struct PermissionStep: View {
         HStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(Color.accentColor.opacity(0.12))
+                    .fill(Color.blue.opacity(0.12))
                     .frame(width: 24, height: 24)
                 Text("\(number)")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.accentColor)
+                    .foregroundStyle(.blue)
             }
             Text(text)
                 .font(.system(size: 13))

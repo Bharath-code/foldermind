@@ -5,7 +5,6 @@ struct SpotlightQuickActions {
         let activity = NSUserActivity(activityType: "app.foldermind.organizeFolder")
         activity.title = "Organize Folder with FolderMind"
         activity.isEligibleForSearch = true
-        activity.isEligibleForPrediction = true
         activity.persistentIdentifier = "organize-folder"
         activity.becomeCurrent()
     }
@@ -14,7 +13,6 @@ struct SpotlightQuickActions {
         let activity = NSUserActivity(activityType: "app.foldermind.toggleRule")
         activity.title = "\(rule.isEnabled ? "Disable" : "Enable"): \(rule.name)"
         activity.isEligibleForSearch = true
-        activity.isEligibleForPrediction = true
         activity.userInfo = ["ruleID": rule.id.uuidString]
         activity.becomeCurrent()
     }

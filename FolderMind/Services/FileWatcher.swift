@@ -1,34 +1,34 @@
 import Foundation
 
-actor FileWatcher {
+class FileWatcher {
     private var streamRef: FSEventStreamRef?
     private let watchedURL: URL
     private let debouncer = EventDebouncer(window: 0.5)
-    private var onChange: ([FileEvent]) async -> Void
+    private let onChange: ([FileEvent]) async -> Void
+    private let eventQueue = DispatchQueue(label: "com.foldermind.filewatcher")
+    private var context: UnsafeMutablePointer<FileWatcherContext>?
 
     init(watchedURL: URL, onChange: @escaping ([FileEvent]) async -> Void) {
         self.watchedURL = watchedURL
         self.onChange = onChange
     }
 
+    deinit {
+        stop()
+    }
+
     func start() throws {
-        var context = FSEventStreamContext(
+        let ctx = UnsafeMutablePointer<FileWatcherContext>.allocate(capacity: 1)
+        ctx.initialize(to: FileWatcherContext(watcher: self))
+        context = ctx
+
+        var fsContext = FSEventStreamContext(
             version: 0,
-            info: Unmanaged.passUnretained(self).toOpaque(),
-            retain: nil, release: nil, copyDescription: nil
+            info: UnsafeMutableRawPointer(ctx),
+            retain: nil,
+            release: nil,
+            copyDescription: nil
         )
-
-        let callback: FSEventStreamCallback = {
-            _, clientCallBackInfo, numEvents, eventPaths, eventFlags, eventIds in
-            let paths = Unmanaged<CFArray>.fromOpaque(eventPaths).takeUnretainedValue() as! [String]
-            let flags = eventFlags.withMemoryRebound(to: FSEventStreamEventFlags.self, capacity: numEvents) {
-                Array(UnsafeBufferPointer(start: $0, count: numEvents))
-            }
-
-            Task {
-                await self.handleEvents(paths: paths, flags: flags)
-            }
-        }
 
         let flags: FSEventStreamCreateFlags =
             UInt32(kFSEventStreamCreateFlagFileEvents) |
@@ -36,8 +36,8 @@ actor FileWatcher {
 
         streamRef = FSEventStreamCreate(
             kCFAllocatorDefault,
-            callback,
-            &context,
+            fileWatcherCallback,
+            &fsContext,
             [watchedURL.path] as CFArray,
             FSEventStreamEventId(kFSEventStreamEventIdSinceNow),
             0.1,
@@ -45,10 +45,13 @@ actor FileWatcher {
         )
 
         guard let stream = streamRef else {
+            ctx.deinitialize(count: 1)
+            ctx.deallocate()
+            context = nil
             throw FileWatcherError.streamCreationFailed
         }
 
-        FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), CFRunLoopMode.defaultMode.rawValue)
+        FSEventStreamSetDispatchQueue(stream, eventQueue)
         FSEventStreamStart(stream)
     }
 
@@ -58,18 +61,45 @@ actor FileWatcher {
         FSEventStreamInvalidate(stream)
         FSEventStreamRelease(stream)
         streamRef = nil
+
+        if let ctx = context {
+            ctx.deinitialize(count: 1)
+            ctx.deallocate()
+            context = nil
+        }
     }
 
-    private func handleEvents(paths: [String], flags: [FSEventStreamEventFlags]) async {
+    func handleEvents(paths: [String], flags: [FSEventStreamEventFlags]) {
         let events = zip(paths, flags).compactMap { path, flag -> FileEvent? in
             FileEvent(path: path, flags: flag)
         }
 
-        let stableEvents = await debouncer.add(events)
-        guard !stableEvents.isEmpty else { return }
-
-        await onChange(stableEvents)
+        Task {
+            let stableEvents = await debouncer.add(events)
+            guard !stableEvents.isEmpty else { return }
+            await onChange(stableEvents)
+        }
     }
+}
+
+private struct FileWatcherContext {
+    let watcher: FileWatcher
+}
+
+private func fileWatcherCallback(
+    streamRef: ConstFSEventStreamRef,
+    clientCallBackInfo: UnsafeMutableRawPointer?,
+    numEvents: Int,
+    eventPaths: UnsafeMutableRawPointer,
+    eventFlags: UnsafePointer<FSEventStreamEventFlags>,
+    eventIds: UnsafePointer<FSEventStreamEventId>
+) {
+    guard let context = clientCallBackInfo?.assumingMemoryBound(to: FileWatcherContext.self) else { return }
+    let paths = Unmanaged<CFArray>.fromOpaque(eventPaths).takeUnretainedValue() as! [String]
+    let flags = eventFlags.withMemoryRebound(to: FSEventStreamEventFlags.self, capacity: numEvents) {
+        Array(UnsafeBufferPointer(start: $0, count: numEvents))
+    }
+    context.pointee.watcher.handleEvents(paths: paths, flags: flags)
 }
 
 struct FileEvent: Sendable {
@@ -115,7 +145,7 @@ actor EventDebouncer {
             try? await Task.sleep(nanoseconds: UInt64(window * 1_000_000_000))
             guard !Task.isCancelled else { return }
         }
-        try? await timerTask?.value
+        await timerTask?.value
         let result = buffer
         buffer.removeAll()
         return result

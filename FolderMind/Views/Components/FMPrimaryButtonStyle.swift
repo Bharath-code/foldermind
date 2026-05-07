@@ -12,7 +12,7 @@ struct FMPrimaryButtonStyle: ButtonStyle {
             .background(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(isEnabled
-                          ? Color.accentColor
+                          ? Color.blue
                           : Color.secondary.opacity(0.3))
             )
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)

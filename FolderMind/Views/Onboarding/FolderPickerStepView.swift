@@ -19,7 +19,7 @@ struct FolderPickerStepView: View {
 
             RoundedRectangle(cornerRadius: 16)
                 .strokeBorder(
-                    isDraggingOver ? Color.accentColor : Color.secondary.opacity(0.3),
+                    isDraggingOver ? Color.blue : Color.secondary.opacity(0.3),
                     style: StrokeStyle(lineWidth: 2, dash: [8, 4])
                 )
                 .frame(height: 160)
@@ -47,7 +47,7 @@ struct FolderPickerStepView: View {
                                 .foregroundStyle(.tertiary)
                             Button("Browse…") { openFolderPicker() }
                                 .buttonStyle(.borderless)
-                                .foregroundStyle(.accentColor)
+                                .foregroundStyle(.blue)
                         }
                     }
                 }

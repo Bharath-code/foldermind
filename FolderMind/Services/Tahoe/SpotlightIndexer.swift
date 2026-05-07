@@ -1,6 +1,8 @@
 import Foundation
+import AppKit
 import CoreSpotlight
 import UniformTypeIdentifiers
+import os
 
 struct SpotlightIndexer {
     static func indexOrganizedFile(
@@ -20,9 +22,8 @@ struct SpotlightIndexer {
         ]
         attributeSet.path = destinationURL.path
 
-        if let icon = NSWorkspace.shared.icon(forFile: destinationURL.path) {
-            attributeSet.thumbnailData = icon.tiffRepresentation
-        }
+        let icon = NSWorkspace.shared.icon(forFile: destinationURL.path)
+        attributeSet.thumbnailData = icon.tiffRepresentation
 
         let item = CSSearchableItem(
             uniqueIdentifier: entryID,
@@ -32,7 +33,7 @@ struct SpotlightIndexer {
 
         CSSearchableIndex.default().indexSearchableItems([item]) { error in
             if let error = error {
-                os_log("Spotlight indexing error: %{public}@", type: .error, error.localizedDescription)
+                Logger.spotlightIndexer.error("Spotlight indexing error: \(error.localizedDescription)")
             }
         }
     }
@@ -55,4 +56,8 @@ struct SpotlightIndexer {
 
         CSSearchableIndex.default().indexSearchableItems([item])
     }
+}
+
+extension Logger {
+    static let spotlightIndexer = Logger(subsystem: "app.foldermind.mac", category: "SpotlightIndexer")
 }
