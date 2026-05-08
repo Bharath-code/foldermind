@@ -37,9 +37,17 @@ struct MainWindowView: View {
                 }
             }
         }
-        .sheet(isPresented: $isShowingRuleBuilder) {
-            RuleBuilderView(existingRule: editingRule)
+        .sheet(item: $editingRule) { rule in
+            RuleBuilderView(existingRule: rule)
                 .environmentObject(ruleStore)
+                .id(rule.id) // Force fresh state for each rule
+        }
+        .sheet(isPresented: $isShowingRuleBuilder, onDismiss: { editingRule = nil }) {
+            if editingRule == nil {
+                RuleBuilderView(existingRule: nil)
+                    .environmentObject(ruleStore)
+                    .id("new-rule")
+            }
         }
     }
 }

@@ -1,0 +1,40 @@
+# FolderMind .gitignore
+
+# XcodeGen
+# Since we use project.yml to generate the project, we ignore the .xcodeproj
+FolderMind.xcodeproj/
+
+# Xcode
+# ========================
+build/
+DerivedData/
+*.moved-aside
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.xcuserdatad/
+.xcworkspace/
+
+# SwiftData / CoreData
+# ========================
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Dependencies
+# ========================
+.swiftpm/
+.build/
+Packages/
+
+# System Files
+# ========================
+.DS_Store
+*.swp
+*~
+
+# App Specific
+# ========================
+FolderMind.dmg
+graphify-out/
+.graphify_history/

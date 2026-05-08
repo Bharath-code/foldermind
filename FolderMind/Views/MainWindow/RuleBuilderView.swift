@@ -265,6 +265,9 @@ struct RuleBuilderView: View {
         case .nameStartsWith:
             let value = nameText.trimmingCharacters(in: .whitespacesAndNewlines)
             return value.isEmpty ? [] : [.nameStartsWith(value)]
+        case .nameEndsWith:
+            let value = nameText.trimmingCharacters(in: .whitespacesAndNewlines)
+            return value.isEmpty ? [] : [.nameEndsWith(value)]
         }
     }
 
@@ -296,6 +299,7 @@ struct RuleBuilderView: View {
             priority: existingRule?.priority ?? ruleStore.rules.count
         )
 
+        print("[RuleBuilder] Saving rule: \(rule.name) (\(rule.id)) with \(rule.conditions.count) conditions")
         ruleStore.saveRule(rule)
         dismiss()
     }
@@ -358,6 +362,7 @@ private enum ConditionBuilderType: String, CaseIterable, Identifiable {
     case fileExtension
     case nameContains
     case nameStartsWith
+    case nameEndsWith
 
     var id: String { rawValue }
 
@@ -366,17 +371,21 @@ private enum ConditionBuilderType: String, CaseIterable, Identifiable {
         case .fileExtension: return "Extension"
         case .nameContains: return "Name contains"
         case .nameStartsWith: return "Name starts with"
+        case .nameEndsWith: return "Name ends with"
         }
     }
 
     init(from condition: RuleCondition?) {
-        switch condition {
-        case .nameContains:
-            self = .nameContains
-        case .nameStartsWith:
-            self = .nameStartsWith
-        default:
+        guard let condition else {
             self = .fileExtension
+            return
+        }
+        switch condition {
+        case .extensionIs: self = .fileExtension
+        case .nameContains: self = .nameContains
+        case .nameStartsWith: self = .nameStartsWith
+        case .nameEndsWith: self = .nameEndsWith
+        default: self = .fileExtension // Fallback for complex conditions not yet in builder
         }
     }
 }
@@ -397,13 +406,15 @@ private enum ActionBuilderType: String, CaseIterable, Identifiable {
     }
 
     init(from action: RuleAction?) {
-        switch action {
-        case .copyToFolder:
-            self = .copy
-        case .renameWith:
-            self = .rename
-        default:
+        guard let action else {
             self = .move
+            return
+        }
+        switch action {
+        case .moveToFolder: self = .move
+        case .copyToFolder: self = .copy
+        case .renameWith: self = .rename
+        default: self = .move // Fallback for other action types
         }
     }
 }
@@ -421,7 +432,7 @@ private extension FMRule {
     var nameSeed: String {
         for condition in conditions {
             switch condition {
-            case .nameContains(let value), .nameStartsWith(let value):
+            case .nameContains(let value), .nameStartsWith(let value), .nameEndsWith(let value):
                 return value
             default:
                 continue

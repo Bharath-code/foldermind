@@ -5,7 +5,7 @@ actor RuleEngine {
 
     func evaluate(rule: FMRule, for fileURL: URL) -> Bool {
         let results = rule.conditions.map { condition in
-            evaluateCondition(condition, for: fileURL)
+            evaluateCondition(condition, for: fileURL, watchedFolder: rule.watchedFolderURL)
         }
         return rule.conditionLogic == .all
             ? results.allSatisfy { $0 }
@@ -67,7 +67,7 @@ actor RuleEngine {
         }
     }
 
-    private func evaluateCondition(_ condition: RuleCondition, for url: URL) -> Bool {
+    private func evaluateCondition(_ condition: RuleCondition, for url: URL, watchedFolder: URL) -> Bool {
         let name = url.lastPathComponent
         let ext = url.pathExtension.lowercased()
         let attrs = try? FileManager.default.attributesOfItem(atPath: url.path)
@@ -96,8 +96,13 @@ actor RuleEngine {
         case .dateModifiedWithinDays(let days):
             let modified = attrs?[.modificationDate] as? Date ?? Date.distantPast
             return Date().timeIntervalSince(modified) < Double(days) * 86400
-        case .isInSubfolder(let inSub):
-            return inSub
+        case .isInSubfolder(let shouldBeInSubfolder):
+            // A file is "in a subfolder" when its parent directory is NOT the watched folder root.
+            // Compare standardised paths to avoid symlink / trailing-slash mismatches.
+            let fileParent = url.deletingLastPathComponent().standardizedFileURL.path
+            let watchedRoot = watchedFolder.standardizedFileURL.path
+            let isActuallyInSubfolder = fileParent != watchedRoot
+            return isActuallyInSubfolder == shouldBeInSubfolder
         }
     }
 

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0816844ABDB2E7CCB834F955 /* RenameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1824A342A2C925CDB953A67 /* RenameEngine.swift */; };
+		08764E46C351208A88DB8DE7 /* RuleBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D445A58C5E4CD3C1CC0F8B24 /* RuleBuilderView.swift */; };
 		0BB295AB93B794D7BEEF25A3 /* OnboardingStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F760D6A87EAAAEF9ED5B73B /* OnboardingStep.swift */; };
 		16DA7864BC01CE0D5FB2184B /* OnboardingCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB610479F62A2165FAFE31CD /* OnboardingCoordinatorView.swift */; };
 		1E68D3606E068084F929F678 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F68492F4F3043B8A32AD5B44 /* Assets.xcassets */; };
@@ -21,12 +22,12 @@
 		4E8A84548BF2C1F00FBF0E3B /* FileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4935603205F3723FDB2C2524 /* FileWatcher.swift */; };
 		5D3BA5322340281FD3C5A428 /* MainWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCCDF34AE9B997BC3F32A4F /* MainWindowView.swift */; };
 		5F467E109414A645EFBA76F1 /* ActivityEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6267399C058252AB54AEB251 /* ActivityEntry.swift */; };
-		65C6122D2B7F4A1392C3B0AA /* RuleBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C6122C2B7F4A1392C3B0AA /* RuleBuilderView.swift */; };
 		7E5305359078854957525D3D /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E449584CC3A6EBA056061356 /* AppState.swift */; };
 		872512DDE8710A8498F5EDDF /* WelcomeStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B19BE2476A4459C27FEDEB9 /* WelcomeStepView.swift */; };
 		99C75CE3E8AF6019BF10231D /* LicenseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0510EEE496DD1C8A366CC2 /* LicenseManager.swift */; };
 		9D4FB07D5EF5A509445777B9 /* FolderMindApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563640F452E64C9B40B2632B /* FolderMindApp.swift */; };
 		9EE3B264B59C9E3898C15E77 /* StarterRulesStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CA812293372CF39BEF7EE0 /* StarterRulesStepView.swift */; };
+		A326D1DA1FAC5A3393CF5025 /* FileWatchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2CB8C9A510DCCAE558645C4 /* FileWatchCoordinator.swift */; };
 		B30C5E2F6721CC2419D9F773 /* ProcessingStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBFFDFC2B6BC4828D23DE92B /* ProcessingStepView.swift */; };
 		BE1516C7421682458E003766 /* FMRuleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F718136EF901251F0BBC398F /* FMRuleModel.swift */; };
 		C7B11BE8F0E6E11347A014F6 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */; };
@@ -50,7 +51,6 @@
 		563640F452E64C9B40B2632B /* FolderMindApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderMindApp.swift; sourceTree = "<group>"; };
 		6267399C058252AB54AEB251 /* ActivityEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityEntry.swift; sourceTree = "<group>"; };
 		64CA812293372CF39BEF7EE0 /* StarterRulesStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarterRulesStepView.swift; sourceTree = "<group>"; };
-		65C6122C2B7F4A1392C3B0AA /* RuleBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleBuilderView.swift; sourceTree = "<group>"; };
 		6B1860C32DFA52A8450BB411 /* DoneStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoneStepView.swift; sourceTree = "<group>"; };
 		7D6A9FC7E6A7E1803DCA0F18 /* SpotlightIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightIndexer.swift; sourceTree = "<group>"; };
 		7DCCDF34AE9B997BC3F32A4F /* MainWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowView.swift; sourceTree = "<group>"; };
@@ -64,11 +64,13 @@
 		AB610479F62A2165FAFE31CD /* OnboardingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinatorView.swift; sourceTree = "<group>"; };
 		B96B8B63DBC67873B8E574CF /* StarterRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarterRule.swift; sourceTree = "<group>"; };
 		C1824A342A2C925CDB953A67 /* RenameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenameEngine.swift; sourceTree = "<group>"; };
+		D445A58C5E4CD3C1CC0F8B24 /* RuleBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleBuilderView.swift; sourceTree = "<group>"; };
 		E25B9785E7E283E24194E327 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E449584CC3A6EBA056061356 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		EBFFDFC2B6BC4828D23DE92B /* ProcessingStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingStepView.swift; sourceTree = "<group>"; };
 		EEC3AED58D2B463255C28D3E /* RuleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleStore.swift; sourceTree = "<group>"; };
 		F098FF32830ABB2850328805 /* FolderPickerStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderPickerStepView.swift; sourceTree = "<group>"; };
+		F2CB8C9A510DCCAE558645C4 /* FileWatchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatchCoordinator.swift; sourceTree = "<group>"; };
 		F68492F4F3043B8A32AD5B44 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		F718136EF901251F0BBC398F /* FMRuleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FMRuleModel.swift; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 			children = (
 				E1D3D53EFA65051AF2C16AF2 /* Tahoe */,
 				A86AB54E7595097CB2BEF24E /* ConflictResolver.swift */,
+				F2CB8C9A510DCCAE558645C4 /* FileWatchCoordinator.swift */,
 				4935603205F3723FDB2C2524 /* FileWatcher.swift */,
 				3E11EE0A2BB2AFE12FE7FE63 /* FMUndoManager.swift */,
 				9F0510EEE496DD1C8A366CC2 /* LicenseManager.swift */,
@@ -198,7 +201,7 @@
 			isa = PBXGroup;
 			children = (
 				7DCCDF34AE9B997BC3F32A4F /* MainWindowView.swift */,
-				65C6122C2B7F4A1392C3B0AA /* RuleBuilderView.swift */,
+				D445A58C5E4CD3C1CC0F8B24 /* RuleBuilderView.swift */,
 			);
 			path = MainWindow;
 			sourceTree = "<group>";
@@ -281,6 +284,7 @@
 				4BBC6C954E0E2EB83767056E /* FMPrimaryButtonStyle.swift in Sources */,
 				BE1516C7421682458E003766 /* FMRuleModel.swift in Sources */,
 				30C1FDC50A0120DFC4E34E7E /* FMUndoManager.swift in Sources */,
+				A326D1DA1FAC5A3393CF5025 /* FileWatchCoordinator.swift in Sources */,
 				4E8A84548BF2C1F00FBF0E3B /* FileWatcher.swift in Sources */,
 				9D4FB07D5EF5A509445777B9 /* FolderMindApp.swift in Sources */,
 				22CC5DCE1D9CB8247EF9A662 /* FolderPickerStepView.swift in Sources */,
@@ -293,7 +297,7 @@
 				F2DB6C34640B6B5E80C03F15 /* PermissionsStepView.swift in Sources */,
 				B30C5E2F6721CC2419D9F773 /* ProcessingStepView.swift in Sources */,
 				0816844ABDB2E7CCB834F955 /* RenameEngine.swift in Sources */,
-				65C6122D2B7F4A1392C3B0AA /* RuleBuilderView.swift in Sources */,
+				08764E46C351208A88DB8DE7 /* RuleBuilderView.swift in Sources */,
 				D7230AFD7378F03954B6ECC6 /* RuleEngine.swift in Sources */,
 				DE5185F22712019A5D283C38 /* RuleModel.swift in Sources */,
 				F8C8C519EE9DDE025834FEF3 /* RuleStore.swift in Sources */,

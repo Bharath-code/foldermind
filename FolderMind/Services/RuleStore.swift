@@ -27,7 +27,13 @@ class RuleStore: ObservableObject {
     func save() {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
-        try? encoder.encode(rules).write(to: storageURL)
+        do {
+            let data = try encoder.encode(rules)
+            try data.write(to: storageURL)
+            print("[RuleStore] Successfully saved \(rules.count) rules to \(storageURL.lastPathComponent)")
+        } catch {
+            print("[RuleStore] FAILED to save rules: \(error)")
+        }
     }
 
     func saveRule(_ rule: FMRule) {

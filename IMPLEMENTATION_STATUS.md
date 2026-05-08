@@ -67,8 +67,8 @@
 | 3.4 | Event classification from FSEvent flags | ✅ | Maps `kFSEventStreamEventFlag*` to `FileEvent.EventType` |
 | 3.5 | Ignore metadata-only events | ✅ | Returns `nil` for non-file-change events |
 | 3.6 | FileWatcherError enum | ✅ | `streamCreationFailed` case |
-| 3.7 | Watcher lifecycle management | ⬜ | Start on app launch, stop on quit, restart on folder change |
-| 3.8 | Multiple folder watching | ⬜ | Support watching multiple folders simultaneously |
+| 3.7 | Watcher lifecycle management | ✅ | Start on app launch, stop on quit, restart on folder change |
+| 3.8 | Multiple folder watching | ✅ | Support watching multiple folders simultaneously |
 | 3.9 | Recursive subfolder watching | ✅ | FSEvents handles this natively via `kFSEventStreamCreateFlagFileEvents` |
 
 ## 4. Rule Engine
