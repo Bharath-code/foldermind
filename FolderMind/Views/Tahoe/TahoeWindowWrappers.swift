@@ -77,9 +77,10 @@ struct MainWindowView_Tahoe: View {
                 }
             }
         }
-        .sheet(isPresented: $isShowingRuleBuilder) {
+        .sheet(isPresented: $isShowingRuleBuilder, onDismiss: { editingRule = nil }) {
             RuleBuilderView(existingRule: editingRule)
                 .environmentObject(ruleStore)
+                .id(editingRule?.id.uuidString ?? "new-rule")
         }
     }
 }

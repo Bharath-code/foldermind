@@ -2,21 +2,23 @@ import SwiftUI
 
 struct PermissionsStepView: View {
     @State private var hasPermission = false
+    @State private var showManualOption = false
     var onAdvance: () -> Void
 
     var body: some View {
         VStack(spacing: 28) {
             Spacer()
 
-            Image(systemName: "lock.shield")
+            Image(systemName: hasPermission ? "lock.shield.fill" : "lock.shield")
                 .font(.system(size: 48))
-                .foregroundStyle(.blue)
+                .foregroundStyle(hasPermission ? .green : .blue)
                 .symbolRenderingMode(.hierarchical)
+                .animation(.spring(duration: 0.4), value: hasPermission)
 
             VStack(spacing: 8) {
                 Text("One permission needed")
                     .font(.system(size: 22, weight: .semibold))
-                Text("FolderMind needs to see your folders.\nYour files never leave your Mac — ever.")
+                Text("FolderMind needs Full Disk Access to watch folders.\nYour files never leave your Mac — ever.")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -25,8 +27,8 @@ struct PermissionsStepView: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 PermissionStep(number: 1, text: "Click \"Open System Settings\" below")
-                PermissionStep(number: 2, text: "Find FolderMind in the list and toggle it on")
-                PermissionStep(number: 3, text: "Come back here — it detects automatically")
+                PermissionStep(number: 2, text: "Find FolderMind in the Full Disk Access list")
+                PermissionStep(number: 3, text: "Toggle it ON — then come back here")
             }
             .padding(.horizontal, 48)
 
@@ -34,31 +36,50 @@ struct PermissionsStepView: View {
 
             VStack(spacing: 12) {
                 if hasPermission {
-                    Label("Permission granted", systemImage: "checkmark.circle.fill")
+                    Label("Full Disk Access granted", systemImage: "checkmark.circle.fill")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(.green)
+                        .transition(.scale.combined(with: .opacity))
                 }
 
-                Button(hasPermission ? "Continue" : "Open System Settings") {
+                Button(hasPermission ? "Continue →" : "Open System Settings") {
                     if hasPermission {
                         onAdvance()
                     } else {
                         PermissionChecker.openSystemSettings()
+                        // Show manual bypass after a short delay
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                            withAnimation { showManualOption = true }
+                        }
                     }
                 }
                 .buttonStyle(FMPrimaryButtonStyle())
+
+                // Manual bypass — shown after user has opened Settings
+                // Handles edge cases where auto-detection fails.
+                if showManualOption && !hasPermission {
+                    Button("I've granted access — skip check") {
+                        onAdvance()
+                    }
+                    .font(.system(size: 13))
+                    .foregroundStyle(.secondary)
+                    .buttonStyle(.plain)
+                    .transition(.opacity)
+                }
             }
+            .animation(.easeInOut, value: showManualOption)
             .padding(.bottom, 40)
         }
+        .onAppear { checkPermission() }
         .onReceive(Timer.publish(every: 1.5, on: .main, in: .common).autoconnect()) { _ in
             checkPermission()
         }
     }
 
     func checkPermission() {
-        let testPath = NSHomeDirectory() + "/Library"
-        hasPermission = FileManager.default.isReadableFile(atPath: testPath)
-        if hasPermission { onAdvance() }
+        let granted = PermissionChecker.hasFullDiskAccess
+        withAnimation { hasPermission = granted }
+        if granted { onAdvance() }
     }
 }
 

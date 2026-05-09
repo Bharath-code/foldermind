@@ -52,8 +52,16 @@ struct OnboardingCoordinatorView: View {
     private func saveStarterRules() {
         guard let watchedFolderURL else { return }
 
-        for rule in enabledRules where rule.isEnabled {
-            ruleStore.saveRule(rule.asFMRule(watchedFolderURL: watchedFolderURL))
+        for rule in enabledRules {
+            let fmRule = rule.asFMRule(watchedFolderURL: watchedFolderURL)
+            if rule.isEnabled {
+                // saveRule uses rule.id for matching → updates existing, appends new.
+                ruleStore.saveRule(fmRule)
+            } else {
+                // User toggled this OFF during onboarding — remove it if it was
+                // previously saved (e.g., from a partial prior run).
+                ruleStore.deleteRule(fmRule)
+            }
         }
     }
 }

@@ -7,9 +7,12 @@ actor RuleEngine {
         let results = rule.conditions.map { condition in
             evaluateCondition(condition, for: fileURL, watchedFolder: rule.watchedFolderURL)
         }
-        return rule.conditionLogic == .all
+        let finalMatch = rule.conditionLogic == .all
             ? results.allSatisfy { $0 }
             : results.contains(true)
+        
+        print("[RuleEngine] Evaluation: \(rule.name) on \(fileURL.lastPathComponent) -> \(finalMatch) (Logic: \(rule.conditionLogic), Individual results: \(results))")
+        return finalMatch
     }
 
     func dryRun(rule: FMRule, limit: Int = 10) async -> [DryRunMatch] {
@@ -33,8 +36,9 @@ actor RuleEngine {
     }
 
     func executeActions(_ actions: [RuleAction], for fileURL: URL) async -> ActionResult {
-        var finalURL = fileURL
+        print("[RuleEngine] Executing \(actions.count) actions for \(fileURL.lastPathComponent)")
         var destinationFolder = fileURL.deletingLastPathComponent()
+        var newName: String? = nil
 
         for action in actions {
             if case .moveToFolder(let folder) = action {
@@ -47,15 +51,20 @@ actor RuleEngine {
 
         for action in actions {
             if case .renameWith(let template) = action {
-                let newName = RenameEngine.apply(template: template, to: fileURL, date: Date())
-                finalURL = fileURL.deletingLastPathComponent().appendingPathComponent(newName)
+                newName = RenameEngine.apply(template: template, to: fileURL, date: Date())
             }
         }
 
+        let source = fileURL
+        let desiredName = newName ?? source.lastPathComponent
+
         let resolution = ConflictResolver.resolve(
-            source: finalURL,
-            destinationFolder: destinationFolder
+            source: source,
+            destinationFolder: destinationFolder,
+            desiredName: desiredName
         )
+        
+        print("[RuleEngine] Action resolution for \(source.lastPathComponent): \(resolution)")
 
         switch resolution {
         case .move(let src, let dest):
@@ -72,38 +81,40 @@ actor RuleEngine {
         let ext = url.pathExtension.lowercased()
         let attrs = try? FileManager.default.attributesOfItem(atPath: url.path)
 
+        let result: Bool
         switch condition {
         case .extensionIs(let exts):
-            return exts.map { $0.lowercased() }.contains(ext)
+            result = exts.map { $0.lowercased() }.contains(ext)
         case .nameContains(let s):
-            return name.localizedCaseInsensitiveContains(s)
+            result = name.localizedCaseInsensitiveContains(s)
         case .nameStartsWith(let s):
-            return name.lowercased().hasPrefix(s.lowercased())
+            result = name.lowercased().hasPrefix(s.lowercased())
         case .nameEndsWith(let s):
-            return name.lowercased().hasSuffix(s.lowercased())
+            result = name.lowercased().hasSuffix(s.lowercased())
         case .nameMatchesRegex(let pattern):
-            return (try? NSRegularExpression(pattern: pattern)
+            result = (try? NSRegularExpression(pattern: pattern)
                 .firstMatch(in: name, range: NSRange(name.startIndex..., in: name))) != nil
         case .fileSizeGreaterThan(let bytes):
             let size = (attrs?[.size] as? Int) ?? 0
-            return size > bytes
+            result = size > bytes
         case .fileSizeLessThan(let bytes):
             let size = (attrs?[.size] as? Int) ?? 0
-            return size < bytes
+            result = size < bytes
         case .dateCreatedWithinDays(let days):
             let created = attrs?[.creationDate] as? Date ?? Date.distantPast
-            return Date().timeIntervalSince(created) < Double(days) * 86400
+            result = Date().timeIntervalSince(created) < Double(days) * 86400
         case .dateModifiedWithinDays(let days):
             let modified = attrs?[.modificationDate] as? Date ?? Date.distantPast
-            return Date().timeIntervalSince(modified) < Double(days) * 86400
+            result = Date().timeIntervalSince(modified) < Double(days) * 86400
         case .isInSubfolder(let shouldBeInSubfolder):
-            // A file is "in a subfolder" when its parent directory is NOT the watched folder root.
-            // Compare standardised paths to avoid symlink / trailing-slash mismatches.
             let fileParent = url.deletingLastPathComponent().standardizedFileURL.path
             let watchedRoot = watchedFolder.standardizedFileURL.path
             let isActuallyInSubfolder = fileParent != watchedRoot
-            return isActuallyInSubfolder == shouldBeInSubfolder
+            result = isActuallyInSubfolder == shouldBeInSubfolder
         }
+        
+        print("[RuleEngine] Condition check: \(condition) against \(name) (ext: \(ext)) -> \(result)")
+        return result
     }
 
     private func applyRenameActions(_ actions: [RuleAction], to url: URL) -> String {
@@ -128,9 +139,11 @@ actor RuleEngine {
         let fm = FileManager.default
         do {
             if actions.contains(where: { if case .copyToFolder = $0 { true } else { false } }) {
+                print("[RuleEngine] Copying \(source.path) to \(destination.path)")
                 try fm.copyItem(at: source, to: destination)
                 return .copied(destination)
             } else {
+                print("[RuleEngine] Moving \(source.path) to \(destination.path)")
                 try fm.moveItem(at: source, to: destination)
                 return .moved(destination)
             }

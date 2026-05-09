@@ -69,7 +69,7 @@
 | 3.6 | FileWatcherError enum | ✅ | `streamCreationFailed` case |
 | 3.7 | Watcher lifecycle management | ✅ | Start on app launch, stop on quit, restart on folder change |
 | 3.8 | Multiple folder watching | ✅ | Support watching multiple folders simultaneously |
-| 3.9 | Recursive subfolder watching | ✅ | FSEvents handles this natively via `kFSEventStreamCreateFlagFileEvents` |
+| 3.9 | Recursive subfolder watching | ✅ | Recursive matching + recursive manual scan implemented |
 
 ## 4. Rule Engine
 
@@ -102,7 +102,7 @@
 
 | # | Item | Status | Acceptance Criteria |
 |---|------|--------|---------------------|
-| 6.1 | MainWindowView | 🚧 | NavigationSplitView with sidebar + detail — **needs toolbar actions** |
+| 6.1 | MainWindowView | ✅ | NavigationSplitView with sidebar + toolbar (Scan Now, Add Rule) |
 | 6.2 | SidebarView | ✅ | List with "Rules" and "Activity" navigation with selection state |
 | 6.3 | RuleListView | 🚧 | Shows rules or empty state, rows open builder — needs richer rule detail view |
 | 6.4 | RuleRowView | 🚧 | Shows rule name, condition/action count, enable toggle, edit/delete context menu |

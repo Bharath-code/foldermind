@@ -29,7 +29,6 @@
 		9EE3B264B59C9E3898C15E77 /* StarterRulesStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CA812293372CF39BEF7EE0 /* StarterRulesStepView.swift */; };
 		A326D1DA1FAC5A3393CF5025 /* FileWatchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2CB8C9A510DCCAE558645C4 /* FileWatchCoordinator.swift */; };
 		B30C5E2F6721CC2419D9F773 /* ProcessingStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBFFDFC2B6BC4828D23DE92B /* ProcessingStepView.swift */; };
-		BE1516C7421682458E003766 /* FMRuleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F718136EF901251F0BBC398F /* FMRuleModel.swift */; };
 		C7B11BE8F0E6E11347A014F6 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */; };
 		CA8C108EEF2C5531EFFB6936 /* StarterRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96B8B63DBC67873B8E574CF /* StarterRule.swift */; };
 		D5D5E4ECDA7C6DAA55FCE277 /* SpotlightIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6A9FC7E6A7E1803DCA0F18 /* SpotlightIndexer.swift */; };
@@ -73,7 +72,6 @@
 		F2CB8C9A510DCCAE558645C4 /* FileWatchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatchCoordinator.swift; sourceTree = "<group>"; };
 		F68492F4F3043B8A32AD5B44 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
-		F718136EF901251F0BBC398F /* FMRuleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FMRuleModel.swift; sourceTree = "<group>"; };
 		FAC9121573B82F320BC730B5 /* RuleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -99,7 +97,6 @@
 			children = (
 				6267399C058252AB54AEB251 /* ActivityEntry.swift */,
 				E449584CC3A6EBA056061356 /* AppState.swift */,
-				F718136EF901251F0BBC398F /* FMRuleModel.swift */,
 				9F760D6A87EAAAEF9ED5B73B /* OnboardingStep.swift */,
 				FAC9121573B82F320BC730B5 /* RuleModel.swift */,
 				B96B8B63DBC67873B8E574CF /* StarterRule.swift */,
@@ -282,7 +279,6 @@
 				23BB235AC414AFA505BC9E0E /* ConflictResolver.swift in Sources */,
 				216BB1BC5767FC2A7E97BBC4 /* DoneStepView.swift in Sources */,
 				4BBC6C954E0E2EB83767056E /* FMPrimaryButtonStyle.swift in Sources */,
-				BE1516C7421682458E003766 /* FMRuleModel.swift in Sources */,
 				30C1FDC50A0120DFC4E34E7E /* FMUndoManager.swift in Sources */,
 				A326D1DA1FAC5A3393CF5025 /* FileWatchCoordinator.swift in Sources */,
 				4E8A84548BF2C1F00FBF0E3B /* FileWatcher.swift in Sources */,

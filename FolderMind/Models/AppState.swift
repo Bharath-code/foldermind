@@ -9,6 +9,7 @@ enum AppState {
 @MainActor
 class AppViewModel: ObservableObject {
     @Published var appState: AppState = .needsOnboarding
+    @Published private(set) var isActive = false
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding = false
 
     init() {
@@ -18,5 +19,13 @@ class AppViewModel: ObservableObject {
     func completeOnboarding() {
         hasCompletedOnboarding = true
         appState = .onboarded
+    }
+
+    func appDidBecomeActive() {
+        isActive = true
+    }
+
+    func appWillResignActive() {
+        isActive = false
     }
 }

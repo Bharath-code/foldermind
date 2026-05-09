@@ -1,17 +1,45 @@
 import SwiftUI
 
 struct StarterRule: Identifiable {
-    let id = UUID()
+    /// Deterministic ID derived from the rule name so the same starter rule
+    /// always maps to the same UUID — prevents duplicates in RuleStore.
+    var id: UUID { Self.deterministicUUID(for: name) }
+
     let icon: String
     let name: String
     let description: String
     var isEnabled: Bool
     let color: Color
+
+    /// FNV-1a hash → UUID. Unlike Swift's Hasher, FNV-1a is fully deterministic
+    /// across process launches (Hasher uses a random seed per run, which breaks persistence).
+    static func deterministicUUID(for name: String) -> UUID {
+        // FNV-1a 64-bit — deterministic, no external dependencies.
+        let fnvOffset: UInt64 = 14_695_981_039_346_656_037
+        let fnvPrime:  UInt64 = 1_099_511_628_211
+        var hash = fnvOffset
+        for byte in ("foldermind.starterrule." + name).utf8 {
+            hash ^= UInt64(byte)
+            hash = hash &* fnvPrime
+        }
+        // Pack the 8-byte hash into a UUID (version/variant bits set for RFC 4122 v4).
+        let b0 = UInt8((hash >> 56) & 0xFF); let b1 = UInt8((hash >> 48) & 0xFF)
+        let b2 = UInt8((hash >> 40) & 0xFF); let b3 = UInt8((hash >> 32) & 0xFF)
+        let b4 = UInt8((hash >> 24) & 0xFF); let b5 = UInt8((hash >> 16) & 0xFF)
+        let b6 = UInt8((hash >>  8) & 0xFF); let b7 = UInt8( hash        & 0xFF)
+        return UUID(uuid: (b0, b1, b2, b3, b4, b5,
+                           (b6 & 0x0F) | 0x40,  // version 4
+                           b7,
+                           (b0 & 0x3F) | 0x80,  // variant 10xx
+                           b1, b2, b3, b4, b5, b6, b7))
+    }
 }
+
 
 extension StarterRule {
     func asFMRule(watchedFolderURL: URL) -> FMRule {
         FMRule(
+            id: self.id, // Stable deterministic UUID — RuleStore.saveRule() will update, not append.
             name: name,
             isEnabled: isEnabled,
             watchedFolderURL: watchedFolderURL,

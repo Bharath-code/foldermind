@@ -28,7 +28,11 @@ enum RenameEngine {
 
         result = result.replacingOccurrences(of: "{parent}", with: url.deletingLastPathComponent().lastPathComponent)
 
-        return ext.isEmpty ? result : "\(result).\(ext)"
+        // Append extension only if it isn't already part of the result.
+        if !ext.isEmpty && !result.hasSuffix(".\(ext)") {
+            return "\(result).\(ext)"
+        }
+        return result
     }
 
     static func preview(template: String, for fileName: String, date: Date = Date()) -> String {

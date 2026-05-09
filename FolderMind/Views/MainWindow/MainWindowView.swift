@@ -4,53 +4,87 @@ struct MainWindowView: View {
     @EnvironmentObject var appVM: AppViewModel
     @EnvironmentObject var ruleStore: RuleStore
     @EnvironmentObject var undoManager: FMUndoManager
+    @EnvironmentObject var watchCoordinator: FileWatchCoordinator
     @State private var selection: MainWindowSection? = .rules
-    @State private var editingRule: FMRule?
-    @State private var isShowingRuleBuilder = false
+    @State private var ruleBuilderIntent: RuleBuilderIntent? = nil
+    @State private var hasFDA: Bool = PermissionChecker.hasFullDiskAccess
 
     var body: some View {
-        NavigationSplitView {
-            SidebarView(selection: $selection)
-        } detail: {
-            switch selection ?? .rules {
-            case .rules:
-                RuleListView(
-                    onEdit: { rule in
-                        editingRule = rule
-                        isShowingRuleBuilder = true
-                    },
-                    onToggle: { ruleStore.toggleRule($0) },
-                    onDelete: { ruleStore.deleteRule($0) }
-                )
-                    .environmentObject(ruleStore)
-            case .activity:
-                ActivityFeedView()
-                    .environmentObject(undoManager)
+        VStack(spacing: 0) {
+            // FDA warning banner — shown when Full Disk Access is not granted.
+            if !hasFDA {
+                FDAWarningBanner()
             }
-        }
-        .navigationTitle("FolderMind")
-        .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button("Add Rule", systemImage: "plus") {
-                    editingRule = nil
-                    isShowingRuleBuilder = true
+
+            NavigationSplitView {
+                SidebarView(selection: $selection)
+                    .environmentObject(watchCoordinator)
+            } detail: {
+                switch selection ?? .rules {
+                case .rules:
+                    RuleListView(
+                        onEdit: { rule in
+                            // sheet(item:) guarantees the item is set BEFORE the
+                            // sheet body is evaluated — no timing race with editingRule.
+                            ruleBuilderIntent = .edit(rule)
+                        },
+                        onToggle: { ruleStore.toggleRule($0) },
+                        onDelete: { ruleStore.deleteRule($0) }
+                    )
+                        .environmentObject(ruleStore)
+                case .activity:
+                    ActivityFeedView()
+                        .environmentObject(undoManager)
                 }
             }
-        }
-        .sheet(item: $editingRule) { rule in
-            RuleBuilderView(existingRule: rule)
-                .environmentObject(ruleStore)
-                .id(rule.id) // Force fresh state for each rule
-        }
-        .sheet(isPresented: $isShowingRuleBuilder, onDismiss: { editingRule = nil }) {
-            if editingRule == nil {
-                RuleBuilderView(existingRule: nil)
-                    .environmentObject(ruleStore)
-                    .id("new-rule")
+            .navigationTitle("FolderMind")
+            .toolbar {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    Button("Add Rule", systemImage: "plus") {
+                        ruleBuilderIntent = .create
+                    }
+                }
             }
+            // sheet(item:) — the item IS the data, so no nil-capture race.
+            .sheet(item: $ruleBuilderIntent) { intent in
+                RuleBuilderView(existingRule: intent.rule)
+                    .id(intent.id) // Force fresh state initialization
+                    .environmentObject(ruleStore)
+            }
+        }
+        // Poll FDA status every 2 seconds — banner disappears the moment FDA is granted.
+        .onReceive(Timer.publish(every: 2, on: .main, in: .common).autoconnect()) { _ in
+            hasFDA = PermissionChecker.hasFullDiskAccess
         }
     }
 }
+
+struct FDAWarningBanner: View {
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "exclamationmark.shield.fill")
+                .foregroundStyle(.red)
+                .font(.system(size: 14))
+
+            Text("Full Disk Access is required for file watching to work.")
+                .font(.system(size: 13, weight: .medium))
+
+            Spacer()
+
+            Button("Grant Access") {
+                PermissionChecker.openSystemSettings()
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+            .tint(.red)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(Color.red.opacity(0.12))
+        .overlay(alignment: .bottom) { Divider() }
+    }
+}
+
 
 enum MainWindowSection: String, CaseIterable, Identifiable, Hashable {
     case rules
@@ -74,16 +108,36 @@ enum MainWindowSection: String, CaseIterable, Identifiable, Hashable {
 }
 
 struct SidebarView: View {
+    @EnvironmentObject var watchCoordinator: FileWatchCoordinator
     @Binding var selection: MainWindowSection?
 
     var body: some View {
         List(selection: $selection) {
-            ForEach(MainWindowSection.allCases) { section in
-                Label(section.title, systemImage: section.systemImage)
-                    .tag(section)
+            Section("Library") {
+                ForEach(MainWindowSection.allCases) { section in
+                    Label(section.title, systemImage: section.systemImage)
+                        .tag(section)
+                }
             }
         }
         .listStyle(.sidebar)
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: 0) {
+                Divider()
+                Button {
+                    Task {
+                        await watchCoordinator.scanAllFolders()
+                    }
+                } label: {
+                    Label("Scan All Folders", systemImage: "arrow.clockwise")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .keyboardShortcut("s", modifiers: [.command, .shift])
+                .buttonStyle(.plain)
+                .padding(12)
+                .contentShape(Rectangle())
+            }
+        }
         .frame(minWidth: 180)
     }
 }
@@ -225,6 +279,14 @@ struct RuleRowView: View {
                 .toggleStyle(.switch)
                 .labelsHidden()
                 .scaleEffect(0.8)
+
+            Button(action: onDelete) {
+                Image(systemName: "trash")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .padding(.leading, 4)
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
@@ -233,5 +295,23 @@ struct RuleRowView: View {
             Button("Edit", systemImage: "pencil", action: onEdit)
             Button("Delete", systemImage: "trash", role: .destructive, action: onDelete)
         }
+    }
+}
+
+/// Drives the sheet(item:) presentation in MainWindowView.
+enum RuleBuilderIntent: Identifiable {
+    case create
+    case edit(FMRule)
+
+    var id: String {
+        switch self {
+        case .create: return "new-rule"
+        case .edit(let rule): return rule.id.uuidString
+        }
+    }
+
+    var rule: FMRule? {
+        if case .edit(let rule) = self { return rule }
+        return nil
     }
 }

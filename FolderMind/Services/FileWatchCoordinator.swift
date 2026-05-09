@@ -37,9 +37,14 @@ final class FileWatchCoordinator: ObservableObject {
 
     /// Call once after the app finishes launching / transitions to `.onboarded`.
     func start() {
-        guard rulesCancellable == nil else { return }
+        guard rulesCancellable == nil else {
+            return
+        }
 
-        // Observe any rule mutation (save, delete, toggle).
+        // Log FDA status immediately — FSEventStream silently delivers zero events without it.
+        PermissionChecker.logFDAStatus()
+        print("[FileWatchCoordinator] Starting...")
+
         rulesCancellable = ruleStore.$rules
             .removeDuplicates()
             .debounce(for: .milliseconds(200), scheduler: RunLoop.main)
@@ -47,7 +52,6 @@ final class FileWatchCoordinator: ObservableObject {
                 self?.rebuildWatchers()
             }
 
-        // Initial build.
         rebuildWatchers()
     }
 
@@ -56,6 +60,45 @@ final class FileWatchCoordinator: ObservableObject {
         rulesCancellable?.cancel()
         rulesCancellable = nil
         stopAllWatchers()
+        print("[FileWatchCoordinator] Stopped.")
+    }
+
+    /// Manually triggers a scan of all folders associated with enabled rules.
+    /// This is a crucial fallback when FSEvents fails to deliver background notifications.
+    func scanAllFolders() async {
+        print("[FileWatchCoordinator] Manual scan of all folders started...")
+        let enabledRules = ruleStore.rules.filter(\.isEnabled)
+        let engine = RuleEngine.shared
+        
+        // Group rules by their primary watch root to avoid redundant disk scans.
+        var rulesByRoot: [String: [FMRule]] = [:]
+        for rule in enabledRules {
+            let root = rule.watchedFolderURL.resolvingSymlinksInPath().standardizedFileURL.path
+            rulesByRoot[root, default: []].append(rule)
+        }
+
+        for (rootPath, rules) in rulesByRoot {
+            print("[FileWatchCoordinator] Recursively scanning root: \(rootPath)")
+            let rootURL = URL(fileURLWithPath: rootPath, isDirectory: true)
+            
+            // Perform recursive scan
+            let enumerator = FileManager.default.enumerator(
+                at: rootURL,
+                includingPropertiesForKeys: [.isDirectoryKey],
+                options: [.skipsHiddenFiles, .skipsPackageDescendants]
+            )
+            
+            while let fileURL = enumerator?.nextObject() as? URL {
+                let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey])
+                if values?.isDirectory == true { continue }
+                
+                // For each file, run it through relevant rules for this root.
+                // rules are already filtered to those that watch this root or a parent.
+                await processFile(fileURL, rules: rules.sorted { $0.priority > $1.priority }, engine: engine)
+            }
+        }
+        
+        print("[FileWatchCoordinator] Manual scan completed.")
     }
 
     // MARK: – Watcher Graph
@@ -69,29 +112,48 @@ final class FileWatchCoordinator: ObservableObject {
         defer { isRebuilding = false }
 
         let enabledRules = ruleStore.rules.filter(\.isEnabled)
+        print("[FileWatchCoordinator] Rebuilding with \(enabledRules.count) enabled rules.")
 
-        // Unique folder paths that need a watcher.
-        let desiredPaths = Set(enabledRules.map { $0.watchedFolderURL.standardizedFileURL.path })
+        // 1. Get all unique, standardized paths from enabled rules.
+        let allPaths = Set(enabledRules.map {
+            $0.watchedFolderURL.resolvingSymlinksInPath().standardizedFileURL.path
+        })
 
-        // 1. Remove watchers for folders no longer referenced.
+        // 2. Consolidate: If we watch /A, we don't need a separate watcher for /A/B.
+        // This is much more robust for nested folder structures.
+        var roots: [String] = []
+        for path in allPaths.sorted(by: { $0.count < $1.count }) {
+            if !roots.contains(where: { path == $0 || path.hasPrefix($0 + "/") }) {
+                roots.append(path)
+            }
+        }
+        let desiredPaths = Set(roots)
+        print("[FileWatchCoordinator] Consolidated watch roots: \(desiredPaths)")
+
+        if !PermissionChecker.hasFullDiskAccess {
+            print("[FileWatchCoordinator] ⚠️ FDA DENIED — FSEventStream will not fire reliably. Grant FDA in System Settings.")
+        }
+
+        // 3. Remove watchers for folders no longer needed.
         let orphanPaths = Set(watchers.keys).subtracting(desiredPaths)
         for path in orphanPaths {
+            print("[FileWatchCoordinator] Stopping watcher for \(path)")
             watchers[path]?.stop()
             watchers[path] = nil
         }
 
-        // 2. Add watchers for new folders.
+        // 4. Add watchers for new roots.
         for path in desiredPaths where watchers[path] == nil {
             let url = URL(fileURLWithPath: path, isDirectory: true)
             let watcher = FileWatcher(watchedURL: url) { [weak self] events in
-                await self?.handleEvents(events, folderURL: url)
+                await self?.handleEvents(events, watchRoot: url)
             }
             do {
                 try watcher.start()
                 watchers[path] = watcher
+                print("[FileWatchCoordinator] Started watcher for root: \(path)")
             } catch {
-                // TODO: surface in UI (#15.6 error states)
-                print("[FileWatchCoordinator] Failed to start watcher for \(path): \(error)")
+                print("[FileWatchCoordinator] Failed to start watcher for root \(path): \(error)")
             }
         }
 
@@ -110,44 +172,80 @@ final class FileWatchCoordinator: ObservableObject {
 
     // MARK: – Event Handling
 
-    /// Called off-main by `FileWatcher.onChange`. Hops to main for state writes.
-    private func handleEvents(_ events: [FileEvent], folderURL: URL) async {
-        let enabledRules = await MainActor.run { ruleStore.rules.filter(\.isEnabled) }
-
-        // Only rules whose watched folder matches this event source.
-        let relevantRules = enabledRules
-            .filter { $0.watchedFolderURL.standardizedFileURL == folderURL.standardizedFileURL }
-            .sorted { $0.priority > $1.priority }
-
-        guard !relevantRules.isEmpty else { return }
-
+    /// Called by `FileWatcher.onChange`. Routes events through the rule engine.
+    private func handleEvents(_ events: [FileEvent], watchRoot: URL) async {
+        let enabledRules = ruleStore.rules.filter(\.isEnabled)
+        
+        // We now filter rules based on whether the event's folder is 
+        // the rule's folder (or inside it, if we want recursive logic).
+        // For now, we stick to "Rule applies to its specific folder".
+        
         let engine = RuleEngine.shared
 
         for event in events {
-            // Only process new / modified files (not deletions or moves-away).
-            guard event.type == .created || event.type == .modified else { continue }
-
-            let fileURL = URL(fileURLWithPath: event.path)
-
-            // Skip directories.
-            var isDir: ObjCBool = false
-            guard FileManager.default.fileExists(atPath: event.path, isDirectory: &isDir),
-                  !isDir.boolValue else { continue }
-
-            // First matching rule wins (priority-sorted).
-            for rule in relevantRules {
-                let matched = await engine.evaluate(rule: rule, for: fileURL)
-                guard matched else { continue }
-
-                let result = await engine.executeActions(rule.actions, for: fileURL)
-
-                // Log to activity feed.
-                await MainActor.run {
-                    logResult(result, rule: rule, sourceURL: fileURL)
-                }
-
-                break // one rule per file event
+            // Find rules that are actually interested in this specific file's parent folder.
+            let eventFolder = URL(fileURLWithPath: event.path).deletingLastPathComponent().standardizedFileURL.path
+            
+            let relevantRules = enabledRules.filter { rule in
+                let rulePath = rule.watchedFolderURL.resolvingSymlinksInPath().standardizedFileURL.path
+                // Match if the event is in the rule's folder OR a subfolder.
+                return eventFolder == rulePath || eventFolder.hasPrefix(rulePath + "/")
             }
+
+            if relevantRules.isEmpty {
+                // If it's a directory event, we scan the directory itself.
+                var isDir: ObjCBool = false
+                if FileManager.default.fileExists(atPath: event.path, isDirectory: &isDir) && isDir.boolValue {
+                    let dirURL = URL(fileURLWithPath: event.path, isDirectory: true)
+                    let dirPath = dirURL.resolvingSymlinksInPath().standardizedFileURL.path
+                    
+                    // Rules that watch THIS exact directory.
+                    let dirRules = enabledRules.filter { 
+                        $0.watchedFolderURL.resolvingSymlinksInPath().standardizedFileURL.path == dirPath 
+                    }
+                    if !dirRules.isEmpty {
+                        print("[FileWatchCoordinator] Directory event in watched folder: \(dirPath)")
+                        await processRecentFiles(in: dirURL, rules: dirRules.sorted { $0.priority > $1.priority }, engine: engine)
+                    }
+                }
+                continue
+            }
+            
+            print("[FileWatchCoordinator] Event at \(event.path) -> \(relevantRules.count) relevant rules")
+            await processFile(URL(fileURLWithPath: event.path), rules: relevantRules.sorted { $0.priority > $1.priority }, engine: engine)
+        }
+    }
+
+    /// Scans `dirURL` for files modified within the last 10 s and runs matching rules.
+    private func processRecentFiles(in dirURL: URL, rules: [FMRule], engine: RuleEngine) async {
+        guard let contents = try? FileManager.default.contentsOfDirectory(
+            at: dirURL,
+            includingPropertiesForKeys: [.contentModificationDateKey, .isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        ) else { return }
+
+        let cutoff = Date().addingTimeInterval(-10)
+        for url in contents {
+            let values = try? url.resourceValues(forKeys: [.contentModificationDateKey, .isDirectoryKey])
+            guard values?.isDirectory == false else { continue }
+            guard let modified = values?.contentModificationDate, modified > cutoff else { continue }
+            print("[FileWatchCoordinator] Recently added: \(url.lastPathComponent)")
+            await processFile(url, rules: rules, engine: engine)
+        }
+    }
+
+    /// Evaluates `rules` against `fileURL` in priority order — first match wins.
+    private func processFile(_ fileURL: URL, rules: [FMRule], engine: RuleEngine) async {
+        for rule in rules {
+            print("[FileWatchCoordinator] Evaluating '\(rule.name)' against \(fileURL.lastPathComponent)")
+            let matched = await engine.evaluate(rule: rule, for: fileURL)
+            guard matched else { continue }
+
+            let result = await engine.executeActions(rule.actions, for: fileURL)
+            print("[FileWatchCoordinator] '\(rule.name)' → \(result)")
+
+            await MainActor.run { logResult(result, rule: rule, sourceURL: fileURL) }
+            break
         }
     }
 
@@ -155,29 +253,18 @@ final class FileWatchCoordinator: ObservableObject {
     private func logResult(_ result: ActionResult, rule: FMRule, sourceURL: URL) {
         switch result {
         case .moved(let dest):
-            let entry = ActivityEntry(
-                ruleName: rule.name,
-                sourceURL: sourceURL,
-                destinationURL: dest,
-                actionType: .moved
-            )
-            undoManager.logAction(entry)
-
+            undoManager.logAction(ActivityEntry(
+                ruleName: rule.name, sourceURL: sourceURL, destinationURL: dest, actionType: .moved
+            ))
         case .copied(let dest):
-            let entry = ActivityEntry(
-                ruleName: rule.name,
-                sourceURL: sourceURL,
-                destinationURL: dest,
-                actionType: .copied
-            )
-            undoManager.logAction(entry)
-
-        case .skipped:
-            break // nothing to log
-
+            undoManager.logAction(ActivityEntry(
+                ruleName: rule.name, sourceURL: sourceURL, destinationURL: dest, actionType: .copied
+            ))
+        case .skipped(let msg):
+            print("[FileWatchCoordinator] Action skipped for \(sourceURL.lastPathComponent): \(msg)")
         case .failed(let msg):
-            // TODO: surface in toast (#15.4)
             print("[FileWatchCoordinator] Action failed for \(sourceURL.lastPathComponent): \(msg)")
         }
     }
 }
+

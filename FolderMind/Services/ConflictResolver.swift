@@ -10,6 +10,7 @@ struct ConflictResolver {
     static func resolve(
         source: URL,
         destinationFolder: URL,
+        desiredName: String? = nil,
         keepExtension: Bool = true
     ) -> Resolution {
         let fm = FileManager.default
@@ -22,11 +23,18 @@ struct ConflictResolver {
             }
         }
 
-        var destination = destinationFolder.appendingPathComponent(source.lastPathComponent)
+        let targetName = desiredName ?? source.lastPathComponent
+        var destination = destinationFolder.appendingPathComponent(targetName)
 
+        // If source and destination are identical, skip.
+        if destination.standardizedFileURL == source.standardizedFileURL {
+            return .skip
+        }
+
+        // Only resolve conflicts if destination exists.
         if fm.fileExists(atPath: destination.path) {
-            let name = source.deletingPathExtension().lastPathComponent
-            let ext = keepExtension ? source.pathExtension : ""
+            let name = (targetName as NSString).deletingPathExtension
+            let ext = keepExtension ? (targetName as NSString).pathExtension : ""
             var counter = 1
 
             repeat {

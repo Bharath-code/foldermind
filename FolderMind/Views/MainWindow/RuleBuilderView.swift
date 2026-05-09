@@ -6,31 +6,57 @@ struct RuleBuilderView: View {
 
     let existingRule: FMRule?
 
+    // MARK: – Builder UI state
     @State private var ruleName: String
     @State private var isEnabled: Bool
     @State private var watchedFolderURL: URL?
     @State private var conditionLogic: ConditionLogic
+
+    // Simplified single-picker condition state
     @State private var conditionType: ConditionBuilderType
     @State private var extensionText: String
     @State private var nameText: String
+
+    // Simplified single-picker action state
     @State private var actionType: ActionBuilderType
     @State private var destinationURL: URL?
     @State private var renameTemplate: String
+
+    // Full arrays — source of truth that survives the builder's simplified UI.
+    // Conditions/actions that the picker cannot represent are stored here and
+    // round-tripped unchanged on save.
+    @State private var extraConditions: [RuleCondition]
+    @State private var extraActions: [RuleAction]
+
     @State private var dryRunMatches: [DryRunMatch] = []
     @State private var isPreviewLoading = false
 
     init(existingRule: FMRule? = nil) {
         self.existingRule = existingRule
-        _ruleName = State(initialValue: existingRule?.name ?? "")
-        _isEnabled = State(initialValue: existingRule?.isEnabled ?? true)
+        _ruleName     = State(initialValue: existingRule?.name ?? "")
+        _isEnabled    = State(initialValue: existingRule?.isEnabled ?? true)
         _watchedFolderURL = State(initialValue: existingRule?.watchedFolderURL)
-        _conditionLogic = State(initialValue: existingRule?.conditionLogic ?? .all)
-        _conditionType = State(initialValue: ConditionBuilderType(from: existingRule?.conditions.first))
-        _extensionText = State(initialValue: existingRule?.extensionSeed ?? "txt, md, pdf")
-        _nameText = State(initialValue: existingRule?.nameSeed ?? "")
-        _actionType = State(initialValue: ActionBuilderType(from: existingRule?.actions.first))
-        _destinationURL = State(initialValue: existingRule?.destinationSeed)
-        _renameTemplate = State(initialValue: existingRule?.renameSeed ?? "{name}-{date}.{ext}")
+        _conditionLogic   = State(initialValue: existingRule?.conditionLogic ?? .all)
+
+        // Seed the picker from the first supported condition
+        let firstCondition = existingRule?.conditions.first
+        _conditionType = State(initialValue: ConditionBuilderType(from: firstCondition))
+        _extensionText = State(initialValue: existingRule?.extensionSeed ?? "")
+        _nameText      = State(initialValue: existingRule?.nameSeed ?? "")
+
+        // Extra conditions are all conditions BEYOND the first (preserved on save)
+        let extras = existingRule.flatMap { $0.conditions.count > 1 ? Array($0.conditions.dropFirst()) : [] } ?? []
+        _extraConditions = State(initialValue: extras)
+
+        // Seed the action picker from the first supported action
+        let firstAction = existingRule?.actions.first
+        _actionType      = State(initialValue: ActionBuilderType(from: firstAction))
+        _destinationURL  = State(initialValue: existingRule?.destinationSeed)
+        _renameTemplate  = State(initialValue: existingRule?.renameSeed ?? "{name}-{date}.{ext}")
+
+        // Extra actions are all actions BEYOND the first (preserved on save)
+        let extraActs = existingRule.flatMap { $0.actions.count > 1 ? Array($0.actions.dropFirst()) : [] } ?? []
+        _extraActions = State(initialValue: extraActs)
     }
 
     var body: some View {
@@ -50,6 +76,14 @@ struct RuleBuilderView: View {
             Divider()
 
             HStack {
+                if let existingRule {
+                    Button("Delete Rule", role: .destructive) {
+                        ruleStore.deleteRule(existingRule)
+                        dismiss()
+                    }
+                    .keyboardShortcut(.delete, modifiers: [.command])
+                }
+
                 Button("Cancel") { dismiss() }
                     .keyboardShortcut(.cancelAction)
 
@@ -251,27 +285,37 @@ struct RuleBuilderView: View {
             && builtAction != nil
     }
 
-    private var builtConditions: [RuleCondition] {
+    /// The primary condition built from the picker UI.
+    private var primaryCondition: RuleCondition? {
         switch conditionType {
         case .fileExtension:
             let extensions = extensionText
                 .split(separator: ",")
                 .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ".", with: "") }
                 .filter { !$0.isEmpty }
-            return extensions.isEmpty ? [] : [.extensionIs(extensions)]
+            return extensions.isEmpty ? nil : .extensionIs(extensions)
         case .nameContains:
             let value = nameText.trimmingCharacters(in: .whitespacesAndNewlines)
-            return value.isEmpty ? [] : [.nameContains(value)]
+            return value.isEmpty ? nil : .nameContains(value)
         case .nameStartsWith:
             let value = nameText.trimmingCharacters(in: .whitespacesAndNewlines)
-            return value.isEmpty ? [] : [.nameStartsWith(value)]
+            return value.isEmpty ? nil : .nameStartsWith(value)
         case .nameEndsWith:
             let value = nameText.trimmingCharacters(in: .whitespacesAndNewlines)
-            return value.isEmpty ? [] : [.nameEndsWith(value)]
+            return value.isEmpty ? nil : .nameEndsWith(value)
         }
     }
 
-    private var builtAction: RuleAction? {
+    /// Full condition list: primary picker condition + any extra conditions
+    /// that the simplified builder cannot edit (e.g., additional name/ext conditions
+    /// on starter rules). This preserves the full rule logic on every save.
+    private var builtConditions: [RuleCondition] {
+        guard let primary = primaryCondition else { return [] }
+        return [primary] + extraConditions
+    }
+
+    /// The primary action built from the picker UI.
+    private var primaryAction: RuleAction? {
         switch actionType {
         case .move:
             guard let destinationURL else { return nil }
@@ -285,8 +329,16 @@ struct RuleBuilderView: View {
         }
     }
 
+    /// Full action list: primary picker action + any extra actions.
+    private var builtActions: [RuleAction] {
+        guard let primary = primaryAction else { return [] }
+        return [primary] + extraActions
+    }
+
+    private var builtAction: RuleAction? { primaryAction } // kept for canSave
+
     private func saveRule() {
-        guard let watchedFolderURL, let builtAction else { return }
+        guard let watchedFolderURL, !builtConditions.isEmpty, !builtActions.isEmpty else { return }
 
         let rule = FMRule(
             id: existingRule?.id ?? UUID(),
@@ -295,18 +347,18 @@ struct RuleBuilderView: View {
             watchedFolderURL: watchedFolderURL,
             conditions: builtConditions,
             conditionLogic: conditionLogic,
-            actions: [builtAction],
+            actions: builtActions,
             priority: existingRule?.priority ?? ruleStore.rules.count
         )
 
-        print("[RuleBuilder] Saving rule: \(rule.name) (\(rule.id)) with \(rule.conditions.count) conditions")
+        print("[RuleBuilder] Saving rule: \(rule.name) (\(rule.id)) with \(rule.conditions.count) conditions, \(rule.actions.count) actions")
         ruleStore.saveRule(rule)
         dismiss()
     }
 
     @MainActor
     private func refreshPreview() async {
-        guard let watchedFolderURL, let builtAction, !builtConditions.isEmpty else {
+        guard let watchedFolderURL, !builtConditions.isEmpty, !builtActions.isEmpty else {
             dryRunMatches = []
             return
         }
@@ -319,7 +371,7 @@ struct RuleBuilderView: View {
             watchedFolderURL: watchedFolderURL,
             conditions: builtConditions,
             conditionLogic: conditionLogic,
-            actions: [builtAction],
+            actions: builtActions,
             priority: existingRule?.priority ?? 0
         )
 
@@ -420,6 +472,8 @@ private enum ActionBuilderType: String, CaseIterable, Identifiable {
 }
 
 private extension FMRule {
+    /// Returns the extensions from the FIRST extensionIs condition.
+    /// Empty string means no extensionIs condition exists (builder will show empty field).
     var extensionSeed: String {
         for condition in conditions {
             if case .extensionIs(let extensions) = condition {
@@ -429,6 +483,7 @@ private extension FMRule {
         return ""
     }
 
+    /// Returns the string value from the FIRST name-based condition.
     var nameSeed: String {
         for condition in conditions {
             switch condition {
@@ -441,6 +496,7 @@ private extension FMRule {
         return ""
     }
 
+    /// Returns the destination URL from the FIRST move/copy action.
     var destinationSeed: URL? {
         for action in actions {
             switch action {
@@ -453,6 +509,7 @@ private extension FMRule {
         return nil
     }
 
+    /// Returns the rename template from the FIRST renameWith action.
     var renameSeed: String {
         for action in actions {
             if case .renameWith(let template) = action {
