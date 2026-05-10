@@ -1,5 +1,15 @@
 import SwiftUI
 
+struct BuilderCondition: Identifiable {
+    let id = UUID()
+    var condition: RuleCondition
+}
+
+struct BuilderAction: Identifiable {
+    let id = UUID()
+    var action: RuleAction
+}
+
 struct RuleBuilderView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var ruleStore: RuleStore
@@ -12,21 +22,8 @@ struct RuleBuilderView: View {
     @State private var watchedFolderURL: URL?
     @State private var conditionLogic: ConditionLogic
 
-    // Simplified single-picker condition state
-    @State private var conditionType: ConditionBuilderType
-    @State private var extensionText: String
-    @State private var nameText: String
-
-    // Simplified single-picker action state
-    @State private var actionType: ActionBuilderType
-    @State private var destinationURL: URL?
-    @State private var renameTemplate: String
-
-    // Full arrays — source of truth that survives the builder's simplified UI.
-    // Conditions/actions that the picker cannot represent are stored here and
-    // round-tripped unchanged on save.
-    @State private var extraConditions: [RuleCondition]
-    @State private var extraActions: [RuleAction]
+    @State private var builderConditions: [BuilderCondition]
+    @State private var builderActions: [BuilderAction]
 
     @State private var dryRunMatches: [DryRunMatch] = []
     @State private var isPreviewLoading = false
@@ -38,25 +35,11 @@ struct RuleBuilderView: View {
         _watchedFolderURL = State(initialValue: existingRule?.watchedFolderURL)
         _conditionLogic   = State(initialValue: existingRule?.conditionLogic ?? .all)
 
-        // Seed the picker from the first supported condition
-        let firstCondition = existingRule?.conditions.first
-        _conditionType = State(initialValue: ConditionBuilderType(from: firstCondition))
-        _extensionText = State(initialValue: existingRule?.extensionSeed ?? "")
-        _nameText      = State(initialValue: existingRule?.nameSeed ?? "")
+        let initialConditions = existingRule?.conditions ?? [.extensionIs([""])]
+        _builderConditions = State(initialValue: initialConditions.map { BuilderCondition(condition: $0) })
 
-        // Extra conditions are all conditions BEYOND the first (preserved on save)
-        let extras = existingRule.flatMap { $0.conditions.count > 1 ? Array($0.conditions.dropFirst()) : [] } ?? []
-        _extraConditions = State(initialValue: extras)
-
-        // Seed the action picker from the first supported action
-        let firstAction = existingRule?.actions.first
-        _actionType      = State(initialValue: ActionBuilderType(from: firstAction))
-        _destinationURL  = State(initialValue: existingRule?.destinationSeed)
-        _renameTemplate  = State(initialValue: existingRule?.renameSeed ?? "{name}-{date}.{ext}")
-
-        // Extra actions are all actions BEYOND the first (preserved on save)
-        let extraActs = existingRule.flatMap { $0.actions.count > 1 ? Array($0.actions.dropFirst()) : [] } ?? []
-        _extraActions = State(initialValue: extraActs)
+        let initialActions = existingRule?.actions ?? [.moveToFolder(URL(fileURLWithPath: NSHomeDirectory()))]
+        _builderActions = State(initialValue: initialActions.map { BuilderAction(action: $0) })
     }
 
     var body: some View {
@@ -64,7 +47,7 @@ struct RuleBuilderView: View {
             header
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 24) {
                     basicsSection
                     conditionSection
                     actionSection
@@ -98,14 +81,10 @@ struct RuleBuilderView: View {
             }
             .padding(20)
         }
-        .frame(minWidth: 680, minHeight: 640)
+        .frame(minWidth: 720, minHeight: 680)
         .task { await refreshPreview() }
-        .onChange(of: conditionType) { _, _ in Task { await refreshPreview() } }
-        .onChange(of: extensionText) { _, _ in Task { await refreshPreview() } }
-        .onChange(of: nameText) { _, _ in Task { await refreshPreview() } }
-        .onChange(of: actionType) { _, _ in Task { await refreshPreview() } }
-        .onChange(of: destinationURL) { _, _ in Task { await refreshPreview() } }
-        .onChange(of: renameTemplate) { _, _ in Task { await refreshPreview() } }
+        .onChange(of: builderConditions.map { $0.condition }) { _, _ in Task { await refreshPreview() } }
+        .onChange(of: builderActions.map { $0.action }) { _, _ in Task { await refreshPreview() } }
         .onChange(of: watchedFolderURL) { _, _ in Task { await refreshPreview() } }
     }
 
@@ -132,8 +111,9 @@ struct RuleBuilderView: View {
         VStack(alignment: .leading, spacing: 12) {
             SectionTitle(title: "Basics", systemImage: "slider.horizontal.3")
 
-            TextField("Rule name", text: $ruleName)
+            TextField("Rule name (e.g. Sort Invoices)", text: $ruleName)
                 .textFieldStyle(.roundedBorder)
+                .font(.system(size: 14, weight: .medium))
 
             HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -149,38 +129,54 @@ struct RuleBuilderView: View {
                 Spacer()
 
                 Button("Choose Folder", systemImage: "folder") {
-                    chooseWatchedFolder()
+                    chooseFolder { watchedFolderURL = $0 }
                 }
             }
             .padding(12)
             .background(sectionBackground)
+            .cornerRadius(8)
         }
     }
 
     private var conditionSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SectionTitle(title: "When", systemImage: "line.3.horizontal.decrease.circle")
-
-            Picker("Match", selection: $conditionType) {
-                ForEach(ConditionBuilderType.allCases) { type in
-                    Text(type.title).tag(type)
+            HStack {
+                SectionTitle(title: "When", systemImage: "line.3.horizontal.decrease.circle")
+                Spacer()
+                if builderConditions.count > 1 {
+                    Picker("", selection: $conditionLogic) {
+                        Text("All conditions must match").tag(ConditionLogic.all)
+                        Text("Any condition can match").tag(ConditionLogic.any)
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    .frame(width: 200)
                 }
             }
-            .pickerStyle(.segmented)
 
-            if conditionType == .fileExtension {
-                TextField("Extensions, separated by commas", text: $extensionText)
-                    .textFieldStyle(.roundedBorder)
-            } else {
-                TextField("Text to match in the file name", text: $nameText)
-                    .textFieldStyle(.roundedBorder)
+            VStack(spacing: 8) {
+                ForEach($builderConditions) { $item in
+                    ConditionRowView(item: $item) {
+                        if builderConditions.count > 1 {
+                            withAnimation(.spring()) {
+                                builderConditions.removeAll { $0.id == item.id }
+                            }
+                        }
+                    }
+                }
             }
 
-            Picker("Logic", selection: $conditionLogic) {
-                Text("All conditions").tag(ConditionLogic.all)
-                Text("Any condition").tag(ConditionLogic.any)
+            Button {
+                withAnimation(.spring()) {
+                    builderConditions.append(BuilderCondition(condition: .extensionIs([""])))
+                }
+            } label: {
+                Label("Add Condition", systemImage: "plus.circle")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.blue)
             }
-            .pickerStyle(.segmented)
+            .buttonStyle(.plain)
+            .padding(.top, 4)
         }
     }
 
@@ -188,40 +184,29 @@ struct RuleBuilderView: View {
         VStack(alignment: .leading, spacing: 12) {
             SectionTitle(title: "Then", systemImage: "arrow.triangle.branch")
 
-            Picker("Action", selection: $actionType) {
-                ForEach(ActionBuilderType.allCases) { type in
-                    Text(type.title).tag(type)
-                }
-            }
-            .pickerStyle(.segmented)
-
-            if actionType == .rename {
-                TextField("Rename template", text: $renameTemplate)
-                    .textFieldStyle(.roundedBorder)
-                Text("Available tokens: {name}, {ext}, {date}, {year}, {month}, {day}, {time}, {counter}, {parent}")
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-            } else {
-                HStack(spacing: 10) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(destinationURL?.lastPathComponent ?? "No destination selected")
-                            .font(.system(size: 13, weight: .medium))
-                        Text(destinationURL?.path ?? "Pick where matching files should go.")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .truncationMode(.middle)
-                    }
-
-                    Spacer()
-
-                    Button("Choose Destination", systemImage: "folder.badge.plus") {
-                        chooseDestinationFolder()
+            VStack(spacing: 8) {
+                ForEach($builderActions) { $item in
+                    ActionRowView(item: $item) {
+                        if builderActions.count > 1 {
+                            withAnimation(.spring()) {
+                                builderActions.removeAll { $0.id == item.id }
+                            }
+                        }
                     }
                 }
-                .padding(12)
-                .background(sectionBackground)
             }
+
+            Button {
+                withAnimation(.spring()) {
+                    builderActions.append(BuilderAction(action: .moveToFolder(watchedFolderURL ?? URL(fileURLWithPath: NSHomeDirectory()))))
+                }
+            } label: {
+                Label("Add Action", systemImage: "plus.circle")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.blue)
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 4)
         }
     }
 
@@ -270,6 +255,7 @@ struct RuleBuilderView: View {
                 }
                 .padding(.horizontal, 12)
                 .background(sectionBackground)
+                .cornerRadius(8)
             }
         }
     }
@@ -281,73 +267,21 @@ struct RuleBuilderView: View {
     private var canSave: Bool {
         !ruleName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && watchedFolderURL != nil
-            && !builtConditions.isEmpty
-            && builtAction != nil
+            && !builderConditions.isEmpty
+            && !builderActions.isEmpty
     }
-
-    /// The primary condition built from the picker UI.
-    private var primaryCondition: RuleCondition? {
-        switch conditionType {
-        case .fileExtension:
-            let extensions = extensionText
-                .split(separator: ",")
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ".", with: "") }
-                .filter { !$0.isEmpty }
-            return extensions.isEmpty ? nil : .extensionIs(extensions)
-        case .nameContains:
-            let value = nameText.trimmingCharacters(in: .whitespacesAndNewlines)
-            return value.isEmpty ? nil : .nameContains(value)
-        case .nameStartsWith:
-            let value = nameText.trimmingCharacters(in: .whitespacesAndNewlines)
-            return value.isEmpty ? nil : .nameStartsWith(value)
-        case .nameEndsWith:
-            let value = nameText.trimmingCharacters(in: .whitespacesAndNewlines)
-            return value.isEmpty ? nil : .nameEndsWith(value)
-        }
-    }
-
-    /// Full condition list: primary picker condition + any extra conditions
-    /// that the simplified builder cannot edit (e.g., additional name/ext conditions
-    /// on starter rules). This preserves the full rule logic on every save.
-    private var builtConditions: [RuleCondition] {
-        guard let primary = primaryCondition else { return [] }
-        return [primary] + extraConditions
-    }
-
-    /// The primary action built from the picker UI.
-    private var primaryAction: RuleAction? {
-        switch actionType {
-        case .move:
-            guard let destinationURL else { return nil }
-            return .moveToFolder(destinationURL)
-        case .copy:
-            guard let destinationURL else { return nil }
-            return .copyToFolder(destinationURL)
-        case .rename:
-            let template = renameTemplate.trimmingCharacters(in: .whitespacesAndNewlines)
-            return template.isEmpty ? nil : .renameWith(template: template)
-        }
-    }
-
-    /// Full action list: primary picker action + any extra actions.
-    private var builtActions: [RuleAction] {
-        guard let primary = primaryAction else { return [] }
-        return [primary] + extraActions
-    }
-
-    private var builtAction: RuleAction? { primaryAction } // kept for canSave
 
     private func saveRule() {
-        guard let watchedFolderURL, !builtConditions.isEmpty, !builtActions.isEmpty else { return }
+        guard let watchedFolderURL, !builderConditions.isEmpty, !builderActions.isEmpty else { return }
 
         let rule = FMRule(
             id: existingRule?.id ?? UUID(),
             name: ruleName.trimmingCharacters(in: .whitespacesAndNewlines),
             isEnabled: isEnabled,
             watchedFolderURL: watchedFolderURL,
-            conditions: builtConditions,
+            conditions: builderConditions.map { $0.condition },
             conditionLogic: conditionLogic,
-            actions: builtActions,
+            actions: builderActions.map { $0.action },
             priority: existingRule?.priority ?? ruleStore.rules.count
         )
 
@@ -358,7 +292,7 @@ struct RuleBuilderView: View {
 
     @MainActor
     private func refreshPreview() async {
-        guard let watchedFolderURL, !builtConditions.isEmpty, !builtActions.isEmpty else {
+        guard let watchedFolderURL, !builderConditions.isEmpty, !builderActions.isEmpty else {
             dryRunMatches = []
             return
         }
@@ -369,22 +303,14 @@ struct RuleBuilderView: View {
             name: ruleName.isEmpty ? "Preview" : ruleName,
             isEnabled: isEnabled,
             watchedFolderURL: watchedFolderURL,
-            conditions: builtConditions,
+            conditions: builderConditions.map { $0.condition },
             conditionLogic: conditionLogic,
-            actions: builtActions,
+            actions: builderActions.map { $0.action },
             priority: existingRule?.priority ?? 0
         )
 
         dryRunMatches = await RuleEngine.shared.dryRun(rule: previewRule, limit: 10)
         isPreviewLoading = false
-    }
-
-    private func chooseWatchedFolder() {
-        chooseFolder { watchedFolderURL = $0 }
-    }
-
-    private func chooseDestinationFolder() {
-        chooseFolder { destinationURL = $0 }
     }
 
     private func chooseFolder(onSelect: (URL) -> Void) {
@@ -395,6 +321,250 @@ struct RuleBuilderView: View {
         panel.prompt = "Choose"
         if panel.runModal() == .OK, let url = panel.url {
             onSelect(url)
+        }
+    }
+}
+
+// MARK: - Components
+
+struct ConditionRowView: View {
+    @Binding var item: BuilderCondition
+    let onDelete: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Menu {
+                Button("Extension is") { item.condition = .extensionIs([""]) }
+                Button("Name contains") { item.condition = .nameContains("") }
+                Button("Name starts with") { item.condition = .nameStartsWith("") }
+                Button("Name ends with") { item.condition = .nameEndsWith("") }
+                Button("Name matches regex") { item.condition = .nameMatchesRegex("") }
+                Button("Larger than (MB)") { item.condition = .fileSizeGreaterThan(10) }
+                Button("Smaller than (MB)") { item.condition = .fileSizeLessThan(10) }
+                Button("Created within (days)") { item.condition = .dateCreatedWithinDays(7) }
+                Button("Modified within (days)") { item.condition = .dateModifiedWithinDays(7) }
+                Button("Location") { item.condition = .isInSubfolder(true) }
+            } label: {
+                Text(item.condition.typeDisplayName)
+                    .frame(width: 150, alignment: .leading)
+            }
+            .menuStyle(.borderlessButton)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color(nsColor: .windowBackgroundColor))
+            .cornerRadius(6)
+
+            conditionInput
+
+            Spacer()
+
+            Button(action: onDelete) {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundColor(.secondary)
+                    .opacity(0.6)
+            }
+            .buttonStyle(.plain)
+            .padding(.trailing, 8)
+        }
+        .padding(8)
+        .background(Color(nsColor: .controlBackgroundColor))
+        .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color(nsColor: .separatorColor).opacity(0.5), lineWidth: 1)
+        )
+    }
+
+    @ViewBuilder
+    var conditionInput: some View {
+        switch item.condition {
+        case .extensionIs(let exts):
+            let binding = Binding(
+                get: { exts.joined(separator: ", ") },
+                set: { item.condition = .extensionIs($0.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }) }
+            )
+            TextField("e.g. pdf, txt", text: binding)
+                .textFieldStyle(.plain)
+        case .nameContains(let s):
+            TextField("Text", text: Binding(get: { s }, set: { item.condition = .nameContains($0) }))
+                .textFieldStyle(.plain)
+        case .nameStartsWith(let s):
+            TextField("Text", text: Binding(get: { s }, set: { item.condition = .nameStartsWith($0) }))
+                .textFieldStyle(.plain)
+        case .nameEndsWith(let s):
+            TextField("Text", text: Binding(get: { s }, set: { item.condition = .nameEndsWith($0) }))
+                .textFieldStyle(.plain)
+        case .nameMatchesRegex(let r):
+            TextField("Regex", text: Binding(get: { r }, set: { item.condition = .nameMatchesRegex($0) }))
+                .textFieldStyle(.plain)
+        case .fileSizeGreaterThan(let m):
+            Stepper("\(m) MB", value: Binding(get: { m }, set: { item.condition = .fileSizeGreaterThan($0) }), in: 1...10000)
+        case .fileSizeLessThan(let m):
+            Stepper("\(m) MB", value: Binding(get: { m }, set: { item.condition = .fileSizeLessThan($0) }), in: 1...10000)
+        case .dateCreatedWithinDays(let d):
+            Stepper("\(d) days", value: Binding(get: { d }, set: { item.condition = .dateCreatedWithinDays($0) }), in: 1...3650)
+        case .dateModifiedWithinDays(let d):
+            Stepper("\(d) days", value: Binding(get: { d }, set: { item.condition = .dateModifiedWithinDays($0) }), in: 1...3650)
+        case .isInSubfolder(let v):
+            Picker("", selection: Binding(get: { v }, set: { item.condition = .isInSubfolder($0) })) {
+                Text("In a subfolder").tag(true)
+                Text("In the root folder").tag(false)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+        }
+    }
+}
+
+struct ActionRowView: View {
+    @Binding var item: BuilderAction
+    let onDelete: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 12) {
+                Menu {
+                    Button("Move to folder") { item.action = .moveToFolder(URL(fileURLWithPath: NSHomeDirectory())) }
+                    Button("Copy to folder") { item.action = .copyToFolder(URL(fileURLWithPath: NSHomeDirectory())) }
+                    Button("Rename file") { item.action = .renameWith(template: "{name}-new.{ext}") }
+                    Button("Add Tag") { item.action = .addFinderTag("Important") }
+                    Button("Run Script") { item.action = .runShellScript("echo \"processed\"") }
+                    Button("Delete") { item.action = .deleteAfterDays(0) }
+                    Button("Open with App") { item.action = .openWithApp(URL(fileURLWithPath: "/Applications/Preview.app")) }
+                } label: {
+                    Text(item.action.typeDisplayName)
+                        .frame(width: 130, alignment: .leading)
+                }
+                .menuStyle(.borderlessButton)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color(nsColor: .windowBackgroundColor))
+                .cornerRadius(6)
+
+                actionInput
+
+                Spacer()
+
+                Button(action: onDelete) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                        .opacity(0.6)
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, 8)
+            }
+
+            if case .renameWith(let t) = item.action {
+                RenameTokenBar { token in
+                    item.action = .renameWith(template: t + token)
+                }
+                .padding(.leading, 150) // align with input
+            }
+        }
+        .padding(8)
+        .background(Color(nsColor: .controlBackgroundColor))
+        .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color(nsColor: .separatorColor).opacity(0.5), lineWidth: 1)
+        )
+    }
+
+    @ViewBuilder
+    var actionInput: some View {
+        switch item.action {
+        case .moveToFolder(let url), .copyToFolder(let url):
+            HStack {
+                Text(url.lastPathComponent)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Spacer()
+                Button("Choose...") {
+                    chooseFolder { selectedUrl in
+                        if case .moveToFolder = item.action {
+                            item.action = .moveToFolder(selectedUrl)
+                        } else {
+                            item.action = .copyToFolder(selectedUrl)
+                        }
+                    }
+                }
+            }
+        case .renameWith(let t):
+            TextField("Template", text: Binding(get: { t }, set: { item.action = .renameWith(template: $0) }))
+                .textFieldStyle(.plain)
+        case .addFinderTag(let t):
+            TextField("Tag Name", text: Binding(get: { t }, set: { item.action = .addFinderTag($0) }))
+                .textFieldStyle(.plain)
+        case .runShellScript(let s):
+            TextField("Script command", text: Binding(get: { s }, set: { item.action = .runShellScript($0) }))
+                .textFieldStyle(.plain)
+        case .deleteAfterDays(let d):
+            HStack {
+                Stepper("\(d) days", value: Binding(get: { d }, set: { item.action = .deleteAfterDays($0) }), in: 0...365)
+                if d == 0 { Text("(Immediate)").foregroundColor(.secondary) }
+            }
+        case .openWithApp(let url):
+            HStack {
+                Text(url.lastPathComponent)
+                    .lineLimit(1)
+                Spacer()
+                Button("Choose...") {
+                    let panel = NSOpenPanel()
+                    panel.allowedContentTypes = [.application]
+                    if panel.runModal() == .OK, let selectedUrl = panel.url {
+                        item.action = .openWithApp(selectedUrl)
+                    }
+                }
+            }
+        }
+    }
+
+    private func chooseFolder(onSelect: (URL) -> Void) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.prompt = "Choose"
+        if panel.runModal() == .OK, let url = panel.url {
+            onSelect(url)
+        }
+    }
+}
+
+struct RenameTokenBar: View {
+    let onInsert: (String) -> Void
+    
+    let tokens = [
+        ("{name}", "Original name"),
+        ("{ext}", "Extension"),
+        ("{date}", "YYYY-MM-DD"),
+        ("{year}", "YYYY"),
+        ("{month}", "MM"),
+        ("{day}", "DD"),
+        ("{time}", "HH-MM-SS"),
+        ("{counter}", "001"),
+        ("{parent}", "Folder name")
+    ]
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(tokens, id: \.0) { token in
+                    Button {
+                        onInsert(token.0)
+                    } label: {
+                        Text(token.0)
+                            .font(.system(size: 11, design: .monospaced))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(Color.blue.opacity(0.1))
+                            .foregroundColor(.blue)
+                            .cornerRadius(4)
+                    }
+                    .buttonStyle(.plain)
+                    .help(token.1)
+                }
+            }
         }
     }
 }
@@ -410,112 +580,33 @@ private struct SectionTitle: View {
     }
 }
 
-private enum ConditionBuilderType: String, CaseIterable, Identifiable {
-    case fileExtension
-    case nameContains
-    case nameStartsWith
-    case nameEndsWith
-
-    var id: String { rawValue }
-
-    var title: String {
+extension RuleCondition {
+    var typeDisplayName: String {
         switch self {
-        case .fileExtension: return "Extension"
+        case .extensionIs: return "Extension is"
         case .nameContains: return "Name contains"
         case .nameStartsWith: return "Name starts with"
         case .nameEndsWith: return "Name ends with"
-        }
-    }
-
-    init(from condition: RuleCondition?) {
-        guard let condition else {
-            self = .fileExtension
-            return
-        }
-        switch condition {
-        case .extensionIs: self = .fileExtension
-        case .nameContains: self = .nameContains
-        case .nameStartsWith: self = .nameStartsWith
-        case .nameEndsWith: self = .nameEndsWith
-        default: self = .fileExtension // Fallback for complex conditions not yet in builder
+        case .nameMatchesRegex: return "Name matches regex"
+        case .fileSizeGreaterThan: return "Larger than"
+        case .fileSizeLessThan: return "Smaller than"
+        case .dateCreatedWithinDays: return "Created within"
+        case .dateModifiedWithinDays: return "Modified within"
+        case .isInSubfolder: return "Location"
         }
     }
 }
 
-private enum ActionBuilderType: String, CaseIterable, Identifiable {
-    case move
-    case copy
-    case rename
-
-    var id: String { rawValue }
-
-    var title: String {
+extension RuleAction {
+    var typeDisplayName: String {
         switch self {
-        case .move: return "Move"
-        case .copy: return "Copy"
-        case .rename: return "Rename"
+        case .moveToFolder: return "Move to folder"
+        case .copyToFolder: return "Copy to folder"
+        case .renameWith: return "Rename file"
+        case .addFinderTag: return "Add tag"
+        case .runShellScript: return "Run script"
+        case .deleteAfterDays: return "Delete"
+        case .openWithApp: return "Open with App"
         }
-    }
-
-    init(from action: RuleAction?) {
-        guard let action else {
-            self = .move
-            return
-        }
-        switch action {
-        case .moveToFolder: self = .move
-        case .copyToFolder: self = .copy
-        case .renameWith: self = .rename
-        default: self = .move // Fallback for other action types
-        }
-    }
-}
-
-private extension FMRule {
-    /// Returns the extensions from the FIRST extensionIs condition.
-    /// Empty string means no extensionIs condition exists (builder will show empty field).
-    var extensionSeed: String {
-        for condition in conditions {
-            if case .extensionIs(let extensions) = condition {
-                return extensions.joined(separator: ", ")
-            }
-        }
-        return ""
-    }
-
-    /// Returns the string value from the FIRST name-based condition.
-    var nameSeed: String {
-        for condition in conditions {
-            switch condition {
-            case .nameContains(let value), .nameStartsWith(let value), .nameEndsWith(let value):
-                return value
-            default:
-                continue
-            }
-        }
-        return ""
-    }
-
-    /// Returns the destination URL from the FIRST move/copy action.
-    var destinationSeed: URL? {
-        for action in actions {
-            switch action {
-            case .moveToFolder(let url), .copyToFolder(let url):
-                return url
-            default:
-                continue
-            }
-        }
-        return nil
-    }
-
-    /// Returns the rename template from the FIRST renameWith action.
-    var renameSeed: String {
-        for action in actions {
-            if case .renameWith(let template) = action {
-                return template
-            }
-        }
-        return ""
     }
 }

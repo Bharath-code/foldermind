@@ -16,23 +16,30 @@ actor RuleEngine {
     }
 
     func dryRun(rule: FMRule, limit: Int = 10) async -> [DryRunMatch] {
-        guard let contents = try? FileManager.default.contentsOfDirectory(
+        var matches: [DryRunMatch] = []
+        let enumerator = FileManager.default.enumerator(
             at: rule.watchedFolderURL,
-            includingPropertiesForKeys: [.isRegularFileKey]
-        ) else { return [] }
-
-        return contents
-            .filter { evaluate(rule: rule, for: $0) }
-            .prefix(limit)
-            .map { url in
-                let resultName = applyRenameActions(rule.actions, to: url)
-                let resultFolder = applyMoveActions(rule.actions, to: url)
-                return DryRunMatch(
-                    originalPath: url,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles, .skipsPackageDescendants]
+        )
+        
+        while let fileURL = enumerator?.nextObject() as? URL {
+            if matches.count >= limit { break }
+            let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey])
+            if values?.isDirectory == true { continue }
+            
+            if evaluate(rule: rule, for: fileURL) {
+                let resultName = applyRenameActions(rule.actions, to: fileURL)
+                let resultFolder = applyMoveActions(rule.actions, to: fileURL)
+                matches.append(DryRunMatch(
+                    originalPath: fileURL,
                     resultName: resultName,
                     resultFolder: resultFolder
-                )
+                ))
             }
+        }
+        
+        return matches
     }
 
     func executeActions(_ actions: [RuleAction], for fileURL: URL) async -> ActionResult {

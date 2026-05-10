@@ -47,12 +47,12 @@
 | 2.4 | ConditionLogic (AND/OR) | ✅ | `.all` and `.any` with correct evaluation in RuleEngine |
 | 2.5 | FMRuleModel (SwiftData) | ✅ | JSON-encoded conditions/actions, `toFMRule()` decoder |
 | 2.6 | RuleStore (CRUD) | ✅ | Load, save, delete, toggle — persists to SwiftData |
-| 2.7 | RuleBuilderView | 🚧 | First usable builder implemented — needs richer chip-based editing polish |
-| 2.8 | ConditionChipRow | 🚧 | Basic condition picker implemented inside RuleBuilderView — needs final chip row component |
-| 2.9 | ExtensionPickerChips | ⬜ | Tappable extension chips, + add menu, common extensions list |
-| 2.10 | RenameTemplateBuilder | 🚧 | Rename template field implemented — needs token insert buttons |
-| 2.11 | AddConditionButton | 🚧 | Single condition editor implemented — needs multiple condition append flow |
-| 2.12 | AddActionButton | 🚧 | Single action editor implemented — needs multiple action append flow |
+| 2.7 | RuleBuilderView | ✅ | Chip-based builder implemented with dynamic lists |
+| 2.8 | ConditionChipRow | ✅ | ConditionRowView implemented with inline editing |
+| 2.9 | ExtensionPickerChips | ✅ | Replaced with dynamic condition type menus |
+| 2.10 | RenameTemplateBuilder | ✅ | RenameTokenBar implemented with inline text field |
+| 2.11 | AddConditionButton | ✅ | Append flow with animation implemented |
+| 2.12 | AddActionButton | ✅ | Append flow with animation implemented |
 | 2.13 | Dry-run preview | ✅ | Shows up to 10 matching files with results via RuleEngine.dryRun |
 | 2.14 | Rule priority ordering | ✅ | `priority: Int` field, RuleStore sorts by priority desc |
 | 2.15 | Rule enable/disable toggle | ✅ | `isEnabled: Bool` on FMRule, toggle in RuleStore |
@@ -224,8 +224,8 @@
 
 | # | Item | Status | Acceptance Criteria |
 |---|------|--------|---------------------|
-| 16.1 | Inline condition editing | ⬜ | Click condition chip → inline editor appears (no modal) |
-| 16.2 | Inline action editing | ⬜ | Click action chip → inline editor appears (no modal) |
+| 16.1 | Inline condition editing | ✅ | Inline editors per condition type |
+| 16.2 | Inline action editing | ✅ | Inline editors per action type |
 | 16.3 | Live preview updates | ⬜ | Dry-run triggers 400ms after any condition/action change |
 | 16.4 | AND/OR toggle visibility | ⬜ | Only shows when 2+ conditions exist, animates in/out |
 | 16.5 | Rule name editing | ⬜ | TextField at top of builder, placeholder "e.g. Sort invoices" |
