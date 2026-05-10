@@ -30,16 +30,21 @@ struct RuleBuilderView: View {
 
     init(existingRule: FMRule? = nil) {
         self.existingRule = existingRule
-        _ruleName     = State(initialValue: existingRule?.name ?? "")
-        _isEnabled    = State(initialValue: existingRule?.isEnabled ?? true)
-        _watchedFolderURL = State(initialValue: existingRule?.watchedFolderURL)
-        _conditionLogic   = State(initialValue: existingRule?.conditionLogic ?? .all)
-
-        let initialConditions = existingRule?.conditions ?? [.extensionIs([""])]
-        _builderConditions = State(initialValue: initialConditions.map { BuilderCondition(condition: $0) })
-
-        let initialActions = existingRule?.actions ?? [.moveToFolder(URL(fileURLWithPath: NSHomeDirectory()))]
-        _builderActions = State(initialValue: initialActions.map { BuilderAction(action: $0) })
+        if let existing = existingRule {
+            _ruleName = State(initialValue: existing.name)
+            _isEnabled = State(initialValue: existing.isEnabled)
+            _watchedFolderURL = State(initialValue: existing.watchedFolderURL)
+            _conditionLogic = State(initialValue: existing.conditionLogic)
+            _builderConditions = State(initialValue: existing.conditions.map { BuilderCondition(condition: $0) })
+            _builderActions = State(initialValue: existing.actions.map { BuilderAction(action: $0) })
+        } else {
+            _ruleName = State(initialValue: "")
+            _isEnabled = State(initialValue: true)
+            _watchedFolderURL = State(initialValue: nil)
+            _conditionLogic = State(initialValue: .all)
+            _builderConditions = State(initialValue: [BuilderCondition(condition: .extensionIs([""]))])
+            _builderActions = State(initialValue: [BuilderAction(action: .moveToFolder(URL(fileURLWithPath: NSHomeDirectory())))])
+        }
     }
 
     var body: some View {
@@ -82,6 +87,8 @@ struct RuleBuilderView: View {
             .padding(20)
         }
         .frame(minWidth: 720, minHeight: 680)
+        .onAppear { loadExistingRule() }
+        .onChange(of: existingRule?.id) { _, _ in loadExistingRule() }
         .task { await refreshPreview() }
         .onChange(of: builderConditions.map { $0.condition }) { _, _ in Task { await refreshPreview() } }
         .onChange(of: builderActions.map { $0.action }) { _, _ in Task { await refreshPreview() } }
@@ -311,6 +318,25 @@ struct RuleBuilderView: View {
 
         dryRunMatches = await RuleEngine.shared.dryRun(rule: previewRule, limit: 10)
         isPreviewLoading = false
+    }
+
+
+    private func loadExistingRule() {
+        if let existing = existingRule {
+            ruleName = existing.name
+            isEnabled = existing.isEnabled
+            watchedFolderURL = existing.watchedFolderURL
+            conditionLogic = existing.conditionLogic
+            builderConditions = existing.conditions.map { BuilderCondition(condition: $0) }
+            builderActions = existing.actions.map { BuilderAction(action: $0) }
+        } else {
+            ruleName = ""
+            isEnabled = true
+            watchedFolderURL = nil
+            conditionLogic = .all
+            builderConditions = [BuilderCondition(condition: .extensionIs([""]))]
+            builderActions = [BuilderAction(action: .moveToFolder(URL(fileURLWithPath: NSHomeDirectory())))]
+        }
     }
 
     private func chooseFolder(onSelect: (URL) -> Void) {

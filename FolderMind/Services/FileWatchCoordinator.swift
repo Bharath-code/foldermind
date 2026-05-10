@@ -216,19 +216,19 @@ final class FileWatchCoordinator: ObservableObject {
         }
     }
 
-    /// Scans `dirURL` for files modified within the last 10 s and runs matching rules.
+    /// Scans `dirURL` for files added within the last 10 s and runs matching rules.
     private func processRecentFiles(in dirURL: URL, rules: [FMRule], engine: RuleEngine) async {
         guard let contents = try? FileManager.default.contentsOfDirectory(
             at: dirURL,
-            includingPropertiesForKeys: [.contentModificationDateKey, .isDirectoryKey],
+            includingPropertiesForKeys: [.addedToDirectoryDateKey, .isDirectoryKey],
             options: [.skipsHiddenFiles]
         ) else { return }
 
         let cutoff = Date().addingTimeInterval(-10)
         for url in contents {
-            let values = try? url.resourceValues(forKeys: [.contentModificationDateKey, .isDirectoryKey])
+            let values = try? url.resourceValues(forKeys: [.addedToDirectoryDateKey, .isDirectoryKey])
             guard values?.isDirectory == false else { continue }
-            guard let modified = values?.contentModificationDate, modified > cutoff else { continue }
+            guard let added = values?.addedToDirectoryDate, added > cutoff else { continue }
             print("[FileWatchCoordinator] Recently added: \(url.lastPathComponent)")
             await processFile(url, rules: rules, engine: engine)
         }
@@ -245,7 +245,13 @@ final class FileWatchCoordinator: ObservableObject {
             print("[FileWatchCoordinator] '\(rule.name)' → \(result)")
 
             await MainActor.run { logResult(result, rule: rule, sourceURL: fileURL) }
-            break
+            
+            switch result {
+            case .skipped, .failed:
+                continue // Let lower-priority rules try if this one didn't do anything
+            case .moved, .copied:
+                break // Stop evaluating once a file has been successfully processed
+            }
         }
     }
 
