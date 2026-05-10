@@ -18,7 +18,7 @@ struct FolderMindApp: App {
     }
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "main") {
             Group {
                 if appVM.appState == .needsOnboarding {
                     TahoeWindowWrappers.onboardingView()
@@ -60,6 +60,12 @@ struct FolderMindApp: App {
             .frame(minWidth: 800, minHeight: 500)
         }
         .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize)
+        .defaultPosition(.center)
+        
+        Settings {
+            SettingsView()
+        }
 
         MenuBarExtra {
             MenuBarView()

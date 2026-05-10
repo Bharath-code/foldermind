@@ -18,6 +18,7 @@
 		24369344BA142631E9B5421F /* SpotlightQuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9762FBC9D7145ECD07C38927 /* SpotlightQuickActions.swift */; };
 		30C1FDC50A0120DFC4E34E7E /* FMUndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E11EE0A2BB2AFE12FE7FE63 /* FMUndoManager.swift */; };
 		3F1366CA77D5467689A4E7C8 /* PermissionChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A363661774C29744144EA8F4 /* PermissionChecker.swift */; };
+		49CD3856346728E5DB40479C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D4958E112EB40F1E4ECF43 /* SettingsView.swift */; };
 		4BBC6C954E0E2EB83767056E /* FMPrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A573477EBF0D10975071261 /* FMPrimaryButtonStyle.swift */; };
 		4E8A84548BF2C1F00FBF0E3B /* FileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4935603205F3723FDB2C2524 /* FileWatcher.swift */; };
 		5D3BA5322340281FD3C5A428 /* MainWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCCDF34AE9B997BC3F32A4F /* MainWindowView.swift */; };
@@ -72,6 +73,7 @@
 		F2CB8C9A510DCCAE558645C4 /* FileWatchCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatchCoordinator.swift; sourceTree = "<group>"; };
 		F68492F4F3043B8A32AD5B44 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		F7D4958E112EB40F1E4ECF43 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		FAC9121573B82F320BC730B5 /* RuleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -199,6 +201,7 @@
 			children = (
 				7DCCDF34AE9B997BC3F32A4F /* MainWindowView.swift */,
 				D445A58C5E4CD3C1CC0F8B24 /* RuleBuilderView.swift */,
+				F7D4958E112EB40F1E4ECF43 /* SettingsView.swift */,
 			);
 			path = MainWindow;
 			sourceTree = "<group>";
@@ -218,8 +221,6 @@
 			dependencies = (
 			);
 			name = FolderMind;
-			packageProductDependencies = (
-			);
 			productName = FolderMind;
 			productReference = 3B6B3268DC677FD747741038 /* FolderMind.app */;
 			productType = "com.apple.product-type.application";
@@ -303,6 +304,7 @@
 				9EE3B264B59C9E3898C15E77 /* StarterRulesStepView.swift in Sources */,
 				DDE7CDAF17070E6A48742A4E /* TahoeWindowWrappers.swift in Sources */,
 				872512DDE8710A8498F5EDDF /* WelcomeStepView.swift in Sources */,
+				49CD3856346728E5DB40479C /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

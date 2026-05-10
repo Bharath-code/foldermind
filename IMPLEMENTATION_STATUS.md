@@ -329,18 +329,19 @@ FolderMind/
 
 ## Sprint 1 — Finish Phase 1 Core (Ship-able MVP)
 
-1. **File watching lifecycle** (#3.7) — Start watching saved rule folders and process new files automatically
-2. **RuleBuilder polish** (#2.8-2.12, #16.1-16.5) — Multiple chips/actions, token buttons, inline editing polish
+1. **File watching lifecycle** (#3.7) — ✅ Start watching saved rule folders and process new files automatically (Cascading rules fixed)
+2. **RuleBuilder polish** (#2.8-2.12, #16.1-16.5) — ✅ Multiple chips/actions, token buttons, inline editing polish (State sync fixed)
 3. **Onboarding window config** (#1.11, 1.12) — Proper compact onboarding window behavior
 4. **MainWindow polish** (#6.3, #6.7-6.8) — Rule detail, settings, window persistence
-5. **Trial enforcement** (#8.6) — 7-day trial gate
+5. **Menu Bar Integration** (#7.3, #7.4) — Open main window, real-time rule status
+6. **Trial enforcement** (#8.6) — 7-day trial gate
 
 ## Sprint 2 — Polish & Distribute
 
-6. **UI polish** (#15.1-15.8) — Animations, drag-drop, toasts, dark mode, a11y
-7. **Rule builder advanced** (#16.1-16.9) — Inline editing, duplicate, export/import
-8. **Distribution** (#18.1-18.7) — Icon, signing, DMG, Sparkle, landing page, payments
-9. **Testing** (#17.1-17.7) — Unit + integration + UI tests
+7. **UI polish** (#15.1-15.8) — Animations, drag-drop, toasts, dark mode, a11y
+8. **Rule builder advanced** (#16.6-16.9) — Duplicate, export/import
+9. **Distribution** (#18.1-18.7) — Icon, signing, DMG, Sparkle, landing page, payments
+10. **Testing** (#17.1-17.7) — Unit + integration + UI tests
 
 ## Sprint 3 — Tahoe Features
 
