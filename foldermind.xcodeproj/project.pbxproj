@@ -29,6 +29,7 @@
 		9D4FB07D5EF5A509445777B9 /* FolderMindApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563640F452E64C9B40B2632B /* FolderMindApp.swift */; };
 		9EE3B264B59C9E3898C15E77 /* StarterRulesStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CA812293372CF39BEF7EE0 /* StarterRulesStepView.swift */; };
 		A326D1DA1FAC5A3393CF5025 /* FileWatchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2CB8C9A510DCCAE558645C4 /* FileWatchCoordinator.swift */; };
+		A544A1B022EBE6D468D31275 /* WindowConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9436AFCA27A912A9B92638 /* WindowConfigurator.swift */; };
 		B30C5E2F6721CC2419D9F773 /* ProcessingStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBFFDFC2B6BC4828D23DE92B /* ProcessingStepView.swift */; };
 		C7B11BE8F0E6E11347A014F6 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */; };
 		CA8C108EEF2C5531EFFB6936 /* StarterRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96B8B63DBC67873B8E574CF /* StarterRule.swift */; };
@@ -49,6 +50,7 @@
 		4935603205F3723FDB2C2524 /* FileWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatcher.swift; sourceTree = "<group>"; };
 		4A573477EBF0D10975071261 /* FMPrimaryButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FMPrimaryButtonStyle.swift; sourceTree = "<group>"; };
 		563640F452E64C9B40B2632B /* FolderMindApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderMindApp.swift; sourceTree = "<group>"; };
+		5F9436AFCA27A912A9B92638 /* WindowConfigurator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Helpers/WindowConfigurator.swift; sourceTree = "<group>"; };
 		6267399C058252AB54AEB251 /* ActivityEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityEntry.swift; sourceTree = "<group>"; };
 		64CA812293372CF39BEF7EE0 /* StarterRulesStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarterRulesStepView.swift; sourceTree = "<group>"; };
 		6B1860C32DFA52A8450BB411 /* DoneStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoneStepView.swift; sourceTree = "<group>"; };
@@ -115,6 +117,14 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		68AEF832B507276E37800E34 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				5F9436AFCA27A912A9B92638 /* WindowConfigurator.swift */,
+			);
+			name = Helpers;
+			sourceTree = "<group>";
+		};
 		720EAE2956089F0D0E64D7C3 /* Tahoe */ = {
 			isa = PBXGroup;
 			children = (
@@ -166,6 +176,7 @@
 				416DC71769B924C0EF5ACB35 /* FolderMind.entitlements */,
 				563640F452E64C9B40B2632B /* FolderMindApp.swift */,
 				E25B9785E7E283E24194E327 /* Info.plist */,
+				68AEF832B507276E37800E34 /* Helpers */,
 			);
 			path = FolderMind;
 			sourceTree = "<group>";
@@ -305,6 +316,7 @@
 				DDE7CDAF17070E6A48742A4E /* TahoeWindowWrappers.swift in Sources */,
 				872512DDE8710A8498F5EDDF /* WelcomeStepView.swift in Sources */,
 				49CD3856346728E5DB40479C /* SettingsView.swift in Sources */,
+				A544A1B022EBE6D468D31275 /* WindowConfigurator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

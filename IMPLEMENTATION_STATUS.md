@@ -332,8 +332,8 @@ FolderMind/
 1. **File watching lifecycle** (#3.7) — ✅ Start watching saved rule folders and process new files automatically (Cascading rules fixed)
 2. **RuleBuilder polish** (#2.8-2.12, #16.1-16.5) — ✅ Multiple chips/actions, token buttons, inline editing polish (State sync fixed)
 3. **Onboarding window config** (#1.11, 1.12) — Proper compact onboarding window behavior
-4. **MainWindow polish** (#6.3, #6.7-6.8) — Rule detail, settings, window persistence
-5. **Menu Bar Integration** (#7.3, #7.4) — Open main window, real-time rule status
+4. **MainWindow polish** (#6.3) — Rule detail view
+5. **Menu Bar Integration** (#7.3, #7.4) — ✅ Open main window, real-time rule status
 6. **Trial enforcement** (#8.6) — 7-day trial gate
 
 ## Sprint 2 — Polish & Distribute

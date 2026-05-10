@@ -25,30 +25,32 @@ struct FolderMindApp: App {
                         .environmentObject(appVM)
                         .environmentObject(ruleStore)
                         .environmentObject(undoManager)
+                        .onboardingWindowStyle()
                 } else {
                     TahoeWindowWrappers.mainWindowView()
                         .environmentObject(appVM)
                         .environmentObject(ruleStore)
                         .environmentObject(undoManager)
                         .environmentObject(watchCoordinator)
-                        // Start the file watcher as a persistent background service.
-                        // FSEventStream runs at the kernel level and is designed to work
-                        // even when the app is not in the foreground — this is intentional.
+                        .frame(minWidth: 800, minHeight: 500)
+                        .configureWindow { window in
+                            // Ensure the main window is resizable and has controls
+                            window.styleMask.insert([.resizable, .miniaturizable, .closable])
+                            window.standardWindowButton(.closeButton)?.isHidden = false
+                            window.standardWindowButton(.miniaturizeButton)?.isHidden = false
+                            window.standardWindowButton(.zoomButton)?.isHidden = false
+                        }
                         .onAppear {
                             watchCoordinator.start()
                         }
-                        // Stop only when the app actually terminates, not on focus loss.
                         .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
                             watchCoordinator.stop()
                         }
-                        // Restart the watcher when FDA is granted mid-session
-                        // (user grants it while the app is open).
                         .onReceive(Timer.publish(every: 3, on: .main, in: .common).autoconnect()) { _ in
                             if PermissionChecker.hasFullDiskAccess {
-                                watchCoordinator.start() // no-op if already running
+                                watchCoordinator.start()
                             }
                         }
-                        // Keep tracking active state for any future UI needs (menu bar status, etc.)
                         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
                             appVM.appDidBecomeActive()
                         }
@@ -57,7 +59,6 @@ struct FolderMindApp: App {
                         }
                 }
             }
-            .frame(minWidth: 800, minHeight: 500)
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
