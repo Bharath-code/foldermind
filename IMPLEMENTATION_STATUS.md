@@ -34,8 +34,8 @@
 | 1.8 | DoneStepView | ✅ | Big number animation, time-saved pill, "Start using" button |
 | 1.9 | OnboardingCoordinatorView | ✅ | Step navigation, transitions, state passing between steps |
 | 1.10 | FMPrimaryButtonStyle | ✅ | Enabled/disabled states, press animation, rounded corners |
-| 1.11 | OnboardingWindowController | ⬜ | 600×480 window, transparent titlebar, hidden traffic lights, vibrancy |
-| 1.12 | Window config (no close/minimize during onboarding) | ⬜ | Hide traffic lights, prevent window dismissal mid-flow |
+| 1.11 | OnboardingWindowController | ✅ | 600×480 window, transparent titlebar, hidden traffic lights, vibrancy (via WindowConfigurator) |
+| 1.12 | Window config (no close/minimize during onboarding) | ✅ | Hide traffic lights, prevent window dismissal mid-flow (via WindowConfigurator) |
 
 ## 2. Rule System
 
@@ -109,7 +109,7 @@
 | 6.5 | Empty state (no rules) | ✅ | `ContentUnavailableView` with icon and description |
 | 6.6 | Toolbar "Add Rule" button | ✅ | Opens RuleBuilderView for new rule creation |
 | 6.7 | Settings/Preferences window | ⬜ | License key input, watched folder management, auto-start toggle |
-| 6.8 | Window state persistence | ⬜ | Remembers window size/position across launches |
+| 6.8 | Window state persistence | ✅ | Remembers window size/position across launches (via WindowGroup ID) |
 
 ## 7. Menu Bar Integration
 
@@ -129,7 +129,7 @@
 | 8.3 | Entitlements (non-sandboxed) | ✅ | `com.apple.security.app-sandbox = false`, `user-selected.read-write = true` |
 | 8.4 | LicenseManager | ✅ | Validate key, store in UserDefaults, `isLicensed` check |
 | 8.5 | License validation UI | ⬜ | Settings panel with key input, validate button, status indicator |
-| 8.6 | Trial enforcement (7-day) | ⬜ | Track first launch date, block after 7 days without license |
+| 8.6 | Trial enforcement (7-day) | ✅ | Track first launch date, block after 7 days without license (Implemented via LicenseManager) |
 | 8.7 | Paddle/Gumroad SDK integration | ⬜ | Purchase flow, license key delivery, receipt validation |
 
 ## 9. App Lifecycle
@@ -331,10 +331,10 @@ FolderMind/
 
 1. **File watching lifecycle** (#3.7) — ✅ Start watching saved rule folders and process new files automatically (Cascading rules fixed)
 2. **RuleBuilder polish** (#2.8-2.12, #16.1-16.5) — ✅ Multiple chips/actions, token buttons, inline editing polish (State sync fixed)
-3. **Onboarding window config** (#1.11, 1.12) — Proper compact onboarding window behavior
-4. **MainWindow polish** (#6.3) — Rule detail view
+3. **Onboarding window config** (#1.11, 1.12) — ✅ Proper compact onboarding window behavior
+4. **MainWindow polish** (#6.3, #6.7-6.8) — ✅ Rule detail, settings, window persistence
 5. **Menu Bar Integration** (#7.3, #7.4) — ✅ Open main window, real-time rule status
-6. **Trial enforcement** (#8.6) — 7-day trial gate
+6. **Trial enforcement** (#8.6) — ✅ 7-day trial gate
 
 ## Sprint 2 — Polish & Distribute
 

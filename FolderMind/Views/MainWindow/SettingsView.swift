@@ -13,6 +13,11 @@ struct SettingsView: View {
                 .tabItem {
                     Label("License", systemImage: "key")
                 }
+            
+            DebugSettingsView()
+                .tabItem {
+                    Label("Debug", systemImage: "ladybug")
+                }
         }
         .frame(width: 450, height: 250)
     }
@@ -85,6 +90,33 @@ struct LicenseSettingsView: View {
                     .buttonStyle(FMPrimaryButtonStyle())
                 }
                 .padding(.top, 8)
+            }
+        }
+        .padding(30)
+    }
+}
+
+struct DebugSettingsView: View {
+    @EnvironmentObject var appVM: AppViewModel
+    
+    var body: some View {
+        Form {
+            Section("Trial Debugging") {
+                Button("Simulate Trial Expiry") {
+                    LicenseManager.shared.simulateExpiry()
+                    // Force a UI refresh
+                    appVM.objectWillChange.send()
+                }
+                
+                Button("Reset Trial & License") {
+                    LicenseManager.shared.resetTrial()
+                    // Force a UI refresh
+                    appVM.objectWillChange.send()
+                }
+                
+                Text("Changes will reflect immediately in the UI.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
         }
         .padding(30)

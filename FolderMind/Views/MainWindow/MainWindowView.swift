@@ -123,6 +123,10 @@ struct SidebarView: View {
         .listStyle(.sidebar)
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 0) {
+                if !LicenseManager.shared.isLicensed {
+                    TrialStatusPill(daysRemaining: LicenseManager.shared.daysRemaining)
+                        .padding(.vertical, 8)
+                }
                 Divider()
                 Button {
                     Task {
