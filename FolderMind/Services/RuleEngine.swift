@@ -144,6 +144,12 @@ actor RuleEngine {
 
     private func performMove(_ source: URL, _ destination: URL, actions: [RuleAction]) async -> ActionResult {
         let fm = FileManager.default
+        
+        // Prevent race conditions where FSEvents and Drag-and-Drop both try to move the file.
+        guard fm.fileExists(atPath: source.path) else {
+            return .skipped("Source file no longer exists (likely already processed).")
+        }
+        
         do {
             if actions.contains(where: { if case .copyToFolder = $0 { true } else { false } }) {
                 print("[RuleEngine] Copying \(source.path) to \(destination.path)")

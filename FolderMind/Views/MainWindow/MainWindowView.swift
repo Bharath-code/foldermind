@@ -9,6 +9,7 @@ struct MainWindowView: View {
     @State private var selection: MainWindowSection? = .rules
     @State private var ruleBuilderIntent: RuleBuilderIntent? = nil
     @State private var hasFDA: Bool = PermissionChecker.hasFullDiskAccess
+    @State private var isDropTargeted = false
 
     var body: some View {
         ZStack {
@@ -56,7 +57,50 @@ struct MainWindowView: View {
                 }
             }
             
+            // Global Drop Zone Overlay
+            if isDropTargeted {
+                Color.black.opacity(0.4)
+                    .background(.ultraThinMaterial)
+                    .overlay(
+                        VStack(spacing: 16) {
+                            Image(systemName: "arrow.down.doc.fill")
+                                .font(.system(size: 64))
+                                .foregroundStyle(.white)
+                                .shadow(radius: 10)
+                            Text("Drop to Organize")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundStyle(.white)
+                                .shadow(radius: 10)
+                        }
+                    )
+                    .ignoresSafeArea()
+            }
+            
             ToastContainerView(manager: toastManager)
+        }
+        .animation(.snappy, value: isDropTargeted)
+        .onDrop(of: [.fileURL], isTargeted: $isDropTargeted) { providers in
+            let group = DispatchGroup()
+            var droppedURLs: [URL] = []
+            
+            for provider in providers {
+                group.enter()
+                _ = provider.loadObject(ofClass: NSURL.self) { item, _ in
+                    if let url = item as? URL {
+                        droppedURLs.append(url)
+                    }
+                    group.leave()
+                }
+            }
+            
+            group.notify(queue: .main) {
+                if !droppedURLs.isEmpty {
+                    Task {
+                        await watchCoordinator.processDroppedFiles(droppedURLs)
+                    }
+                }
+            }
+            return true
         }
         // Poll FDA status every 2 seconds — banner disappears the moment FDA is granted.
         .onReceive(Timer.publish(every: 2, on: .main, in: .common).autoconnect()) { _ in
@@ -243,6 +287,10 @@ struct ActivityRowView: View {
         }
         .opacity(entry.isUndone ? 0.5 : 1.0)
         .padding(.vertical, 4)
+        .onDrag {
+            // Drag out of app
+            NSItemProvider(object: entry.destinationURL as NSURL)
+        }
     }
 
     private func iconForAction(_ action: ActionType) -> String {

@@ -116,6 +116,34 @@ final class FileWatchCoordinator: ObservableObject {
         print("[FileWatchCoordinator] Manual scan completed.")
     }
 
+    /// Processes files that are manually drag-and-dropped onto the app window.
+    /// This bypasses the rule's `watchedFolderURL` and acts as a global drop zone,
+    /// evaluating against all enabled rules sorted by priority.
+    func processDroppedFiles(_ urls: [URL]) async {
+        print("[FileWatchCoordinator] Processing \(urls.count) manually dropped files...")
+        let allEnabledRules = ruleStore.rules.filter(\.isEnabled)
+        let engine = RuleEngine.shared
+        
+        guard !allEnabledRules.isEmpty else {
+            print("[FileWatchCoordinator] No enabled rules to process dropped files.")
+            return
+        }
+        
+        let sortedRules = allEnabledRules.sorted { $0.priority > $1.priority }
+        
+        for url in urls {
+            // Check if it's a directory
+            let values = try? url.resourceValues(forKeys: [.isDirectoryKey])
+            if values?.isDirectory == true {
+                print("[FileWatchCoordinator] Skipping directory drop: \(url.lastPathComponent)")
+                continue
+            }
+            
+            await processFile(url, rules: sortedRules, engine: engine)
+        }
+        print("[FileWatchCoordinator] Finished processing dropped files.")
+    }
+
     // MARK: – Watcher Graph
 
     /// Diff current watchers against the set of folders implied by enabled rules.

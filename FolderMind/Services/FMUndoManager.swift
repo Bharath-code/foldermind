@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 @MainActor
 class FMUndoManager: ObservableObject {
@@ -16,7 +17,9 @@ class FMUndoManager: ObservableObject {
     }
 
     func logAction(_ entry: ActivityEntry) {
-        entries.insert(entry, at: 0)
+        withAnimation(.snappy) {
+            entries.insert(entry, at: 0)
+        }
         saveEntries()
     }
 
@@ -41,8 +44,10 @@ class FMUndoManager: ObservableObject {
             if fm.fileExists(atPath: entry.destinationURL.path) {
                 do {
                     try fm.moveItem(at: entry.destinationURL, to: entry.sourceURL)
-                    updatedEntry.isUndone = true
-                    updateEntry(updatedEntry)
+                    withAnimation(.snappy) {
+                        updatedEntry.isUndone = true
+                        updateEntry(updatedEntry)
+                    }
                 } catch {
                     // Handle error
                 }
@@ -51,8 +56,10 @@ class FMUndoManager: ObservableObject {
         case .copied:
             if fm.fileExists(atPath: entry.destinationURL.path) {
                 try? fm.removeItem(at: entry.destinationURL)
-                updatedEntry.isUndone = true
-                updateEntry(updatedEntry)
+                withAnimation(.snappy) {
+                    updatedEntry.isUndone = true
+                    updateEntry(updatedEntry)
+                }
             }
 
         case .renamed, .deleted, .createdFolder:

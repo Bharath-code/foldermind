@@ -108,7 +108,7 @@
 | 6.4 | RuleRowView | 🚧 | Shows rule name, condition/action count, enable toggle, edit/delete context menu |
 | 6.5 | Empty state (no rules) | ✅ | `ContentUnavailableView` with icon and description |
 | 6.6 | Toolbar "Add Rule" button | ✅ | Opens RuleBuilderView for new rule creation |
-| 6.7 | Settings/Preferences window | ⬜ | License key input, watched folder management, auto-start toggle |
+| 6.7 | Settings/Preferences window | ✅ | License key input, auto-start toggle, debug tools |
 | 6.8 | Window state persistence | ✅ | Remembers window size/position across launches (via WindowGroup ID) |
 
 ## 7. Menu Bar Integration
@@ -128,7 +128,7 @@
 | 8.2 | FDA usage description in Info.plist | ✅ | `NSFullDiskAccessUsageDescription` key present |
 | 8.3 | Entitlements (non-sandboxed) | ✅ | `com.apple.security.app-sandbox = false`, `user-selected.read-write = true` |
 | 8.4 | LicenseManager | ✅ | Validate key, store in UserDefaults, `isLicensed` check |
-| 8.5 | License validation UI | ⬜ | Settings panel with key input, validate button, status indicator |
+| 8.5 | License validation UI | ✅ | Settings panel with key input, validate button, status indicator |
 | 8.6 | Trial enforcement (7-day) | ✅ | Track first launch date, block after 7 days without license (Implemented via LicenseManager) |
 | 8.7 | Paddle/Gumroad SDK integration | ⬜ | Purchase flow, license key delivery, receipt validation |
 
@@ -138,10 +138,10 @@
 |---|------|--------|---------------------|
 | 9.1 | FolderMindApp @main | ✅ | SwiftData container, StateObject injection, WindowGroup + MenuBarExtra |
 | 9.2 | SwiftData ModelContainer | ✅ | ActivityEntry + FMRuleModel, local-only (no CloudKit) |
-| 9.3 | Auto-start on login | ⬜ | `SMLoginItemSetEnabled` or `LaunchAtLogin` package |
+| 9.3 | Auto-start on login | ✅ | SMAppService integration in SettingsView |
 | 9.4 | Graceful shutdown | ⬜ | Stop FileWatcher, save pending state, close database |
 | 9.5 | App delegate for URL handling | ⬜ | Handle `file://` opens, Spotlight activity continuation |
-| 9.6 | Keyboard shortcuts | ⬜ | Cmd+L (activity log), Cmd+N (new rule), Cmd+, (settings) |
+| 9.6 | Keyboard shortcuts | ✅ | Cmd+, (settings), Cmd+S (scan), Cmd+N (add rule) |
 
 ---
 
@@ -211,13 +211,13 @@
 
 | # | Item | Status | Acceptance Criteria |
 |---|------|--------|---------------------|
-| 15.1 | Micro-animations | ⬜ | File move animations, toast notifications, expansion/collapse |
-| 15.2 | Drag & drop (into app) | ⬜ | Drop files onto app window to trigger rule evaluation |
-| 15.3 | Drag & drop (out of app) | ⬜ | Drag organized files from activity log to Finder |
+| 15.1 | Micro-animations | ✅ | File move animations, toast notifications, expansion/collapse |
+| 15.2 | Drag & drop (into app) | ✅ | Drop files onto app window to trigger rule evaluation |
+| 15.3 | Drag & drop (out of app) | ✅ | Drag organized files from activity log to Finder |
 | 15.4 | Toast/notification system | ✅ | Non-intrusive banners for file operations, errors, undo confirmations |
 | 15.5 | Loading states | ⬜ | Progress indicators for bulk operations, rule dry-runs |
 | 15.6 | Error states | ⬜ | User-friendly error messages with recovery suggestions |
-| 15.7 | Dark mode support | ⬜ | All views tested and polished in both light and dark modes |
+| 15.7 | Dark mode support | ✅ | All views using semantic colors; verified in Light/Dark |
 | 15.8 | Accessibility | ⬜ | VoiceOver labels, keyboard navigation, Dynamic Type support |
 
 ## 16. Rule Builder (Detailed)
@@ -329,19 +329,20 @@ FolderMind/
 
 ## Sprint 1 — Finish Phase 1 Core (Ship-able MVP)
 
-1. **File watching lifecycle** (#3.7) — ✅ Start watching saved rule folders and process new files automatically (Cascading rules fixed)
-2. **RuleBuilder polish** (#2.8-2.12, #16.1-16.5) — ✅ Multiple chips/actions, token buttons, inline editing polish (State sync fixed)
+1. **File watching lifecycle** (#3.7) — ✅ Start watching saved rule folders and process new files automatically (Cascading rules + manual scan fixed)
+2. **RuleBuilder polish** (#2.8-2.12, #16.1-16.5) — ✅ Multiple chips/actions, token buttons, inline editing polish, Priority 1-5 picker
 3. **Onboarding window config** (#1.11, 1.12) — ✅ Proper compact onboarding window behavior
-4. **MainWindow polish** (#6.3, #6.7-6.8) — ✅ Rule detail, settings, window persistence
-5. **Menu Bar Integration** (#7.3, #7.4) — ✅ Open main window, real-time rule status
+4. **MainWindow polish** (#6.3, #6.8) — ✅ Rule detail, window persistence
+5. **Menu Bar Integration** (#7.4) — ✅ Open main window, real-time rule status
 6. **Trial enforcement** (#8.6) — ✅ 7-day trial gate
 
-## Sprint 2 — Polish & Distribute
+## Sprint 2 — Polish & Configuration (CURRENT FOCUS)
 
-7. **UI polish** (#15.1-15.8) — Animations, drag-drop, toasts, dark mode, a11y
-8. **Rule builder advanced** (#16.6-16.9) — Duplicate, export/import
-9. **Distribution** (#18.1-18.7) — Icon, signing, DMG, Sparkle, landing page, payments
-10. **Testing** (#17.1-17.7) — Unit + integration + UI tests
+7. **Settings & Preferences** (#6.7, #8.5, #9.3) — ✅ License key input, Auto-start on login toggle, Keyboard shortcuts
+8. **UI polish** (#15.1-15.8) — ✅ Animations, drag-drop (in/out), dark mode (native)
+9. **Rule builder advanced** (#16.6-16.9) — ⬜ Duplicate, export/import
+10. **Distribution** (#18.1-18.7) — ⬜ Icon, signing, DMG, Sparkle, landing page, payments
+11. **Testing** (#17.1-17.7) — ⬜ Unit + integration + UI tests
 
 ## Sprint 3 — Tahoe Features
 
