@@ -36,3 +36,33 @@ targets:
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: ""
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+
+  FolderMindTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: FolderMindTests
+      - path: FolderMind/Services/RuleEngine.swift
+      - path: FolderMind/Services/RenameEngine.swift
+      - path: FolderMind/Services/ConflictResolver.swift
+      - path: FolderMind/Models/RuleModel.swift
+      - path: FolderMind/Models/ActivityEntry.swift
+      - path: FolderMind/Services/ToastManager.swift
+      - path: FolderMind/Services/RuleStore.swift
+    dependencies: []
+
+schemes:
+  FolderMind:
+    build:
+      targets:
+        FolderMind: [all]
+    test:
+      targets:
+        - FolderMindTests
+  FolderMindTests:
+    build:
+      targets:
+        FolderMindTests: [all]
+    test:
+      targets:
+        - FolderMindTests
