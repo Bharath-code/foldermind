@@ -230,9 +230,9 @@
 | 16.4 | AND/OR toggle visibility | ⬜ | Only shows when 2+ conditions exist, animates in/out |
 | 16.5 | Rule name editing | ⬜ | TextField at top of builder, placeholder "e.g. Sort invoices" |
 | 16.6 | Delete rule confirmation | ⬜ | Confirmation dialog before deleting a rule |
-| 16.7 | Duplicate rule | ⬜ | Right-click context menu → "Duplicate" creates copy |
-| 16.8 | Rule reordering | ⬜ | Drag to reorder rules (changes priority) |
-| 16.9 | Export/import rules | ⬜ | JSON export/import via `RuleBackupManager` |
+| 16.7 | Duplicate rule | ✅ | Right-click context menu → "Duplicate" creates copy |
+| 16.8 | Rule reordering | ✅ | Drag to reorder rules (changes priority) |
+| 16.9 | Export/import rules | ✅ | JSON export/import via `RuleBackupManager` |
 
 ## 17. Testing
 
@@ -340,7 +340,7 @@ FolderMind/
 
 7. **Settings & Preferences** (#6.7, #8.5, #9.3) — ✅ License key input, Auto-start on login toggle, Keyboard shortcuts
 8. **UI polish** (#15.1-15.8) — ✅ Animations, drag-drop (in/out), dark mode (native)
-9. **Rule builder advanced** (#16.6-16.9) — ⬜ Duplicate, export/import
+9. **Rule builder advanced** (#16.6-16.9) — ✅ Duplicate, export/import (JSON)
 10. **Distribution** (#18.1-18.7) — ⬜ Icon, signing, DMG, Sparkle, landing page, payments
 11. **Testing** (#17.1-17.7) — ⬜ Unit + integration + UI tests
 

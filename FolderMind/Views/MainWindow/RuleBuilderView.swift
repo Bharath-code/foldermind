@@ -44,7 +44,7 @@ struct RuleBuilderView: View {
             _isEnabled = State(initialValue: true)
             _watchedFolderURL = State(initialValue: nil)
             _conditionLogic = State(initialValue: .all)
-            _priority = State(initialValue: 3) // Normal
+            _priority = State(initialValue: 60) // Normal
             _builderConditions = State(initialValue: [BuilderCondition(condition: .extensionIs([""]))])
             _builderActions = State(initialValue: [BuilderAction(action: .moveToFolder(URL(fileURLWithPath: NSHomeDirectory())))])
         }
@@ -132,12 +132,30 @@ struct RuleBuilderView: View {
                     Text("Priority:")
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Picker("", selection: $priority) {
-                        Text("Highest (5)").tag(5)
-                        Text("High (4)").tag(4)
-                        Text("Normal (3)").tag(3)
-                        Text("Low (2)").tag(2)
-                        Text("Lowest (1)").tag(1)
+                    Picker("", selection: Binding(
+                        get: {
+                            if priority >= 90 { return 5 }
+                            if priority >= 70 { return 4 }
+                            if priority >= 45 { return 3 }
+                            if priority >= 25 { return 2 }
+                            return 1
+                        },
+                        set: { newValue in
+                            switch newValue {
+                            case 5: priority = 100
+                            case 4: priority = 80
+                            case 3: priority = 60
+                            case 2: priority = 40
+                            case 1: priority = 20
+                            default: priority = 60
+                            }
+                        }
+                    )) {
+                        Text("Highest").tag(5)
+                        Text("High").tag(4)
+                        Text("Normal").tag(3)
+                        Text("Low").tag(2)
+                        Text("Lowest").tag(1)
                     }
                     .labelsHidden()
                     .frame(width: 110)

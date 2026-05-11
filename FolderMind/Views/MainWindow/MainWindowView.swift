@@ -44,6 +44,23 @@ struct MainWindowView: View {
                 .navigationTitle("FolderMind")
                 .toolbar {
                     ToolbarItemGroup(placement: .primaryAction) {
+                        Menu {
+                            Button(action: { RuleBackupManager.export(rules: ruleStore.rules) }) {
+                                Label("Export Backup...", systemImage: "square.and.arrow.up")
+                            }
+                            Button(action: { 
+                                RuleBackupManager.importRules { newRules in
+                                    if let rules = newRules {
+                                        ruleStore.importRules(rules)
+                                    }
+                                }
+                            }) {
+                                Label("Import Backup...", systemImage: "square.and.arrow.down")
+                            }
+                        } label: {
+                            Label("Backup", systemImage: "arrow.up.doc")
+                        }
+                        
                         Button("Add Rule", systemImage: "plus") {
                             ruleBuilderIntent = .create
                         }
@@ -211,13 +228,17 @@ struct RuleListView: View {
                     description: Text("Create your first rule to start organising files automatically.")
                 )
             } else {
-                List(ruleStore.rules) { rule in
-                    RuleRowView(
-                        rule: rule,
-                        onEdit: { onEdit(rule) },
-                        onToggle: { onToggle(rule) },
-                        onDelete: { onDelete(rule) }
-                    )
+                List {
+                    ForEach(ruleStore.rules) { rule in
+                        RuleRowView(
+                            rule: rule,
+                            onEdit: { onEdit(rule) },
+                            onToggle: { onToggle(rule) },
+                            onDuplicate: { ruleStore.duplicateRule(rule) },
+                            onDelete: { onDelete(rule) }
+                        )
+                    }
+                    .onMove(perform: ruleStore.moveRules)
                 }
             }
         }
@@ -318,14 +339,23 @@ struct RuleRowView: View {
     let rule: FMRule
     var onEdit: () -> Void
     var onToggle: () -> Void
+    var onDuplicate: () -> Void
     var onDelete: () -> Void
 
+    @State private var showingDeleteAlert = false
+
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
+            // Drag Handle
+            Image(systemName: "line.3.horizontal")
+                .font(.system(size: 14))
+                .foregroundStyle(.tertiary)
+
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
                     Text(rule.name)
                         .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(rule.isEnabled ? .primary : .secondary)
                     
                     Text(priorityString(for: rule.priority))
                         .font(.system(size: 9, weight: .bold))
@@ -339,41 +369,67 @@ struct RuleRowView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onEdit) // Tap on text to edit
+
             Spacer()
-            Toggle("", isOn: Binding(
-                get: { rule.isEnabled },
-                set: { _ in onToggle() }
-            ))
+            
+            HStack(spacing: 12) {
+                Toggle("", isOn: Binding(
+                    get: { rule.isEnabled },
+                    set: { _ in onToggle() }
+                ))
                 .toggleStyle(.switch)
                 .labelsHidden()
-                .scaleEffect(0.8)
+                .scaleEffect(0.7)
 
-            Button(action: onDelete) {
-                Image(systemName: "trash")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                Button(action: onDuplicate) {
+                    Image(systemName: "doc.on.doc")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help("Duplicate Rule")
+
+                Button(action: { showingDeleteAlert = true }) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help("Delete Rule")
+                .alert("Delete Rule?", isPresented: $showingDeleteAlert) {
+                    Button("Delete", role: .destructive, action: onDelete)
+                    Button("Cancel", role: .cancel) { }
+                } message: {
+                    Text("Are you sure you want to delete '\(rule.name)'? This action cannot be undone.")
+                }
             }
-            .buttonStyle(.plain)
-            .padding(.leading, 4)
         }
         .padding(.vertical, 4)
+        .padding(.horizontal, 8)
         .contentShape(Rectangle())
-        .onTapGesture(perform: onEdit)
+        .onHover { inside in
+            if inside {
+                NSCursor.pointingHand.set()
+            } else {
+                NSCursor.arrow.set()
+            }
+        }
         .contextMenu {
             Button("Edit", systemImage: "pencil", action: onEdit)
-            Button("Delete", systemImage: "trash", role: .destructive, action: onDelete)
+            Button("Duplicate", systemImage: "doc.on.doc", action: onDuplicate)
+            Divider()
+            Button("Delete", systemImage: "trash", role: .destructive, action: { showingDeleteAlert = true })
         }
     }
 
     private func priorityString(for level: Int) -> String {
-        switch level {
-        case 5: return "HIGHEST"
-        case 4: return "HIGH"
-        case 3: return "NORMAL"
-        case 2: return "LOW"
-        case 1: return "LOWEST"
-        default: return "P\(level)"
-        }
+        if level >= 90 { return "HIGHEST" }
+        if level >= 70 { return "HIGH" }
+        if level >= 45 { return "NORMAL" }
+        if level >= 25 { return "LOW" }
+        return "LOWEST"
     }
 }
 
