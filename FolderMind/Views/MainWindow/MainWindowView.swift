@@ -61,6 +61,12 @@ struct MainWindowView: View {
                             Label("Backup", systemImage: "arrow.up.doc")
                         }
                         
+                        if watchCoordinator.isProcessing {
+                            ProgressView()
+                                .controlSize(.small)
+                                .transition(.scale.combined(with: .opacity))
+                        }
+                        
                         Button("Add Rule", systemImage: "plus") {
                             ruleBuilderIntent = .create
                         }
@@ -390,6 +396,7 @@ struct RuleRowView: View {
                 }
                 .buttonStyle(.plain)
                 .help("Duplicate Rule")
+                .accessibilityLabel("Duplicate Rule")
 
                 Button(action: { showingDeleteAlert = true }) {
                     Image(systemName: "trash")
@@ -398,6 +405,7 @@ struct RuleRowView: View {
                 }
                 .buttonStyle(.plain)
                 .help("Delete Rule")
+                .accessibilityLabel("Delete Rule")
                 .alert("Delete Rule?", isPresented: $showingDeleteAlert) {
                     Button("Delete", role: .destructive, action: onDelete)
                     Button("Cancel", role: .cancel) { }

@@ -161,8 +161,25 @@ actor RuleEngine {
                 return .moved(destination)
             }
         } catch {
-            return .failed(error.localizedDescription)
+            return .failed(userFriendlyError(from: error))
         }
+    }
+
+    private func userFriendlyError(from error: Error) -> String {
+        let nsError = error as NSError
+        if nsError.domain == NSCocoaErrorDomain {
+            switch nsError.code {
+            case NSFileWriteNoPermissionError, NSFileReadNoPermissionError:
+                return "Permission denied. Please ensure FolderMind has 'Full Disk Access' in System Settings."
+            case NSFileWriteOutOfSpaceError:
+                return "Disk is full. Please free up some space and try again."
+            case NSFileWriteFileExistsError:
+                return "File already exists at destination. Check your rule settings."
+            default:
+                break
+            }
+        }
+        return error.localizedDescription
     }
 }
 

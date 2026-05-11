@@ -26,6 +26,10 @@ final class FileWatchCoordinator: ObservableObject {
 
     @Published private(set) var isWatching = false
     @Published private(set) var activeWatcherCount = 0
+    @Published private(set) var isProcessing = false
+    private var processingCount = 0 {
+        didSet { isProcessing = processingCount > 0 }
+    }
 
     // MARK: – Init
 
@@ -286,6 +290,9 @@ final class FileWatchCoordinator: ObservableObject {
 
     /// Evaluates `rules` against `fileURL` in priority order — first match wins.
     private func processFile(_ fileURL: URL, rules: [FMRule], engine: RuleEngine) async {
+        processingCount += 1
+        defer { processingCount -= 1 }
+        
         for rule in rules {
             print("[FileWatchCoordinator] Evaluating '\(rule.name)' against \(fileURL.lastPathComponent)")
             let matched = await engine.evaluate(rule: rule, for: fileURL)
