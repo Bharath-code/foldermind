@@ -1,7 +1,7 @@
 # FolderMind — Implementation Status & Roadmap
 
 > Source of truth for all development work
-> Last updated: 2026-05-08
+> Last updated: 2026-05-11
 > Target: macOS 13+ with Tahoe progressive enhancement
 > Price: $14.99 one-time
 
@@ -238,9 +238,9 @@
 
 | # | Item | Status | Acceptance Criteria |
 |---|------|--------|---------------------|
-| 17.1 | Unit tests: RuleEngine | ⬜ | Test all 11 condition types with sample files |
-| 17.2 | Unit tests: ConflictResolver | ⬜ | Test collision detection, counter naming, folder creation |
-| 17.3 | Unit tests: RenameEngine | ⬜ | Test all token replacements with sample filenames |
+| 17.1 | Unit tests: RuleEngine | ✅ | Test all 11 condition types with sample files |
+| 17.2 | Unit tests: ConflictResolver | ✅ | Test collision detection, counter naming, folder creation |
+| 17.3 | Unit tests: RenameEngine | ✅ | Test all token replacements with sample filenames |
 | 17.4 | Unit tests: FileWatcher | ⬜ | Test event classification, debouncing behavior |
 | 17.5 | Integration tests: Full pipeline | ⬜ | File arrives → watched → matched → moved → logged |
 | 17.6 | UI tests: Onboarding flow | ⬜ | Complete all 6 steps, verify state persistence |
@@ -250,9 +250,9 @@
 
 | # | Item | Status | Acceptance Criteria |
 |---|------|--------|---------------------|
-| 18.1 | App icon | ⬜ | 1024×1024 icon, all required @1x/@2x sizes |
-| 18.2 | Code signing | ⬜ | Developer ID certificate, notarization |
-| 18.3 | DMG installer | ⬜ | Custom background, drag-to-Applications layout |
+| 18.1 | App icon | ✅ | 1024×1024 icon, all required @1x/@2x sizes |
+| 18.2 | Code signing | ✅ | Developer ID certificate, notarization |
+| 18.3 | DMG installer | ✅ | Custom background, drag-to-Applications layout |
 | 18.4 | Sparkle updates | ⬜ | In-app update checking, release notes, download |
 | 18.5 | Landing page | ⬜ | Hero, problem, how it works, pricing, FAQ, download CTA |
 | 18.6 | Privacy policy | ⬜ | "Files never leave your Mac" statement, data collection (none) |
@@ -341,8 +341,9 @@ FolderMind/
 7. **Settings & Preferences** (#6.7, #8.5, #9.3) — ✅ License key input, Auto-start on login toggle, Keyboard shortcuts
 8. **UI polish** (#15.1-15.8) — ✅ Animations, drag-drop (in/out), dark mode (native)
 9. **Rule builder advanced** (#16.6-16.9) — ✅ Duplicate, export/import (JSON)
-10. **Distribution** (#18.1-18.7) — ⬜ Icon, signing, DMG, Sparkle, landing page, payments
-11. **Testing** (#17.1-17.7) — ⬜ Unit + integration + UI tests
+10. **Distribution (Core)** (#18.1-18.3) — ✅ Icon, signing, DMG
+11. **Testing (Core)** (#17.1-17.3) — ✅ Unit tests for engine/logic
+12. **Web & Growth** (#18.5-18.7) — ⬜ Landing page, payments, Sparkle
 
 ## Sprint 3 — Tahoe Features
 

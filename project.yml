@@ -50,19 +50,3 @@ targets:
       - path: FolderMind/Services/ToastManager.swift
       - path: FolderMind/Services/RuleStore.swift
     dependencies: []
-
-schemes:
-  FolderMind:
-    build:
-      targets:
-        FolderMind: [all]
-    test:
-      targets:
-        - FolderMindTests
-  FolderMindTests:
-    build:
-      targets:
-        FolderMindTests: [all]
-    test:
-      targets:
-        - FolderMindTests
