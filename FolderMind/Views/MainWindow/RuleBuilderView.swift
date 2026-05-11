@@ -21,6 +21,7 @@ struct RuleBuilderView: View {
     @State private var isEnabled: Bool
     @State private var watchedFolderURL: URL?
     @State private var conditionLogic: ConditionLogic
+    @State private var priority: Int
 
     @State private var builderConditions: [BuilderCondition]
     @State private var builderActions: [BuilderAction]
@@ -35,6 +36,7 @@ struct RuleBuilderView: View {
             _isEnabled = State(initialValue: existing.isEnabled)
             _watchedFolderURL = State(initialValue: existing.watchedFolderURL)
             _conditionLogic = State(initialValue: existing.conditionLogic)
+            _priority = State(initialValue: existing.priority)
             _builderConditions = State(initialValue: existing.conditions.map { BuilderCondition(condition: $0) })
             _builderActions = State(initialValue: existing.actions.map { BuilderAction(action: $0) })
         } else {
@@ -42,6 +44,7 @@ struct RuleBuilderView: View {
             _isEnabled = State(initialValue: true)
             _watchedFolderURL = State(initialValue: nil)
             _conditionLogic = State(initialValue: .all)
+            _priority = State(initialValue: 3) // Normal
             _builderConditions = State(initialValue: [BuilderCondition(condition: .extensionIs([""]))])
             _builderActions = State(initialValue: [BuilderAction(action: .moveToFolder(URL(fileURLWithPath: NSHomeDirectory())))])
         }
@@ -118,9 +121,32 @@ struct RuleBuilderView: View {
         VStack(alignment: .leading, spacing: 12) {
             SectionTitle(title: "Basics", systemImage: "slider.horizontal.3")
 
-            TextField("Rule name (e.g. Sort Invoices)", text: $ruleName)
-                .textFieldStyle(.roundedBorder)
-                .font(.system(size: 14, weight: .medium))
+            HStack {
+                TextField("Rule name (e.g. Sort Invoices)", text: $ruleName)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(size: 14, weight: .medium))
+
+                Spacer()
+
+                HStack {
+                    Text("Priority:")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(.secondary)
+                    Picker("", selection: $priority) {
+                        Text("Highest (5)").tag(5)
+                        Text("High (4)").tag(4)
+                        Text("Normal (3)").tag(3)
+                        Text("Low (2)").tag(2)
+                        Text("Lowest (1)").tag(1)
+                    }
+                    .labelsHidden()
+                    .frame(width: 110)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color(nsColor: .windowBackgroundColor))
+                .cornerRadius(6)
+            }
 
             HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -289,7 +315,7 @@ struct RuleBuilderView: View {
             conditions: builderConditions.map { $0.condition },
             conditionLogic: conditionLogic,
             actions: builderActions.map { $0.action },
-            priority: existingRule?.priority ?? ruleStore.rules.count
+            priority: priority
         )
 
         print("[RuleBuilder] Saving rule: \(rule.name) (\(rule.id)) with \(rule.conditions.count) conditions, \(rule.actions.count) actions")
@@ -313,7 +339,7 @@ struct RuleBuilderView: View {
             conditions: builderConditions.map { $0.condition },
             conditionLogic: conditionLogic,
             actions: builderActions.map { $0.action },
-            priority: existingRule?.priority ?? 0
+            priority: priority
         )
 
         dryRunMatches = await RuleEngine.shared.dryRun(rule: previewRule, limit: 10)
@@ -327,6 +353,7 @@ struct RuleBuilderView: View {
             isEnabled = existing.isEnabled
             watchedFolderURL = existing.watchedFolderURL
             conditionLogic = existing.conditionLogic
+            priority = existing.priority
             builderConditions = existing.conditions.map { BuilderCondition(condition: $0) }
             builderActions = existing.actions.map { BuilderAction(action: $0) }
         } else {
@@ -334,6 +361,7 @@ struct RuleBuilderView: View {
             isEnabled = true
             watchedFolderURL = nil
             conditionLogic = .all
+            priority = 3 // Normal
             builderConditions = [BuilderCondition(condition: .extensionIs([""]))]
             builderActions = [BuilderAction(action: .moveToFolder(URL(fileURLWithPath: NSHomeDirectory())))]
         }

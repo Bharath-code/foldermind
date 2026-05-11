@@ -214,7 +214,7 @@
 | 15.1 | Micro-animations | ⬜ | File move animations, toast notifications, expansion/collapse |
 | 15.2 | Drag & drop (into app) | ⬜ | Drop files onto app window to trigger rule evaluation |
 | 15.3 | Drag & drop (out of app) | ⬜ | Drag organized files from activity log to Finder |
-| 15.4 | Toast/notification system | ⬜ | Non-intrusive banners for file operations, errors, undo confirmations |
+| 15.4 | Toast/notification system | ✅ | Non-intrusive banners for file operations, errors, undo confirmations |
 | 15.5 | Loading states | ⬜ | Progress indicators for bulk operations, rule dry-runs |
 | 15.6 | Error states | ⬜ | User-friendly error messages with recovery suggestions |
 | 15.7 | Dark mode support | ⬜ | All views tested and polished in both light and dark modes |

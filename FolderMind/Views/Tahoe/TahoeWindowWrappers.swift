@@ -42,46 +42,8 @@ struct OnboardingWindowView_Legacy: View {
 
 @available(macOS 26, *)
 struct MainWindowView_Tahoe: View {
-    @EnvironmentObject var ruleStore: RuleStore
-    @EnvironmentObject var undoManager: FMUndoManager
-    @State private var selection: MainWindowSection? = .rules
-    @State private var editingRule: FMRule?
-    @State private var isShowingRuleBuilder = false
-
     var body: some View {
-        NavigationSplitView {
-            SidebarView(selection: $selection)
-        } detail: {
-            switch selection ?? .rules {
-            case .rules:
-                RuleListView(
-                    onEdit: { rule in
-                        editingRule = rule
-                        isShowingRuleBuilder = true
-                    },
-                    onToggle: { ruleStore.toggleRule($0) },
-                    onDelete: { ruleStore.deleteRule($0) }
-                )
-                    .environmentObject(ruleStore)
-            case .activity:
-                ActivityFeedView()
-                    .environmentObject(undoManager)
-            }
-        }
-        .navigationTitle("FolderMind")
-        .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button("Add Rule", systemImage: "plus") {
-                    editingRule = nil
-                    isShowingRuleBuilder = true
-                }
-            }
-        }
-        .sheet(isPresented: $isShowingRuleBuilder, onDismiss: { editingRule = nil }) {
-            RuleBuilderView(existingRule: editingRule)
-                .environmentObject(ruleStore)
-                .id(editingRule?.id.uuidString ?? "new-rule")
-        }
+        MainWindowView()
     }
 }
 

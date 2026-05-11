@@ -6,14 +6,17 @@ struct FolderMindApp: App {
     @StateObject private var ruleStore: RuleStore
     @StateObject private var undoManager: FMUndoManager
     @StateObject private var watchCoordinator: FileWatchCoordinator
+    @StateObject private var toastManager: ToastManager
 
     init() {
         let store = RuleStore()
         let undo = FMUndoManager()
-        let coordinator = FileWatchCoordinator(ruleStore: store, undoManager: undo)
+        let toast = ToastManager()
+        let coordinator = FileWatchCoordinator(ruleStore: store, undoManager: undo, toastManager: toast)
 
         _ruleStore = StateObject(wrappedValue: store)
         _undoManager = StateObject(wrappedValue: undo)
+        _toastManager = StateObject(wrappedValue: toast)
         _watchCoordinator = StateObject(wrappedValue: coordinator)
     }
 
@@ -37,6 +40,7 @@ struct FolderMindApp: App {
                             .environmentObject(ruleStore)
                             .environmentObject(undoManager)
                             .environmentObject(watchCoordinator)
+                            .environmentObject(toastManager)
                             .frame(minWidth: 800, minHeight: 500)
                             .configureWindow { window in
                                 // Ensure the main window is resizable and has controls

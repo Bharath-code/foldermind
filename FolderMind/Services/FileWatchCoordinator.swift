@@ -11,6 +11,7 @@ final class FileWatchCoordinator: ObservableObject {
 
     private let ruleStore: RuleStore
     private let undoManager: FMUndoManager
+    private let toastManager: ToastManager
 
     // MARK: – State
 
@@ -28,9 +29,10 @@ final class FileWatchCoordinator: ObservableObject {
 
     // MARK: – Init
 
-    init(ruleStore: RuleStore, undoManager: FMUndoManager) {
+    init(ruleStore: RuleStore, undoManager: FMUndoManager, toastManager: ToastManager) {
         self.ruleStore = ruleStore
         self.undoManager = undoManager
+        self.toastManager = toastManager
     }
 
     // MARK: – Lifecycle
@@ -67,21 +69,25 @@ final class FileWatchCoordinator: ObservableObject {
     /// This is a crucial fallback when FSEvents fails to deliver background notifications.
     func scanAllFolders() async {
         print("[FileWatchCoordinator] Manual scan of all folders started...")
-        let enabledRules = ruleStore.rules.filter(\.isEnabled)
+        let allEnabledRules = ruleStore.rules.filter(\.isEnabled)
         let engine = RuleEngine.shared
         
-        // Group rules by their primary watch root to avoid redundant disk scans.
-        var rulesByRoot: [String: [FMRule]] = [:]
-        for rule in enabledRules {
-            let root = rule.watchedFolderURL.resolvingSymlinksInPath().standardizedFileURL.path
-            rulesByRoot[root, default: []].append(rule)
+        // 1. Get consolidated roots (same logic as rebuildWatchers)
+        let allPaths = Set(allEnabledRules.map {
+            $0.watchedFolderURL.resolvingSymlinksInPath().standardizedFileURL.path
+        })
+        var roots: [String] = []
+        for path in allPaths.sorted(by: { $0.count < $1.count }) {
+            if !roots.contains(where: { path == $0 || path.hasPrefix($0 + "/") }) {
+                roots.append(path)
+            }
         }
-
-        for (rootPath, rules) in rulesByRoot {
+        
+        // 2. Scan each consolidated root
+        for rootPath in roots {
             print("[FileWatchCoordinator] Recursively scanning root: \(rootPath)")
             let rootURL = URL(fileURLWithPath: rootPath, isDirectory: true)
             
-            // Perform recursive scan
             let enumerator = FileManager.default.enumerator(
                 at: rootURL,
                 includingPropertiesForKeys: [.isDirectoryKey],
@@ -89,12 +95,21 @@ final class FileWatchCoordinator: ObservableObject {
             )
             
             while let fileURL = enumerator?.nextObject() as? URL {
+                if Task.isCancelled { return }
+                
                 let values = try? fileURL.resourceValues(forKeys: [.isDirectoryKey])
                 if values?.isDirectory == true { continue }
                 
-                // For each file, run it through relevant rules for this root.
-                // rules are already filtered to those that watch this root or a parent.
-                await processFile(fileURL, rules: rules.sorted { $0.priority > $1.priority }, engine: engine)
+                // Find ALL enabled rules that apply to this file's location.
+                let filePath = fileURL.resolvingSymlinksInPath().standardizedFileURL.path
+                let relevantRules = allEnabledRules.filter { rule in
+                    let rulePath = rule.watchedFolderURL.resolvingSymlinksInPath().standardizedFileURL.path
+                    return filePath == rulePath || filePath.hasPrefix(rulePath + "/")
+                }
+                
+                if !relevantRules.isEmpty {
+                    await processFile(fileURL, rules: relevantRules.sorted { $0.priority > $1.priority }, engine: engine)
+                }
             }
         }
         
@@ -211,6 +226,13 @@ final class FileWatchCoordinator: ObservableObject {
                 continue
             }
             
+            // Check if file still exists at the event path.
+            // FSEvents often delivers 'moved' or 'deleted' notifications after the file is gone.
+            // Silently ignoring these prevents confusing "Failed to process" toasts.
+            guard FileManager.default.fileExists(atPath: event.path) else {
+                continue
+            }
+            
             print("[FileWatchCoordinator] Event at \(event.path) -> \(relevantRules.count) relevant rules")
             await processFile(URL(fileURLWithPath: event.path), rules: relevantRules.sorted { $0.priority > $1.priority }, engine: engine)
         }
@@ -246,12 +268,9 @@ final class FileWatchCoordinator: ObservableObject {
 
             await MainActor.run { logResult(result, rule: rule, sourceURL: fileURL) }
             
-            switch result {
-            case .skipped, .failed:
-                continue // Let lower-priority rules try if this one didn't do anything
-            case .moved, .copied:
-                break // Stop evaluating once a file has been successfully processed
-            }
+            // First matching rule wins. This is critical to prevent infinite loops 
+            // when multiple rules match the same file and try to move it to different folders.
+            break
         }
     }
 
@@ -262,14 +281,19 @@ final class FileWatchCoordinator: ObservableObject {
             undoManager.logAction(ActivityEntry(
                 ruleName: rule.name, sourceURL: sourceURL, destinationURL: dest, actionType: .moved
             ))
+            toastManager.showFileAction("Moved", filename: sourceURL.lastPathComponent, destination: dest.deletingLastPathComponent().lastPathComponent)
+            
         case .copied(let dest):
             undoManager.logAction(ActivityEntry(
                 ruleName: rule.name, sourceURL: sourceURL, destinationURL: dest, actionType: .copied
             ))
+            toastManager.showFileAction("Copied", filename: sourceURL.lastPathComponent, destination: dest.deletingLastPathComponent().lastPathComponent)
+            
         case .skipped(let msg):
             print("[FileWatchCoordinator] Action skipped for \(sourceURL.lastPathComponent): \(msg)")
         case .failed(let msg):
             print("[FileWatchCoordinator] Action failed for \(sourceURL.lastPathComponent): \(msg)")
+            toastManager.show("Failed to process \(sourceURL.lastPathComponent)", type: .error)
         }
     }
 }

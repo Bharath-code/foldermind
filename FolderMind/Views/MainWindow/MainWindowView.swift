@@ -5,52 +5,58 @@ struct MainWindowView: View {
     @EnvironmentObject var ruleStore: RuleStore
     @EnvironmentObject var undoManager: FMUndoManager
     @EnvironmentObject var watchCoordinator: FileWatchCoordinator
+    @EnvironmentObject var toastManager: ToastManager
     @State private var selection: MainWindowSection? = .rules
     @State private var ruleBuilderIntent: RuleBuilderIntent? = nil
     @State private var hasFDA: Bool = PermissionChecker.hasFullDiskAccess
 
     var body: some View {
-        VStack(spacing: 0) {
-            // FDA warning banner — shown when Full Disk Access is not granted.
-            if !hasFDA {
-                FDAWarningBanner()
-            }
-
-            NavigationSplitView {
-                SidebarView(selection: $selection)
-                    .environmentObject(watchCoordinator)
-            } detail: {
-                switch selection ?? .rules {
-                case .rules:
-                    RuleListView(
-                        onEdit: { rule in
-                            // sheet(item:) guarantees the item is set BEFORE the
-                            // sheet body is evaluated — no timing race with editingRule.
-                            ruleBuilderIntent = .edit(rule)
-                        },
-                        onToggle: { ruleStore.toggleRule($0) },
-                        onDelete: { ruleStore.deleteRule($0) }
-                    )
-                        .environmentObject(ruleStore)
-                case .activity:
-                    ActivityFeedView()
-                        .environmentObject(undoManager)
+        ZStack {
+            VStack(spacing: 0) {
+                // FDA warning banner — shown when Full Disk Access is not granted.
+                if !hasFDA {
+                    FDAWarningBanner()
                 }
-            }
-            .navigationTitle("FolderMind")
-            .toolbar {
-                ToolbarItemGroup(placement: .primaryAction) {
-                    Button("Add Rule", systemImage: "plus") {
-                        ruleBuilderIntent = .create
+
+                NavigationSplitView {
+                    SidebarView(selection: $selection)
+                        .environmentObject(watchCoordinator)
+                        .environmentObject(toastManager)
+                } detail: {
+                    switch selection ?? .rules {
+                    case .rules:
+                        RuleListView(
+                            onEdit: { rule in
+                                // sheet(item:) guarantees the item is set BEFORE the
+                                // sheet body is evaluated — no timing race with editingRule.
+                                ruleBuilderIntent = .edit(rule)
+                            },
+                            onToggle: { ruleStore.toggleRule($0) },
+                            onDelete: { ruleStore.deleteRule($0) }
+                        )
+                            .environmentObject(ruleStore)
+                    case .activity:
+                        ActivityFeedView()
+                            .environmentObject(undoManager)
                     }
                 }
+                .navigationTitle("FolderMind")
+                .toolbar {
+                    ToolbarItemGroup(placement: .primaryAction) {
+                        Button("Add Rule", systemImage: "plus") {
+                            ruleBuilderIntent = .create
+                        }
+                    }
+                }
+                // sheet(item:) — the item IS the data, so no nil-capture race.
+                .sheet(item: $ruleBuilderIntent) { intent in
+                    RuleBuilderView(existingRule: intent.rule)
+                        .id(intent.id) // Force fresh state initialization
+                        .environmentObject(ruleStore)
+                }
             }
-            // sheet(item:) — the item IS the data, so no nil-capture race.
-            .sheet(item: $ruleBuilderIntent) { intent in
-                RuleBuilderView(existingRule: intent.rule)
-                    .id(intent.id) // Force fresh state initialization
-                    .environmentObject(ruleStore)
-            }
+            
+            ToastContainerView(manager: toastManager)
         }
         // Poll FDA status every 2 seconds — banner disappears the moment FDA is granted.
         .onReceive(Timer.publish(every: 2, on: .main, in: .common).autoconnect()) { _ in
@@ -269,8 +275,18 @@ struct RuleRowView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(rule.name)
-                    .font(.system(size: 13, weight: .medium))
+                HStack(spacing: 6) {
+                    Text(rule.name)
+                        .font(.system(size: 13, weight: .medium))
+                    
+                    Text(priorityString(for: rule.priority))
+                        .font(.system(size: 9, weight: .bold))
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 1)
+                        .background(Color.secondary.opacity(0.15))
+                        .foregroundStyle(.secondary)
+                        .cornerRadius(4)
+                }
                 Text("\(rule.conditions.count) conditions · \(rule.actions.count) actions")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
@@ -298,6 +314,17 @@ struct RuleRowView: View {
         .contextMenu {
             Button("Edit", systemImage: "pencil", action: onEdit)
             Button("Delete", systemImage: "trash", role: .destructive, action: onDelete)
+        }
+    }
+
+    private func priorityString(for level: Int) -> String {
+        switch level {
+        case 5: return "HIGHEST"
+        case 4: return "HIGH"
+        case 3: return "NORMAL"
+        case 2: return "LOW"
+        case 1: return "LOWEST"
+        default: return "P\(level)"
         }
     }
 }

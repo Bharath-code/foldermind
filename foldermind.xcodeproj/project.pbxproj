@@ -34,12 +34,14 @@
 		C7B11BE8F0E6E11347A014F6 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */; };
 		CA8C108EEF2C5531EFFB6936 /* StarterRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96B8B63DBC67873B8E574CF /* StarterRule.swift */; };
 		CDBE98BC48DEAA7293623A75 /* TrialStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C550B29762BC164628E771 /* TrialStatusView.swift */; };
+		D03B9B43E243DED5D4C15B3E /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56ED5404108EBB9790922CAD /* ToastView.swift */; };
 		D5D5E4ECDA7C6DAA55FCE277 /* SpotlightIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6A9FC7E6A7E1803DCA0F18 /* SpotlightIndexer.swift */; };
 		D7230AFD7378F03954B6ECC6 /* RuleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F19C59304352326E013A20 /* RuleEngine.swift */; };
 		DDE7CDAF17070E6A48742A4E /* TahoeWindowWrappers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180F7EA55434288AC9612111 /* TahoeWindowWrappers.swift */; };
 		DE5185F22712019A5D283C38 /* RuleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC9121573B82F320BC730B5 /* RuleModel.swift */; };
 		F2DB6C34640B6B5E80C03F15 /* PermissionsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012678B9C81503603DCE2843 /* PermissionsStepView.swift */; };
 		F8C8C519EE9DDE025834FEF3 /* RuleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEC3AED58D2B463255C28D3E /* RuleStore.swift */; };
+		FA5161638C3883D37386CA4A /* ToastManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8931F9131C9C99458029857D /* ToastManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,12 +53,14 @@
 		4935603205F3723FDB2C2524 /* FileWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatcher.swift; sourceTree = "<group>"; };
 		4A573477EBF0D10975071261 /* FMPrimaryButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FMPrimaryButtonStyle.swift; sourceTree = "<group>"; };
 		563640F452E64C9B40B2632B /* FolderMindApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderMindApp.swift; sourceTree = "<group>"; };
+		56ED5404108EBB9790922CAD /* ToastView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		5F9436AFCA27A912A9B92638 /* WindowConfigurator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Helpers/WindowConfigurator.swift; sourceTree = "<group>"; };
 		6267399C058252AB54AEB251 /* ActivityEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityEntry.swift; sourceTree = "<group>"; };
 		64CA812293372CF39BEF7EE0 /* StarterRulesStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarterRulesStepView.swift; sourceTree = "<group>"; };
 		6B1860C32DFA52A8450BB411 /* DoneStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoneStepView.swift; sourceTree = "<group>"; };
 		7D6A9FC7E6A7E1803DCA0F18 /* SpotlightIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightIndexer.swift; sourceTree = "<group>"; };
 		7DCCDF34AE9B997BC3F32A4F /* MainWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowView.swift; sourceTree = "<group>"; };
+		8931F9131C9C99458029857D /* ToastManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ToastManager.swift; sourceTree = "<group>"; };
 		8B19BE2476A4459C27FEDEB9 /* WelcomeStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStepView.swift; sourceTree = "<group>"; };
 		94F19C59304352326E013A20 /* RuleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleEngine.swift; sourceTree = "<group>"; };
 		9762FBC9D7145ECD07C38927 /* SpotlightQuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightQuickActions.swift; sourceTree = "<group>"; };
@@ -116,6 +120,7 @@
 				4A573477EBF0D10975071261 /* FMPrimaryButtonStyle.swift */,
 				F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */,
 				B2C550B29762BC164628E771 /* TrialStatusView.swift */,
+				56ED5404108EBB9790922CAD /* ToastView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -206,6 +211,7 @@
 				C1824A342A2C925CDB953A67 /* RenameEngine.swift */,
 				94F19C59304352326E013A20 /* RuleEngine.swift */,
 				EEC3AED58D2B463255C28D3E /* RuleStore.swift */,
+				8931F9131C9C99458029857D /* ToastManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -321,6 +327,8 @@
 				49CD3856346728E5DB40479C /* SettingsView.swift in Sources */,
 				A544A1B022EBE6D468D31275 /* WindowConfigurator.swift in Sources */,
 				CDBE98BC48DEAA7293623A75 /* TrialStatusView.swift in Sources */,
+				FA5161638C3883D37386CA4A /* ToastManager.swift in Sources */,
+				D03B9B43E243DED5D4C15B3E /* ToastView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
