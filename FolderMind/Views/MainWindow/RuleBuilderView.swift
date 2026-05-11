@@ -28,6 +28,8 @@ struct RuleBuilderView: View {
 
     @State private var dryRunMatches: [DryRunMatch] = []
     @State private var isPreviewLoading = false
+    @State private var showingDeleteConfirmation = false
+    @State private var refreshTask: Task<Void, Never>? = nil
 
     init(existingRule: FMRule? = nil) {
         self.existingRule = existingRule
@@ -69,10 +71,18 @@ struct RuleBuilderView: View {
             HStack {
                 if let existingRule {
                     Button("Delete Rule", role: .destructive) {
-                        ruleStore.deleteRule(existingRule)
-                        dismiss()
+                        showingDeleteConfirmation = true
                     }
                     .keyboardShortcut(.delete, modifiers: [.command])
+                    .alert("Delete Rule?", isPresented: $showingDeleteConfirmation) {
+                        Button("Delete", role: .destructive) {
+                            ruleStore.deleteRule(existingRule)
+                            dismiss()
+                        }
+                        Button("Cancel", role: .cancel) { }
+                    } message: {
+                        Text("Are you sure you want to delete '\(ruleName)'? This action cannot be undone.")
+                    }
                 }
 
                 Button("Cancel") { dismiss() }
@@ -93,9 +103,19 @@ struct RuleBuilderView: View {
         .onAppear { loadExistingRule() }
         .onChange(of: existingRule?.id) { _, _ in loadExistingRule() }
         .task { await refreshPreview() }
-        .onChange(of: builderConditions.map { $0.condition }) { _, _ in Task { await refreshPreview() } }
-        .onChange(of: builderActions.map { $0.action }) { _, _ in Task { await refreshPreview() } }
-        .onChange(of: watchedFolderURL) { _, _ in Task { await refreshPreview() } }
+        .onChange(of: builderConditions.map { $0.condition }) { _, _ in scheduleRefresh() }
+        .onChange(of: builderActions.map { $0.action }) { _, _ in scheduleRefresh() }
+        .onChange(of: conditionLogic) { _, _ in scheduleRefresh() }
+        .onChange(of: watchedFolderURL) { _, _ in scheduleRefresh() }
+    }
+
+    private func scheduleRefresh() {
+        refreshTask?.cancel()
+        refreshTask = Task {
+            try? await Task.sleep(nanoseconds: 400 * 1_000_000)
+            if Task.isCancelled { return }
+            await refreshPreview()
+        }
     }
 
     private var header: some View {
@@ -202,6 +222,7 @@ struct RuleBuilderView: View {
                     .pickerStyle(.menu)
                     .labelsHidden()
                     .frame(width: 200)
+                    .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
 

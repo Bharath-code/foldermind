@@ -226,10 +226,10 @@
 |---|------|--------|---------------------|
 | 16.1 | Inline condition editing | ✅ | Inline editors per condition type |
 | 16.2 | Inline action editing | ✅ | Inline editors per action type |
-| 16.3 | Live preview updates | ⬜ | Dry-run triggers 400ms after any condition/action change |
-| 16.4 | AND/OR toggle visibility | ⬜ | Only shows when 2+ conditions exist, animates in/out |
-| 16.5 | Rule name editing | ⬜ | TextField at top of builder, placeholder "e.g. Sort invoices" |
-| 16.6 | Delete rule confirmation | ⬜ | Confirmation dialog before deleting a rule |
+| 16.3 | Live preview updates | ✅ | Dry-run triggers 400ms after any condition/action change |
+| 16.4 | AND/OR toggle visibility | ✅ | Only shows when 2+ conditions exist, animates in/out |
+| 16.5 | Rule name editing | ✅ | TextField at top of builder, placeholder "e.g. Sort invoices" |
+| 16.6 | Delete rule confirmation | ✅ | Confirmation dialog before deleting a rule |
 | 16.7 | Duplicate rule | ✅ | Right-click context menu → "Duplicate" creates copy |
 | 16.8 | Rule reordering | ✅ | Drag to reorder rules (changes priority) |
 | 16.9 | Export/import rules | ✅ | JSON export/import via `RuleBackupManager` |
