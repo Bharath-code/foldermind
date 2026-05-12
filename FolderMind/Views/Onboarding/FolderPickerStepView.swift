@@ -6,65 +6,101 @@ struct FolderPickerStepView: View {
     var onAdvance: () -> Void
 
     var body: some View {
-        VStack(spacing: 32) {
-            VStack(spacing: 6) {
-                Text("Pick your messy folder")
-                    .font(.system(size: 22, weight: .semibold))
-                Text("FolderMind will watch it and keep it clean — automatically.")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.top, 40)
-
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(
-                    isDraggingOver ? Color.blue : Color.secondary.opacity(0.3),
-                    style: StrokeStyle(lineWidth: 2, dash: [8, 4])
-                )
-                .frame(height: 160)
-                .overlay {
-                    VStack(spacing: 12) {
-                        if let url = watchedFolderURL {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 32))
-                                .foregroundStyle(.green)
-                            Text(url.lastPathComponent)
-                                .font(.system(size: 15, weight: .medium))
-                            Text(url.path)
-                                .font(.system(size: 11))
-                                .foregroundStyle(.tertiary)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                        } else {
-                            Image(systemName: "folder.badge.plus")
-                                .font(.system(size: 32))
-                                .foregroundStyle(.secondary)
-                            Text("Drop a folder here")
-                                .font(.system(size: 15, weight: .medium))
-                            Text("or")
-                                .font(.system(size: 13))
-                                .foregroundStyle(.tertiary)
-                            Button("Browse…") { openFolderPicker() }
-                                .buttonStyle(.borderless)
-                                .foregroundStyle(.blue)
-                        }
-                    }
+        ZStack {
+            // Watermark Layer
+            Text("SOURCE")
+                .fmWatermark()
+                .offset(y: -240)
+            
+            VStack(spacing: FMDesign.Spacing.xl) {
+                VStack(spacing: FMDesign.Spacing.sm) {
+                    Text("Select a Source Folder")
+                        .fmTitle()
+                    
+                    Text("FolderMind will watch this directory and apply logic instantly.")
+                        .fmHeadline()
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
                 }
+                .padding(.top, FMDesign.Spacing.lg)
+
+                Spacer()
+
+                // Interactive Spatial Well
+                ZStack {
+                    // Refractive background well
+                    VisualEffectView(material: .selection, blendingMode: .withinWindow)
+                        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 32, style: .continuous)
+                                .stroke(
+                                    isDraggingOver ? FMDesign.Color.logicBlue : FMDesign.Color.glassStroke, 
+                                    lineWidth: isDraggingOver ? 2 : 0.5
+                                )
+                        }
+                        .shadow(color: isDraggingOver ? FMDesign.Color.logicBlue.opacity(0.2) : .clear, radius: 20)
+                    
+                    dropZoneContent
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 240)
+                .padding(.horizontal, FMDesign.Spacing.xl)
                 .onDrop(of: [.fileURL], isTargeted: $isDraggingOver) { providers in
                     handleDrop(providers: providers)
                 }
-                .animation(.easeInOut(duration: 0.15), value: isDraggingOver)
-                .padding(.horizontal, 40)
+                .animation(.smooth, value: isDraggingOver)
 
-            Spacer()
+                Spacer()
 
-            Button("Continue") {
-                onAdvance()
+                FMButton("Continue") {
+                    onAdvance()
+                }
+                .disabled(watchedFolderURL == nil)
             }
-            .buttonStyle(FMPrimaryButtonStyle())
-            .disabled(watchedFolderURL == nil)
-            .padding(.bottom, 40)
+            .padding(.vertical, FMDesign.Spacing.xxl)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    @ViewBuilder
+    private var dropZoneContent: some View {
+        VStack(spacing: 20) {
+            if let url = watchedFolderURL {
+                ZStack {
+                    Circle()
+                        .fill(FMDesign.Color.logicBlue.opacity(0.1))
+                        .frame(width: 64, height: 64)
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(FMDesign.Color.logicBlue)
+                }
+                
+                VStack(spacing: 4) {
+                    Text(url.lastPathComponent)
+                        .font(FMDesign.Font.headline())
+                    Text(url.path)
+                        .font(FMDesign.Font.caption())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .padding(.horizontal, 60)
+                }
+            } else {
+                Image(systemName: "folder.badge.plus")
+                    .font(.system(size: 48))
+                    .foregroundStyle(isDraggingOver ? FMDesign.Color.logicBlue : .secondary)
+                
+                VStack(spacing: 12) {
+                    Text("Drag and drop your folder here")
+                        .font(FMDesign.Font.headline())
+                    
+                    Text("or")
+                        .font(FMDesign.Font.body())
+                        .foregroundStyle(.tertiary)
+                    
+                    FMButton("Browse…", style: .secondary) { openFolderPicker() }
+                }
+            }
         }
     }
 

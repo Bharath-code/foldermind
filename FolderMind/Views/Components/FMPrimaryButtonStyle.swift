@@ -5,17 +5,18 @@ struct FMPrimaryButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 14, weight: .medium))
+            .font(FMDesign.Font.headline())
             .foregroundStyle(.white)
-            .padding(.horizontal, 28)
-            .padding(.vertical, 10)
+            .padding(.horizontal, FMDesign.Spacing.xl)
+            .padding(.vertical, FMDesign.Spacing.sm + 2)
             .background(
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: FMDesign.Layout.cornerRadius)
                     .fill(isEnabled
-                          ? Color.blue
-                          : Color.secondary.opacity(0.3))
+                          ? FMDesign.Color.logicBlue
+                          : SwiftUI.Color.secondary.opacity(0.3))
+                    .shadow(color: isEnabled ? FMDesign.Color.logicBlue.opacity(0.3) : .clear, radius: 8, x: 0, y: 4)
             )
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+            .animation(FMDesign.Animation.quick, value: configuration.isPressed)
     }
 }

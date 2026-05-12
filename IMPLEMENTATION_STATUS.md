@@ -163,9 +163,9 @@
 | # | Item | Status | Acceptance Criteria |
 |---|------|--------|---------------------|
 | 11.1 | TahoeWindowWrappers | ✅ | Version-agnostic view selectors for onboarding + main window |
-| 11.2 | OnboardingWindowView_Tahoe | 🚧 | Uses Liquid Glass panel style — **needs actual Liquid Glass API** |
-| 11.3 | MainWindowView_Tahoe | 🚧 | Glass sidebar, glass controls — **needs actual Liquid Glass API** |
-| 11.4 | LiquidGlassModifiers | ⬜ | `glassPanel()`, `glassButton()` view modifiers |
+| 11.2 | OnboardingWindowView_Tahoe | ✅ | Uses Liquid Glass panel style with background bloom |
+| 11.3 | MainWindowView_Tahoe | ✅ | Glass sidebar, edge-to-edge glass controls |
+| 11.4 | LiquidGlassModifiers | ✅ | `liquidGlass()`, `TahoeButtonStyle` view modifiers |
 | 11.5 | Legacy fallback views | ✅ | `OnboardingWindowView_Legacy`, `MainWindowView_Legacy` use current UI |
 | 11.6 | @available guards everywhere | ⬜ | All Tahoe-specific code wrapped in `@available(macOS 26, *)` |
 

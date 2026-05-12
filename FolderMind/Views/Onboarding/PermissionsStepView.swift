@@ -6,70 +6,76 @@ struct PermissionsStepView: View {
     var onAdvance: () -> Void
 
     var body: some View {
-        VStack(spacing: 28) {
-            Spacer()
-
-            Image(systemName: hasPermission ? "lock.shield.fill" : "lock.shield")
-                .font(.system(size: 48))
-                .foregroundStyle(hasPermission ? .green : .blue)
-                .symbolRenderingMode(.hierarchical)
-                .animation(.spring(duration: 0.4), value: hasPermission)
-
-            VStack(spacing: 8) {
-                Text("One permission needed")
-                    .font(.system(size: 22, weight: .semibold))
-                Text("FolderMind needs Full Disk Access to watch folders.\nYour files never leave your Mac — ever.")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(3)
+        ZStack(alignment: .bottomLeading) {
+            // Hero Icon
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Image(systemName: hasPermission ? "lock.shield.fill" : "lock.shield")
+                        .font(.system(size: 280))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [FMDesign.Color.logicBlue.opacity(0.12), FMDesign.Color.logicBlue.opacity(0.02)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .offset(x: 80, y: 40)
+                        .rotationEffect(.degrees(5))
+                }
             }
+            .ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: 10) {
-                PermissionStep(number: 1, text: "Click \"Open System Settings\" below")
-                PermissionStep(number: 2, text: "Find FolderMind in the Full Disk Access list")
-                PermissionStep(number: 3, text: "Toggle it ON — then come back here")
-            }
-            .padding(.horizontal, 48)
-
-            Spacer()
-
-            VStack(spacing: 12) {
-                if hasPermission {
-                    Label("Full Disk Access granted", systemImage: "checkmark.circle.fill")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.green)
-                        .transition(.scale.combined(with: .opacity))
+            VStack(alignment: .leading, spacing: FMDesign.Spacing.xl) {
+                VStack(alignment: .leading, spacing: FMDesign.Spacing.sm) {
+                    Text("System\nAccess.")
+                        .fmMega()
+                        .lineSpacing(-20)
+                    
+                    Text("FolderMind needs Full Disk Access to apply logic.\nYour files never leave your Mac — ever.")
+                        .font(FMDesign.Font.headline())
+                        .foregroundStyle(.secondary)
                 }
 
-                Button(hasPermission ? "Continue →" : "Open System Settings") {
+                VStack(alignment: .leading, spacing: FMDesign.Spacing.lg) {
+                    PermissionStep(number: 1, text: "Click \"Open System Settings\" below")
+                    PermissionStep(number: 2, text: "Find FolderMind in the Full Disk Access list")
+                    PermissionStep(number: 3, text: "Toggle it ON — then come back here")
+                }
+
+                Spacer()
+
+                VStack(alignment: .leading, spacing: 12) {
                     if hasPermission {
-                        onAdvance()
-                    } else {
-                        PermissionChecker.openSystemSettings()
-                        // Show manual bypass after a short delay
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                            withAnimation { showManualOption = true }
+                        Label("Access granted", systemImage: "checkmark.circle.fill")
+                            .font(FMDesign.Font.headline())
+                            .foregroundStyle(.green)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+
+                    FMButton(hasPermission ? "Continue →" : "Open System Settings") {
+                        if hasPermission {
+                            onAdvance()
+                        } else {
+                            PermissionChecker.openSystemSettings()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                                withAnimation { showManualOption = true }
+                            }
                         }
                     }
-                }
-                .buttonStyle(FMPrimaryButtonStyle())
 
-                // Manual bypass — shown after user has opened Settings
-                // Handles edge cases where auto-detection fails.
-                if showManualOption && !hasPermission {
-                    Button("I've granted access — skip check") {
-                        onAdvance()
+                    if showManualOption && !hasPermission {
+                        FMButton("I've granted access — skip check", style: .ghost) {
+                            onAdvance()
+                        }
+                        .transition(.opacity)
                     }
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                    .buttonStyle(.plain)
-                    .transition(.opacity)
                 }
             }
-            .animation(.easeInOut, value: showManualOption)
-            .padding(.bottom, 40)
+            .padding(FMDesign.Spacing.xl)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear { checkPermission() }
         .onReceive(Timer.publish(every: 1.5, on: .main, in: .common).autoconnect()) { _ in
             checkPermission()
@@ -88,17 +94,17 @@ struct PermissionStep: View {
     let text: String
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: FMDesign.Spacing.md) {
             ZStack {
                 Circle()
-                    .fill(Color.blue.opacity(0.12))
+                    .fill(FMDesign.Color.logicBlue.opacity(0.12))
                     .frame(width: 24, height: 24)
                 Text("\(number)")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.blue)
+                    .font(FMDesign.Font.caption())
+                    .foregroundStyle(FMDesign.Color.logicBlue)
             }
             Text(text)
-                .font(.system(size: 13))
+                .font(FMDesign.Font.body())
                 .foregroundStyle(.secondary)
         }
     }

@@ -9,47 +9,59 @@ struct DoneStepView: View {
     @State private var contentOpacity: Double = 0
 
     var body: some View {
-        VStack(spacing: 32) {
-            Spacer()
-
-            VStack(spacing: 4) {
-                Text("\(filesProcessed)")
-                    .font(.system(size: 72, weight: .bold, design: .rounded))
-                    .foregroundStyle(.primary)
-                    .scaleEffect(numberScale)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.6), value: numberScale)
-                Text("files just found a home")
-                    .font(.system(size: 18))
-                    .foregroundStyle(.secondary)
+        ZStack(alignment: .topLeading) {
+            // Success Counter Hero
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Text("\(filesProcessed)")
+                        .font(.system(size: 240, weight: .black, design: .rounded))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [FMDesign.Color.logicBlue.opacity(0.4), FMDesign.Color.logicBlue.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .scaleEffect(numberScale)
+                        .offset(x: 60, y: 40)
+                        .rotationEffect(.degrees(-5))
+                }
             }
+            .ignoresSafeArea()
 
-            HStack(spacing: 6) {
-                Image(systemName: "clock")
-                    .font(.system(size: 13))
-                Text("~\(minutesSaved) minutes of sorting you'll never do manually")
-                    .font(.system(size: 13))
+            VStack(alignment: .leading, spacing: FMDesign.Spacing.xl) {
+                VStack(alignment: .leading, spacing: FMDesign.Spacing.xs) {
+                    Text("Logic\nEstablished.")
+                        .fmMega()
+                        .lineSpacing(-20)
+                    
+                    Text("Your Mac is now in perfect order.")
+                        .font(FMDesign.Font.headline())
+                        .foregroundStyle(.secondary)
+                }
+
+                VStack(alignment: .leading, spacing: FMDesign.Spacing.md) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "clock.fill")
+                        Text("~\(minutesSaved) minutes saved per month")
+                    }
+                    .font(FMDesign.Font.body())
+                    .foregroundStyle(FMDesign.Color.logicBlue)
+                    
+                    Text("Every action is logged. You are in full control.")
+                        .font(FMDesign.Font.body())
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                FMButton("Enter FolderMind") {
+                    onComplete()
+                }
             }
-            .foregroundStyle(.secondary)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(
-                Capsule()
-                    .fill(Color.blue.opacity(0.08))
-            )
-
-            Text("All reversible. Every action is logged in the activity feed.")
-                .font(.system(size: 13))
-                .foregroundStyle(.tertiary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-
-            Spacer()
-
-            Button("Start using FolderMind") {
-                onComplete()
-            }
-            .buttonStyle(FMPrimaryButtonStyle())
-            .padding(.bottom, 40)
+            .padding(FMDesign.Spacing.xl)
         }
         .opacity(contentOpacity)
         .onAppear {

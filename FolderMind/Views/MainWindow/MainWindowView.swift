@@ -85,13 +85,13 @@ struct MainWindowView: View {
                 Color.black.opacity(0.4)
                     .background(.ultraThinMaterial)
                     .overlay(
-                        VStack(spacing: 16) {
+                        VStack(spacing: FMDesign.Spacing.md) {
                             Image(systemName: "arrow.down.doc.fill")
                                 .font(.system(size: 64))
                                 .foregroundStyle(.white)
                                 .shadow(radius: 10)
                             Text("Drop to Organize")
-                                .font(.system(size: 28, weight: .bold))
+                                .fmTitle()
                                 .foregroundStyle(.white)
                                 .shadow(radius: 10)
                         }

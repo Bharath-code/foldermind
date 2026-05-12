@@ -8,15 +8,18 @@ struct StarterRulesStepView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 6) {
-                Text("Set up your rules")
-                    .font(.system(size: 22, weight: .semibold))
+            VStack(spacing: FMDesign.Spacing.sm) {
+                Text("Define\nLogic.")
+                    .fmMega()
+                    .lineSpacing(-20)
                 Text("These activate instantly. You can customise them anytime.")
-                    .font(.system(size: 14))
+                    .font(FMDesign.Font.headline())
                     .foregroundStyle(.secondary)
             }
-            .padding(.top, 32)
-            .padding(.bottom, 20)
+            .padding(.top, FMDesign.Spacing.xl)
+            .padding(.bottom, FMDesign.Spacing.lg)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, FMDesign.Spacing.xl)
 
             ScrollView {
                 LazyVStack(spacing: 8) {
@@ -32,15 +35,15 @@ struct StarterRulesStepView: View {
 
             HStack {
                 Text("\(enabledCount) rule\(enabledCount == 1 ? "" : "s") active")
-                    .font(.system(size: 13))
+                    .font(FMDesign.Font.caption())
                     .foregroundStyle(.secondary)
                 Spacer()
-                Button("Continue") { onAdvance() }
-                    .buttonStyle(FMPrimaryButtonStyle())
+                FMButton("Continue") { onAdvance() }
                     .disabled(enabledCount == 0)
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 16)
+            .padding(.horizontal, FMDesign.Spacing.xl)
+            .padding(.bottom, FMDesign.Spacing.xl)
+            .padding(.top, FMDesign.Spacing.md)
         }
     }
 }
@@ -77,20 +80,21 @@ struct StarterRuleRow: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(rule.isEnabled
-                      ? rule.color.opacity(0.04)
-                      : Color(nsColor: .controlBackgroundColor))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(rule.isEnabled
-                                      ? rule.color.opacity(0.2)
-                                      : Color.secondary.opacity(0.15),
-                                      lineWidth: 0.5)
-                )
-        )
-        .animation(.easeInOut(duration: 0.15), value: rule.isEnabled)
+        .background {
+            ZStack {
+                if rule.isEnabled {
+                    rule.color.opacity(0.08)
+                } else {
+                    Color.white.opacity(0.03)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: FMDesign.Layout.cornerRadius, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: FMDesign.Layout.cornerRadius, style: .continuous)
+                    .stroke(rule.isEnabled ? rule.color.opacity(0.3) : FMDesign.Color.glassStroke, lineWidth: 0.5)
+            }
+        }
+        .animation(FMDesign.Animation.quick, value: rule.isEnabled)
         .contentShape(Rectangle())
         .onTapGesture { rule.isEnabled.toggle() }
     }

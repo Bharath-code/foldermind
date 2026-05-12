@@ -33,7 +33,10 @@ extension View {
             window.standardWindowButton(.zoomButton)?.isHidden = true
             window.titlebarAppearsTransparent = true
             window.isMovableByWindowBackground = true
+            window.backgroundColor = .clear
+            window.isOpaque = false
+            window.hasShadow = false
         }
-        .frame(width: 600, height: 480)
+        .frame(width: 800, height: 600)
     }
 }
