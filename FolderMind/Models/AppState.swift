@@ -16,9 +16,24 @@ class AppViewModel: ObservableObject {
     @Published var selectedSection: MainWindowSection? = .rules
     @Published var highlightedRuleID: UUID? = nil
     @Published var highlightedEntryID: UUID? = nil
+    @Published var ruleToEditID: UUID? = nil
+    
+    var ruleStore: RuleStore?
+    var undoManager: FMUndoManager?
 
     init() {
         appState = hasCompletedOnboarding ? .onboarded : .needsOnboarding
+        
+        NotificationCenter.default.addObserver(forName: .didSelectSpotlightItem, object: nil, queue: .main) { [weak self] note in
+            if let identifier = note.object as? String {
+                self?.handleSpotlightID(identifier)
+            }
+        }
+    }
+    
+    func setup(ruleStore: RuleStore, undoManager: FMUndoManager) {
+        self.ruleStore = ruleStore
+        self.undoManager = undoManager
     }
 
     func completeOnboarding() {
@@ -35,9 +50,27 @@ class AppViewModel: ObservableObject {
     }
     
     func handleSpotlightID(_ identifier: String) {
-        if let uuid = UUID(uuidString: identifier) {
-            highlightedRuleID = uuid
-            highlightedEntryID = uuid
+        guard let uuid = UUID(uuidString: identifier) else { return }
+        print("[AppViewModel] Handling Spotlight ID: \(uuid)")
+        
+        NSApp.activate(ignoringOtherApps: true)
+        
+        if let ruleStore = ruleStore, ruleStore.rules.contains(where: { $0.id == uuid }) {
+            print("[AppViewModel] Matched Rule: \(uuid)")
+            self.selectedSection = .rules
+            self.highlightedRuleID = uuid
+            self.ruleToEditID = uuid
+        } else if let undoManager = undoManager, let entry = undoManager.entries.first(where: { $0.id == uuid }) {
+            print("[AppViewModel] Matched Activity Entry: \(uuid) -> \(entry.destinationURL.path)")
+            self.selectedSection = .activity
+            self.highlightedEntryID = uuid
+            // Reveal in Finder
+            NSWorkspace.shared.activateFileViewerSelecting([entry.destinationURL])
+        } else {
+            print("[AppViewModel] No match found. Rules: \(ruleStore?.rules.count ?? 0), Entries: \(undoManager?.entries.count ?? 0)")
+            // Fallback: search in rules anyway
+            self.selectedSection = .rules
+            self.highlightedRuleID = uuid
         }
     }
 }

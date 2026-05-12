@@ -16,6 +16,7 @@
 		1E68D3606E068084F929F678 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F68492F4F3043B8A32AD5B44 /* Assets.xcassets */; };
 		216BB1BC5767FC2A7E97BBC4 /* DoneStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B1860C32DFA52A8450BB411 /* DoneStepView.swift */; };
 		22CC5DCE1D9CB8247EF9A662 /* FolderPickerStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F098FF32830ABB2850328805 /* FolderPickerStepView.swift */; };
+		22F597EDB0F62CC25A3F5D82 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4F1D1681CE5BF9EF0B2F4B /* AppDelegate.swift */; };
 		23BB235AC414AFA505BC9E0E /* ConflictResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A86AB54E7595097CB2BEF24E /* ConflictResolver.swift */; };
 		24369344BA142631E9B5421F /* SpotlightQuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9762FBC9D7145ECD07C38927 /* SpotlightQuickActions.swift */; };
 		2AC2CF1764096E43D5AE1949 /* SpotlightIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6A9FC7E6A7E1803DCA0F18 /* SpotlightIndexer.swift */; };
@@ -67,6 +68,7 @@
 /* Begin PBXFileReference section */
 		012678B9C81503603DCE2843 /* PermissionsStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsStepView.swift; sourceTree = "<group>"; };
 		0B00B750532F4EB1EFC691AD /* TahoeUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TahoeUI.swift; sourceTree = "<group>"; };
+		0D4F1D1681CE5BF9EF0B2F4B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		17B1FA3DEF0206921B6AF28F /* FolderMindTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FolderMindTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		17DB87863EF46F858E9E3CF7 /* MLXImageClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLXImageClassifier.swift; sourceTree = "<group>"; };
 		180F7EA55434288AC9612111 /* TahoeWindowWrappers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TahoeWindowWrappers.swift; sourceTree = "<group>"; };
@@ -218,6 +220,7 @@
 				E355BD793DB026AC13C3D724 /* Services */,
 				EFAAE121B59F016D3D8DB08A /* Styles */,
 				9A744F13E204DF8CC691AC63 /* Views */,
+				0D4F1D1681CE5BF9EF0B2F4B /* AppDelegate.swift */,
 				416DC71769B924C0EF5ACB35 /* FolderMind.entitlements */,
 				563640F452E64C9B40B2632B /* FolderMindApp.swift */,
 				E25B9785E7E283E24194E327 /* Info.plist */,
@@ -394,6 +397,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5F467E109414A645EFBA76F1 /* ActivityEntry.swift in Sources */,
+				22F597EDB0F62CC25A3F5D82 /* AppDelegate.swift in Sources */,
 				7E5305359078854957525D3D /* AppState.swift in Sources */,
 				23BB235AC414AFA505BC9E0E /* ConflictResolver.swift in Sources */,
 				EAC1BACF4444432465D79AAF /* DesignSystem.swift in Sources */,
@@ -509,11 +513,15 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = FolderMind;
+				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLName\": \"app.foldermind.mac\", \"CFBundleURLSchemes\": [\"foldermind\"]]]";
 				INFOPLIST_KEY_NSFullDiskAccessUsageDescription = "FolderMind needs Full Disk Access to watch and organise your folders. Your files never leave your Mac.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				NSUserActivityTypes = (
+					com.apple.corespotlightitem,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -579,11 +587,15 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = FolderMind;
+				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLName\": \"app.foldermind.mac\", \"CFBundleURLSchemes\": [\"foldermind\"]]]";
 				INFOPLIST_KEY_NSFullDiskAccessUsageDescription = "FolderMind needs Full Disk Access to watch and organise your folders. Your files never leave your Mac.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				NSUserActivityTypes = (
+					com.apple.corespotlightitem,
+				);
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;

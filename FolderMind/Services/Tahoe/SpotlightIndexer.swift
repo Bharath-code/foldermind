@@ -24,6 +24,9 @@ struct SpotlightIndexer {
 
         let icon = NSWorkspace.shared.icon(forFile: destinationURL.path)
         attributeSet.thumbnailData = icon.tiffRepresentation
+        attributeSet.path = destinationURL.path
+        attributeSet.relatedUniqueIdentifier = entryID
+        attributeSet.contentURL = URL(string: "foldermind://activity/\(entryID)")
 
         let item = CSSearchableItem(
             uniqueIdentifier: entryID,
@@ -47,6 +50,7 @@ struct SpotlightIndexer {
         attributeSet.title = "FolderMind: \(rule.name)"
         attributeSet.contentDescription = "Rule: \(rule.conditions.map { $0.displayName }.joined(separator: ", "))"
         attributeSet.keywords = ["FolderMind", "rule", rule.name]
+        attributeSet.contentURL = URL(string: "foldermind://rule/\(rule.id.uuidString)")
 
         let item = CSSearchableItem(
             uniqueIdentifier: rule.id.uuidString,
@@ -54,11 +58,21 @@ struct SpotlightIndexer {
             attributeSet: attributeSet
         )
 
-        CSSearchableIndex.default().indexSearchableItems([item])
+        CSSearchableIndex.default().indexSearchableItems([item]) { error in
+            if let error = error {
+                Logger.spotlightIndexer.error("Rule indexing FAILED: \(error.localizedDescription)")
+            } else {
+                Logger.spotlightIndexer.info("Successfully indexed rule: \(rule.name)")
+            }
+        }
     }
 
     static func removeIndexedRule(ruleID: String) {
-        CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: [ruleID])
+        CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: [ruleID]) { error in
+            if let error = error {
+                Logger.spotlightIndexer.error("Rule deletion FAILED: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

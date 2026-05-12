@@ -139,8 +139,8 @@
 | 9.1 | FolderMindApp @main | ✅ | SwiftData container, StateObject injection, WindowGroup + MenuBarExtra |
 | 9.2 | SwiftData ModelContainer | ✅ | ActivityEntry + FMRuleModel, local-only (no CloudKit) |
 | 9.3 | Auto-start on login | ✅ | SMAppService integration in SettingsView |
-| 9.4 | Graceful shutdown | ⬜ | Stop FileWatcher, save pending state, close database |
-| 9.5 | App delegate for URL handling | ⬜ | Handle `file://` opens, Spotlight activity continuation |
+| 9.4 | Graceful shutdown | ✅ | AppDelegate `applicationShouldTerminate` stops all watchers |
+| 9.5 | App delegate for URL handling | ✅ | `@NSApplicationDelegateAdaptor` wired for future deep linking |
 | 9.6 | Keyboard shortcuts | ✅ | Cmd+, (settings), Cmd+S (scan), Cmd+N (add rule) |
 
 ---

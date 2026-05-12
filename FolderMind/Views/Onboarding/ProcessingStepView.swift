@@ -97,31 +97,46 @@ struct ProcessingStepView: View {
             return
         }
 
-        var matches: [ProcessedFile] = []
+        let fmRules = enabledRules.map { $0.asFMRule(watchedFolderURL: folderURL) }
+        let engine = RuleEngine.shared
 
         for fileURL in files where isRegularFile(fileURL) {
-            if let match = matchRule(for: fileURL) {
-                guard let processed = move(fileURL, toFolderNamed: match.destination, ruleName: match.ruleName) else {
-                    continue
-                }
-                matches.append(processed)
-            }
-        }
-
-        guard !matches.isEmpty else {
-            completeScan()
-            return
-        }
-
-        for processed in matches {
             if Task.isCancelled { return }
 
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                processedFiles.append(processed)
-                totalProcessed += 1
+            for rule in fmRules {
+                let matched = await engine.evaluate(rule: rule, for: fileURL)
+                if matched {
+                    let result = await engine.executeActions(rule.actions, for: fileURL)
+                    if case .moved(let dest) = result {
+                        let processed = ProcessedFile(
+                            originalName: fileURL.lastPathComponent,
+                            destinationFolder: dest.deletingLastPathComponent().lastPathComponent,
+                            rule: rule.name
+                        )
+                        
+                        // Surface to UI
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                            processedFiles.append(processed)
+                            totalProcessed += 1
+                        }
+                        
+                        // Log to undo manager for immediate regret support
+                        undoManager.logAction(
+                            ActivityEntry(
+                                ruleName: rule.name,
+                                sourceURL: fileURL,
+                                destinationURL: dest,
+                                actionType: .moved
+                            )
+                        )
+                        
+                        // Artificial delay for "magic" effect
+                        try? await Task.sleep(for: .milliseconds(120))
+                    }
+                    // First rule wins
+                    break
+                }
             }
-
-            try? await Task.sleep(for: .milliseconds(80))
         }
 
         completeScan()
@@ -141,108 +156,9 @@ struct ProcessingStepView: View {
         }
     }
 
-    func matchRule(for url: URL) -> (destination: String, ruleName: String)? {
-        let name = url.deletingPathExtension().lastPathComponent.lowercased()
-        let ext = url.pathExtension.lowercased()
-
-        for rule in enabledRules where rule.isEnabled {
-            switch rule.name {
-            case "Screenshots":
-                if ext == "png" && (name.contains("screen shot") || name.contains("screenshot")) {
-                    return ("Screenshots", rule.name)
-                }
-            case "Invoices & receipts":
-                if ext == "pdf" && (name.contains("invoice") || name.contains("receipt")) {
-                    return ("Finance", rule.name)
-                }
-            case "Archives":
-                if ["zip", "tar", "gz", "tgz", "rar", "7z"].contains(ext) {
-                    return ("Archives", rule.name)
-                }
-            case "Photos & images":
-                if ["jpg", "jpeg", "heic", "webp", "gif", "tiff"].contains(ext) {
-                    return ("Photos", rule.name)
-                }
-            case "Videos":
-                if ["mp4", "mov", "mkv", "avi", "webm"].contains(ext) {
-                    return ("Videos", rule.name)
-                }
-            case "Documents":
-                if ["txt", "md", "rtf", "doc", "docx", "pages", "xls", "xlsx", "numbers", "key", "ppt", "pptx", "csv", "pdf"].contains(ext) {
-                    return ("Documents", rule.name)
-                }
-            case "Disk images":
-                if ["dmg", "pkg"].contains(ext) {
-                    return ("Installers", rule.name)
-                }
-            case "Audio":
-                if ["mp3", "m4a", "flac", "wav", "aac"].contains(ext) {
-                    return ("Music", rule.name)
-                }
-            default:
-                continue
-            }
-        }
-
-        return nil
-    }
-
     private func isRegularFile(_ url: URL) -> Bool {
         let values = try? url.resourceValues(forKeys: [.isRegularFileKey])
         return values?.isRegularFile == true
-    }
-
-    private func move(_ fileURL: URL, toFolderNamed folderName: String, ruleName: String) -> ProcessedFile? {
-        let fm = FileManager.default
-        let destinationFolder = folderURL.appendingPathComponent(folderName, isDirectory: true)
-
-        do {
-            try fm.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
-            let destinationURL = uniqueDestinationURL(
-                in: destinationFolder,
-                originalName: fileURL.lastPathComponent
-            )
-            try fm.moveItem(at: fileURL, to: destinationURL)
-            undoManager.logAction(
-                ActivityEntry(
-                    ruleName: ruleName,
-                    sourceURL: fileURL,
-                    destinationURL: destinationURL,
-                    actionType: .moved
-                )
-            )
-            return ProcessedFile(
-                originalName: fileURL.lastPathComponent,
-                destinationFolder: folderName,
-                rule: ruleName
-            )
-        } catch {
-            return nil
-        }
-    }
-
-    private func uniqueDestinationURL(in folder: URL, originalName: String) -> URL {
-        let fm = FileManager.default
-        let originalURL = folder.appendingPathComponent(originalName)
-
-        guard fm.fileExists(atPath: originalURL.path) else {
-            return originalURL
-        }
-
-        let name = (originalName as NSString).deletingPathExtension
-        let ext = (originalName as NSString).pathExtension
-
-        for index in 1...999 {
-            let candidateName = ext.isEmpty
-                ? "\(name) \(index)"
-                : "\(name) \(index).\(ext)"
-            let candidateURL = folder.appendingPathComponent(candidateName)
-            if !fm.fileExists(atPath: candidateURL.path) {
-                return candidateURL
-            }
-        }
-
-        return folder.appendingPathComponent(UUID().uuidString + "-" + originalName)
     }
 }
 

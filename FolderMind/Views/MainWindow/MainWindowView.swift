@@ -6,7 +6,6 @@ struct MainWindowView: View {
     @EnvironmentObject var undoManager: FMUndoManager
     @EnvironmentObject var watchCoordinator: FileWatchCoordinator
     @EnvironmentObject var toastManager: ToastManager
-    @State private var selection: MainWindowSection? = .rules
     @State private var ruleBuilderIntent: RuleBuilderIntent? = nil
     @State private var hasFDA: Bool = PermissionChecker.hasFullDiskAccess
     @State private var isDropTargeted = false
@@ -20,11 +19,11 @@ struct MainWindowView: View {
                 }
 
                 NavigationSplitView {
-                    SidebarView(selection: $selection)
+                    SidebarView(selection: $appVM.selectedSection)
                         .environmentObject(watchCoordinator)
                         .environmentObject(toastManager)
                 } detail: {
-                    switch selection ?? .rules {
+                    switch appVM.selectedSection ?? .rules {
                     case .rules:
                         RuleListView(
                             onEdit: { rule in
@@ -77,6 +76,12 @@ struct MainWindowView: View {
                     RuleBuilderView(existingRule: intent.rule)
                         .id(intent.id) // Force fresh state initialization
                         .environmentObject(ruleStore)
+                }
+                .onChange(of: appVM.ruleToEditID) { oldValue, newValue in
+                    if let id = newValue, let rule = ruleStore.rules.first(where: { $0.id == id }) {
+                        ruleBuilderIntent = .edit(rule)
+                        appVM.ruleToEditID = nil // Reset so it can be triggered again
+                    }
                 }
             }
             
@@ -198,6 +203,7 @@ struct SidebarView: View {
 }
 
 struct RuleListView: View {
+    @EnvironmentObject var appVM: AppViewModel
     @EnvironmentObject var ruleStore: RuleStore
     var onEdit: (FMRule) -> Void
     var onToggle: (FMRule) -> Void
@@ -212,17 +218,36 @@ struct RuleListView: View {
                     description: Text("Create your first rule to start organising files automatically.")
                 )
             } else {
-                List {
-                    ForEach(ruleStore.rules) { rule in
-                        RuleRowView(
-                            rule: rule,
-                            onEdit: { onEdit(rule) },
-                            onToggle: { onToggle(rule) },
-                            onDuplicate: { ruleStore.duplicateRule(rule) },
-                            onDelete: { onDelete(rule) }
-                        )
+                ScrollViewReader { proxy in
+                    List {
+                        ForEach(ruleStore.rules) { rule in
+                            RuleRowView(
+                                rule: rule,
+                                onEdit: { onEdit(rule) },
+                                onToggle: { onToggle(rule) },
+                                onDuplicate: { ruleStore.duplicateRule(rule) },
+                                onDelete: { onDelete(rule) }
+                            )
+                            .id(rule.id)
+                            .listRowBackground(
+                                appVM.highlightedRuleID == rule.id 
+                                ? Color.accentColor.opacity(0.15) 
+                                : nil
+                            )
+                        }
+                        .onMove(perform: ruleStore.moveRules)
                     }
-                    .onMove(perform: ruleStore.moveRules)
+                    .onChange(of: appVM.highlightedRuleID) { oldValue, newValue in
+                        if let id = newValue {
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                                proxy.scrollTo(id, anchor: .center)
+                            }
+                            // Clear highlight after a few seconds
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                                withAnimation { appVM.highlightedRuleID = nil }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -230,6 +255,7 @@ struct RuleListView: View {
 }
 
 struct ActivityFeedView: View {
+    @EnvironmentObject var appVM: AppViewModel
     @EnvironmentObject var undoManager: FMUndoManager
 
     var body: some View {
@@ -241,12 +267,31 @@ struct ActivityFeedView: View {
                     description: Text("File operations will appear here as FolderMind organises your folders.")
                 )
             } else {
-                List {
-                    ForEach(undoManager.entries) { entry in
-                        ActivityRowView(entry: entry)
+                ScrollViewReader { proxy in
+                    List {
+                        ForEach(undoManager.entries) { entry in
+                            ActivityRowView(entry: entry)
+                                .id(entry.id)
+                                .listRowBackground(
+                                    appVM.highlightedEntryID == entry.id 
+                                    ? Color.accentColor.opacity(0.15) 
+                                    : nil
+                                )
+                        }
+                    }
+                    .listStyle(.inset(alternatesRowBackgrounds: true))
+                    .onChange(of: appVM.highlightedEntryID) { oldValue, newValue in
+                        if let id = newValue {
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                                proxy.scrollTo(id, anchor: .center)
+                            }
+                            // Clear highlight after a few seconds
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                                withAnimation { appVM.highlightedEntryID = nil }
+                            }
+                        }
                     }
                 }
-                .listStyle(.inset(alternatesRowBackgrounds: true))
             }
         }
         .toolbar {

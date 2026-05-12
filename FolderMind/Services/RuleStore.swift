@@ -13,6 +13,11 @@ class RuleStore: ObservableObject {
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         storageURL = folder.appendingPathComponent("rules.json")
         loadRules()
+        
+        // Re-index all rules on startup to ensure Spotlight is up to date
+        for rule in rules {
+            SpotlightIndexer.indexRule(rule)
+        }
     }
 
     func loadRules() {
