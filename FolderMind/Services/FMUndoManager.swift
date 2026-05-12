@@ -100,6 +100,13 @@ class FMUndoManager: ObservableObject {
         canUndo = entries.contains { $0.canUndo && !$0.isUndone }
     }
 
+    func clearAll() {
+        withAnimation {
+            entries.removeAll()
+        }
+        saveEntries()
+    }
+
     func clearOlderThan(_ days: Int) {
         let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
         entries.removeAll { $0.timestamp < cutoff }

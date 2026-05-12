@@ -19,7 +19,7 @@ struct ConflictResolver {
             do {
                 try fm.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
             } catch {
-                return .error("Couldn't create folder: \(error.localizedDescription)")
+                return .error("Couldn't create folder: \(ErrorMapper.userFriendlyError(from: error))")
             }
         }
 

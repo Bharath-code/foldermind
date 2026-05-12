@@ -96,6 +96,7 @@ struct FolderMindApp: App {
             MenuBarView()
                 .environmentObject(ruleStore)
                 .environmentObject(undoManager)
+                .environmentObject(watchCoordinator)
         } label: {
             Image(systemName: "folder.fill.badge.gearshape")
         }

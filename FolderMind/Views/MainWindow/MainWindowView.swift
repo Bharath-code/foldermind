@@ -252,16 +252,25 @@ struct ActivityFeedView: View {
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 if undoManager.canUndo {
-                    Button("Undo Last", systemImage: "arrow.uturn.backward") {
-                        Task { await undoManager.undoLatest() }
+                    Button("Undo All") {
+                        Task { await undoManager.undoAll() }
                     }
+                    .help("Undo all operations in this list")
                 }
+                
+                Button(action: {
+                    undoManager.clearAll()
+                }) {
+                    Label("Clear", systemImage: "trash")
+                }
+                .help("Clear activity history")
             }
         }
     }
 }
 
 struct ActivityRowView: View {
+    @EnvironmentObject var undoManager: FMUndoManager
     let entry: ActivityEntry
 
     var body: some View {
@@ -285,17 +294,40 @@ struct ActivityRowView: View {
             VStack(alignment: .trailing, spacing: 2) {
                 Text(entry.timestamp, style: .time)
                     .font(.system(size: 11))
-                Text(entry.ruleName)
+                Text(ruleNameSnippet)
                     .font(.system(size: 10))
                     .foregroundStyle(.tertiary)
             }
+            .frame(width: 60, alignment: .trailing)
+
+            if entry.canUndo && !entry.isUndone {
+                Button(action: {
+                    Task { await undoManager.performUndo(entry) }
+                }) {
+                    Image(systemName: "arrow.uturn.backward.circle")
+                        .font(.system(size: 16))
+                        .foregroundStyle(.blue)
+                }
+                .buttonStyle(.plain)
+                .help("Undo this action")
+            } else if entry.isUndone {
+                Image(systemName: "arrow.uturn.backward")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                    .help("Undone")
+            }
         }
-        .opacity(entry.isUndone ? 0.5 : 1.0)
+        .opacity(entry.isUndone ? 0.4 : 1.0)
+        .grayscale(entry.isUndone ? 1.0 : 0.0)
         .padding(.vertical, 4)
         .onDrag {
             // Drag out of app
             NSItemProvider(object: entry.destinationURL as NSURL)
         }
+    }
+
+    private var ruleNameSnippet: String {
+        entry.ruleName.count > 12 ? String(entry.ruleName.prefix(10)) + ".." : entry.ruleName
     }
 
     private func iconForAction(_ action: ActionType) -> String {
@@ -349,9 +381,10 @@ struct RuleRowView: View {
                         .foregroundStyle(.secondary)
                         .cornerRadius(4)
                 }
-                Text("\(rule.conditions.count) conditions · \(rule.actions.count) actions")
+                Text(rule.summary)
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
             .contentShape(Rectangle())
             .onTapGesture(perform: onEdit) // Tap on text to edit

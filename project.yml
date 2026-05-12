@@ -49,4 +49,7 @@ targets:
       - path: FolderMind/Models/ActivityEntry.swift
       - path: FolderMind/Services/ToastManager.swift
       - path: FolderMind/Services/RuleStore.swift
+      - path: FolderMind/Helpers/ErrorMapper.swift
+      - path: FolderMind/Services/Tahoe/SpotlightIndexer.swift
+      - path: FolderMind/Services/FMUndoManager.swift
     dependencies: []

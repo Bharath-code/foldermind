@@ -342,7 +342,7 @@ final class FileWatchCoordinator: ObservableObject {
             print("[FileWatchCoordinator] Action skipped for \(sourceURL.lastPathComponent): \(msg)")
         case .failed(let msg):
             print("[FileWatchCoordinator] Action failed for \(sourceURL.lastPathComponent): \(msg)")
-            toastManager.show("Failed to process \(sourceURL.lastPathComponent)", type: .error)
+            toastManager.show("Failed: \(msg)", type: .error)
         }
     }
 }

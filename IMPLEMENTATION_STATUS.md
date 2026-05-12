@@ -82,7 +82,7 @@
 | 4.5 | ActionResult enum | ✅ | `.moved`, `.copied`, `.skipped`, `.failed` with URLs/messages |
 | 4.6 | RenameEngine | ✅ | Token replacement: {name}, {ext}, {date}, {year}, {month}, {day}, {time}, {counter}, {parent} |
 | 4.7 | ConflictResolver | ✅ | Counter-based rename (`file_001.pdf`), auto-create destination folder |
-| 4.8 | Error handling (permission denied, disk full) | 🚧 | ConflictResolver returns `.error()` — **needs integration into executeActions** |
+| 4.8 | Error handling (permission denied, disk full) | ✅ | ConflictResolver returns `.error()` — integrated into executeActions |
 | 4.9 | Rename preview function | ✅ | `RenameEngine.preview(template:for:date:)` for dry-run |
 
 ## 5. Activity Log & Undo
@@ -93,7 +93,7 @@
 | 5.2 | ActionType enum | ✅ | moved, copied, renamed, deleted, createdFolder with `reverseAction` |
 | 5.3 | FMUndoManager | ✅ | Log, undo latest, undo all, clear older than N days |
 | 5.4 | Per-entry undo | ✅ | `performUndo()` reverses moved/copied actions, marks `isUndone` |
-| 5.5 | ActivityFeedView | 🚧 | List of entries and undo button in toolbar — needs per-entry undo affordance |
+| 5.5 | ActivityFeedView | ✅ | List of entries with per-entry undo button |
 | 5.6 | ActivityRowView | ✅ | Shows icon, filename, destination, timestamp, rule name, undone state |
 | 5.7 | Activity log persistence | ✅ | SwiftData auto-persists, survives app restart |
 | 5.8 | Auto-cleanup old entries | ✅ | `clearOlderThan(_ days:)` method |
@@ -104,8 +104,8 @@
 |---|------|--------|---------------------|
 | 6.1 | MainWindowView | ✅ | NavigationSplitView with sidebar + toolbar (Scan Now, Add Rule) |
 | 6.2 | SidebarView | ✅ | List with "Rules" and "Activity" navigation with selection state |
-| 6.3 | RuleListView | 🚧 | Shows rules or empty state, rows open builder — needs richer rule detail view |
-| 6.4 | RuleRowView | 🚧 | Shows rule name, condition/action count, enable toggle, edit/delete context menu |
+| 6.3 | RuleListView | ✅ | Shows rules or empty state, rows open builder |
+| 6.4 | RuleRowView | ✅ | Shows name, summary, priority, enable toggle, and context menu |
 | 6.5 | Empty state (no rules) | ✅ | `ContentUnavailableView` with icon and description |
 | 6.6 | Toolbar "Add Rule" button | ✅ | Opens RuleBuilderView for new rule creation |
 | 6.7 | Settings/Preferences window | ✅ | License key input, auto-start toggle, debug tools |
@@ -117,8 +117,8 @@
 |---|------|--------|---------------------|
 | 7.1 | MenuBarExtra | ✅ | Folder gear icon in system menu bar |
 | 7.2 | MenuBarView | ✅ | Shows active rules, undo button, quit |
-| 7.3 | Open main window from menu bar | ⬜ | Menu bar item click opens/restores main window |
-| 7.4 | Real-time rule status in menu bar | 🚧 | Shows enabled rules — **needs refresh on rule change** |
+| 7.3 | Open main window from menu bar | ✅ | "Open FolderMind" button with app activation |
+| 7.4 | Real-time rule status in menu bar | ✅ | Shows active rules list, refreshes automatically |
 
 ## 8. Permissions & Licensing
 
@@ -202,6 +202,17 @@
 | 14.3 | High-priority processing | ⬜ | Continuity files processed immediately, not debounced |
 | 14.4 | User notification | ⬜ | Shows notification: "Sorted 'photo.jpg' into Receipts/" |
 | 14.5 | FileSource enum | ⬜ | `.continuity` vs `.local` cases |
+| 14.6 | Hand-written OCR | ⬜ | AI-powered text extraction from images/PDFs |
+
+## 15. AI-Driven Product Strategy
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 15.1 | Vector-Based Organization | ⬜ | Use local embeddings for semantic file matching |
+| 15.2 | Observation Mode | ⬜ | Passive learning from manual file moves to suggest rules |
+| 15.3 | Workflow Sync (Notion/Obsidian) | ⬜ | Automated indexing/linking to PKM tools |
+| 15.4 | Smart Rename (Context-Aware) | ⬜ | Generate meaningful filenames from file content |
+| 15.5 | Pro AI Pack | ⬜ | Advanced model support for complex classification |
 
 ---
 
@@ -258,6 +269,15 @@
 | 18.6 | Privacy policy | ⬜ | "Files never leave your Mac" statement, data collection (none) |
 | 18.7 | Payment integration | ⬜ | Paddle or Gumroad SDK, license key delivery |
 | 18.8 | Analytics (optional) | ⬜ | Anonymous usage metrics (rules created, files sorted) — opt-in |
+
+## 19. Strategic Growth
+
+| # | Item | Status | Acceptance Criteria |
+|---|------|--------|---------------------|
+| 19.1 | Time-Saved Dashboard | ⬜ | Weekly report showing quantified efficiency gains |
+| 19.2 | Community Rule Templates | ⬜ | Shareable JSON rule packs for specific workflows |
+| 19.3 | Referral Loops | ⬜ | "Invite a friend" to extend trial or get a discount |
+| 19.4 | B2B Fleet Management | ⬜ | Manage rules across a company/team (Future) |
 
 ---
 
@@ -322,6 +342,8 @@ FolderMind/
 | `Views/Tahoe/LiquidGlassModifiers.swift` | 2 | MEDIUM |
 | `Helpers/RuleBackupManager.swift` | 3 | LOW |
 | `Helpers/BookmarkManager.swift` | 2 | LOW (MAS Phase) |
+| `Services/Tahoe/DeepSemanticEngine.swift` | 2 | HIGH |
+| `Models/GrowthReport.swift` | 3 | LOW |
 
 ---
 
@@ -345,13 +367,15 @@ FolderMind/
 11. **Testing (Core)** (#17.1-17.3) — ✅ Unit tests for engine/logic
 12. **Web & Growth** (#18.5-18.7) — ⬜ Landing page, payments, Sparkle
 
-## Sprint 3 — Tahoe Features
+## Sprint 3 — Tahoe & Growth (NEXT FOCUS)
 
 10. **Spotlight integration** (#10.3-10.6) — Wire up existing indexer to actual operations
 11. **Liquid Glass UI** (#11.2-11.6) — Actual Tahoe API integration
 12. **Foundation Models** (#12.1-12.8) — Smart file classification
-13. **MLX** (#13.1-13.6) — Image recognition (requires M5 Mac)
-14. **Continuity** (#14.1-14.5) — iPhone photo auto-sort
+13. **Observation Mode** (#15.2) — Passive learning system
+14. **MLX** (#13.1-13.6) — Image recognition (requires M5 Mac)
+15. **Continuity** (#14.1-14.5) — iPhone photo auto-sort
+16. **Growth Dashboard** (#19.1) — Time-saved reporting
 
 ---
 

@@ -18,6 +18,7 @@
 		22CC5DCE1D9CB8247EF9A662 /* FolderPickerStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F098FF32830ABB2850328805 /* FolderPickerStepView.swift */; };
 		23BB235AC414AFA505BC9E0E /* ConflictResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A86AB54E7595097CB2BEF24E /* ConflictResolver.swift */; };
 		24369344BA142631E9B5421F /* SpotlightQuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9762FBC9D7145ECD07C38927 /* SpotlightQuickActions.swift */; };
+		2AC2CF1764096E43D5AE1949 /* SpotlightIndexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6A9FC7E6A7E1803DCA0F18 /* SpotlightIndexer.swift */; };
 		30C1FDC50A0120DFC4E34E7E /* FMUndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E11EE0A2BB2AFE12FE7FE63 /* FMUndoManager.swift */; };
 		3F1366CA77D5467689A4E7C8 /* PermissionChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A363661774C29744144EA8F4 /* PermissionChecker.swift */; };
 		4BBC6C954E0E2EB83767056E /* FMPrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A573477EBF0D10975071261 /* FMPrimaryButtonStyle.swift */; };
@@ -25,6 +26,7 @@
 		520E5DCB6349096D54E3FDCF /* WindowConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1AADCFE88C27D5A59ADDA3D /* WindowConfigurator.swift */; };
 		578876A3DA81440B50BF1EA4 /* RenameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1824A342A2C925CDB953A67 /* RenameEngine.swift */; };
 		5D3BA5322340281FD3C5A428 /* MainWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DCCDF34AE9B997BC3F32A4F /* MainWindowView.swift */; };
+		5DBAA3B7E8621DF8DB45602C /* ErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF39D83F43952FA3B42B5E75 /* ErrorMapper.swift */; };
 		5F467E109414A645EFBA76F1 /* ActivityEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6267399C058252AB54AEB251 /* ActivityEntry.swift */; };
 		6728F112B589C85B00D369C8 /* RuleEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F19C59304352326E013A20 /* RuleEngine.swift */; };
 		6D1D10671DDE735B7F94A848 /* TrialStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A678E3CCF700212194668F /* TrialStatusView.swift */; };
@@ -32,6 +34,7 @@
 		7E5305359078854957525D3D /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E449584CC3A6EBA056061356 /* AppState.swift */; };
 		813DAEBDC4350555DF539173 /* RuleBackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C99B38CEC3395154FAD1CC8 /* RuleBackupManager.swift */; };
 		872512DDE8710A8498F5EDDF /* WelcomeStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B19BE2476A4459C27FEDEB9 /* WelcomeStepView.swift */; };
+		87F30A4A4E3BDB6C18BB2F8D /* ErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF39D83F43952FA3B42B5E75 /* ErrorMapper.swift */; };
 		89DD18F3E76BAC241F1057AE /* ConflictResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1070669C47EB5CDD58B05B3 /* ConflictResolverTests.swift */; };
 		8A6E6E30DD06AA2E249E2B75 /* ConflictResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A86AB54E7595097CB2BEF24E /* ConflictResolver.swift */; };
 		99C75CE3E8AF6019BF10231D /* LicenseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0510EEE496DD1C8A366CC2 /* LicenseManager.swift */; };
@@ -39,7 +42,9 @@
 		9A0F295AEA065EC77DD8B828 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997249CEF681DE7CCB8B4966 /* SettingsView.swift */; };
 		9D4FB07D5EF5A509445777B9 /* FolderMindApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563640F452E64C9B40B2632B /* FolderMindApp.swift */; };
 		9EE3B264B59C9E3898C15E77 /* StarterRulesStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CA812293372CF39BEF7EE0 /* StarterRulesStepView.swift */; };
+		9F38CC77F0168F1689308177 /* FMUndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E11EE0A2BB2AFE12FE7FE63 /* FMUndoManager.swift */; };
 		A326D1DA1FAC5A3393CF5025 /* FileWatchCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2CB8C9A510DCCAE558645C4 /* FileWatchCoordinator.swift */; };
+		A84B9755C695F05A7FFDE88C /* MLXImageClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17DB87863EF46F858E9E3CF7 /* MLXImageClassifier.swift */; };
 		B027AB706587BC0A28F3770A /* ActivityEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6267399C058252AB54AEB251 /* ActivityEntry.swift */; };
 		B0AADA3CEB4AE76A00B2E882 /* LiquidGlassModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAA108386C8F257DDD91D82 /* LiquidGlassModifiers.swift */; };
 		B30C5E2F6721CC2419D9F773 /* ProcessingStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBFFDFC2B6BC4828D23DE92B /* ProcessingStepView.swift */; };
@@ -56,12 +61,14 @@
 		ECB92F137CDF27D1CCECC58F /* ToastManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9897ED207F9ECCC681E3A139 /* ToastManager.swift */; };
 		F2DB6C34640B6B5E80C03F15 /* PermissionsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 012678B9C81503603DCE2843 /* PermissionsStepView.swift */; };
 		F8C8C519EE9DDE025834FEF3 /* RuleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEC3AED58D2B463255C28D3E /* RuleStore.swift */; };
+		FF3AABB1429065246A340C97 /* SmartFileClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E533BA1679B94C942D2BAE8 /* SmartFileClassifier.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		012678B9C81503603DCE2843 /* PermissionsStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsStepView.swift; sourceTree = "<group>"; };
 		0B00B750532F4EB1EFC691AD /* TahoeUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TahoeUI.swift; sourceTree = "<group>"; };
 		17B1FA3DEF0206921B6AF28F /* FolderMindTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FolderMindTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		17DB87863EF46F858E9E3CF7 /* MLXImageClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLXImageClassifier.swift; sourceTree = "<group>"; };
 		180F7EA55434288AC9612111 /* TahoeWindowWrappers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TahoeWindowWrappers.swift; sourceTree = "<group>"; };
 		2C99B38CEC3395154FAD1CC8 /* RuleBackupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleBackupManager.swift; sourceTree = "<group>"; };
 		3B6B3268DC677FD747741038 /* FolderMind.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FolderMind.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -82,6 +89,7 @@
 		9762FBC9D7145ECD07C38927 /* SpotlightQuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightQuickActions.swift; sourceTree = "<group>"; };
 		9897ED207F9ECCC681E3A139 /* ToastManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastManager.swift; sourceTree = "<group>"; };
 		997249CEF681DE7CCB8B4966 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		9E533BA1679B94C942D2BAE8 /* SmartFileClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartFileClassifier.swift; sourceTree = "<group>"; };
 		9F0510EEE496DD1C8A366CC2 /* LicenseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseManager.swift; sourceTree = "<group>"; };
 		9F760D6A87EAAAEF9ED5B73B /* OnboardingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStep.swift; sourceTree = "<group>"; };
 		A363661774C29744144EA8F4 /* PermissionChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionChecker.swift; sourceTree = "<group>"; };
@@ -90,6 +98,7 @@
 		ACAA108386C8F257DDD91D82 /* LiquidGlassModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassModifiers.swift; sourceTree = "<group>"; };
 		B2A02E4C69D3A59F340ACAB5 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		B96B8B63DBC67873B8E574CF /* StarterRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarterRule.swift; sourceTree = "<group>"; };
+		BF39D83F43952FA3B42B5E75 /* ErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorMapper.swift; sourceTree = "<group>"; };
 		C1824A342A2C925CDB953A67 /* RenameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenameEngine.swift; sourceTree = "<group>"; };
 		D445A58C5E4CD3C1CC0F8B24 /* RuleBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleBuilderView.swift; sourceTree = "<group>"; };
 		E1070669C47EB5CDD58B05B3 /* ConflictResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConflictResolverTests.swift; sourceTree = "<group>"; };
@@ -169,6 +178,7 @@
 		7DEFA4E00CBEAA5311BC4C03 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				BF39D83F43952FA3B42B5E75 /* ErrorMapper.swift */,
 				E1AADCFE88C27D5A59ADDA3D /* WindowConfigurator.swift */,
 			);
 			path = Helpers;
@@ -228,6 +238,8 @@
 		E1D3D53EFA65051AF2C16AF2 /* Tahoe */ = {
 			isa = PBXGroup;
 			children = (
+				17DB87863EF46F858E9E3CF7 /* MLXImageClassifier.swift */,
+				9E533BA1679B94C942D2BAE8 /* SmartFileClassifier.swift */,
 				7D6A9FC7E6A7E1803DCA0F18 /* SpotlightIndexer.swift */,
 				9762FBC9D7145ECD07C38927 /* SpotlightQuickActions.swift */,
 			);
@@ -364,12 +376,15 @@
 				B027AB706587BC0A28F3770A /* ActivityEntry.swift in Sources */,
 				8A6E6E30DD06AA2E249E2B75 /* ConflictResolver.swift in Sources */,
 				89DD18F3E76BAC241F1057AE /* ConflictResolverTests.swift in Sources */,
+				5DBAA3B7E8621DF8DB45602C /* ErrorMapper.swift in Sources */,
+				9F38CC77F0168F1689308177 /* FMUndoManager.swift in Sources */,
 				578876A3DA81440B50BF1EA4 /* RenameEngine.swift in Sources */,
 				C0F322FF7963C16E0BD197C3 /* RenameEngineTests.swift in Sources */,
 				6728F112B589C85B00D369C8 /* RuleEngine.swift in Sources */,
 				B9C2F0ECA0F67695CA081ABD /* RuleEngineTests.swift in Sources */,
 				18D1769268BC5047B309E052 /* RuleModel.swift in Sources */,
 				E32C7E1B8DFBA50166144F0B /* RuleStore.swift in Sources */,
+				2AC2CF1764096E43D5AE1949 /* SpotlightIndexer.swift in Sources */,
 				ECB92F137CDF27D1CCECC58F /* ToastManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -383,6 +398,7 @@
 				23BB235AC414AFA505BC9E0E /* ConflictResolver.swift in Sources */,
 				EAC1BACF4444432465D79AAF /* DesignSystem.swift in Sources */,
 				216BB1BC5767FC2A7E97BBC4 /* DoneStepView.swift in Sources */,
+				87F30A4A4E3BDB6C18BB2F8D /* ErrorMapper.swift in Sources */,
 				4BBC6C954E0E2EB83767056E /* FMPrimaryButtonStyle.swift in Sources */,
 				30C1FDC50A0120DFC4E34E7E /* FMUndoManager.swift in Sources */,
 				A326D1DA1FAC5A3393CF5025 /* FileWatchCoordinator.swift in Sources */,
@@ -391,6 +407,7 @@
 				22CC5DCE1D9CB8247EF9A662 /* FolderPickerStepView.swift in Sources */,
 				99C75CE3E8AF6019BF10231D /* LicenseManager.swift in Sources */,
 				B0AADA3CEB4AE76A00B2E882 /* LiquidGlassModifiers.swift in Sources */,
+				A84B9755C695F05A7FFDE88C /* MLXImageClassifier.swift in Sources */,
 				5D3BA5322340281FD3C5A428 /* MainWindowView.swift in Sources */,
 				C7B11BE8F0E6E11347A014F6 /* MenuBarView.swift in Sources */,
 				16DA7864BC01CE0D5FB2184B /* OnboardingCoordinatorView.swift in Sources */,
@@ -405,6 +422,7 @@
 				DE5185F22712019A5D283C38 /* RuleModel.swift in Sources */,
 				F8C8C519EE9DDE025834FEF3 /* RuleStore.swift in Sources */,
 				9A0F295AEA065EC77DD8B828 /* SettingsView.swift in Sources */,
+				FF3AABB1429065246A340C97 /* SmartFileClassifier.swift in Sources */,
 				D5D5E4ECDA7C6DAA55FCE277 /* SpotlightIndexer.swift in Sources */,
 				24369344BA142631E9B5421F /* SpotlightQuickActions.swift in Sources */,
 				CA8C108EEF2C5531EFFB6936 /* StarterRule.swift in Sources */,

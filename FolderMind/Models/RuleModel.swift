@@ -9,6 +9,14 @@ struct FMRule: Identifiable, Codable, Equatable {
     var conditionLogic: ConditionLogic = .all
     var actions: [RuleAction]
     var priority: Int = 0
+
+    var summary: String {
+        guard !conditions.isEmpty else { return "No conditions defined" }
+        let conds = conditions.prefix(2).map { $0.displayName }.joined(separator: ", ")
+        let suffix = conditions.count > 2 ? " + \(conditions.count - 2) more" : ""
+        let action = actions.first?.displayName ?? "No actions"
+        return "\(conds)\(suffix) → \(action)"
+    }
 }
 
 enum ConditionLogic: String, Codable, Equatable { case all, any }
