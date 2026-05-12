@@ -153,10 +153,10 @@
 |---|------|--------|---------------------|
 | 10.1 | SpotlightIndexer | ✅ | Index organized files with metadata, remove on undo |
 | 10.2 | SpotlightQuickActions | ✅ | Register "Organize Folder" and "Toggle Rule" activities |
-| 10.3 | Index on file move | ⬜ | Call `SpotlightIndexer.indexOrganizedFile()` after successful move |
-| 10.4 | Remove index on undo | ⬜ | Call `SpotlightIndexer.removeIndexedFile()` when undoing |
-| 10.5 | Index rules for search | ⬜ | Call `SpotlightIndexer.indexRule()` when rule is saved |
-| 10.6 | Handle Spotlight activity continuation | ⬜ | AppDelegate `continue userActivity` routes to correct action |
+| 10.3 | Index on file move | ✅ | Call `SpotlightIndexer.indexOrganizedFile()` after successful move |
+| 10.4 | Remove index on undo | ✅ | Call `SpotlightIndexer.removeIndexedFile()` when undoing |
+| 10.5 | Index rules for search | ✅ | Call `SpotlightIndexer.indexRule()` when rule is saved |
+| 10.6 | Handle Spotlight activity continuation | ✅ | AppDelegate `continue userActivity` routes to correct action |
 
 ## 11. Liquid Glass UI
 
@@ -173,22 +173,22 @@
 
 | # | Item | Status | Acceptance Criteria |
 |---|------|--------|---------------------|
-| 12.1 | SmartFileClassifier | ⬜ | Actor, loads text/vision models, `classifyFile()` method |
-| 12.2 | Text file classification | ⬜ | Reads first 2000 chars, prompts model, returns category |
-| 12.3 | Image file classification | ⬜ | Vision model analyzes image content, returns category |
-| 12.4 | FileClassification struct | ⬜ | Category, confidence, source (AI vs rule-based) |
-| 12.5 | On-device processing guarantee | ⬜ | `processingLocation = .onDevice` enforced |
-| 12.6 | Fallback to rule-based | ⬜ | If AI unavailable or returns nil, RuleEngine.evaluate() runs |
-| 12.7 | Integration with RuleEngine | ⬜ | `evaluateWithAI()` method that tries AI first, falls back to rules |
-| 12.8 | Graceful degradation on pre-Tahoe | ⬜ | `if #available(macOS 26, *)` guard, no crash on older OS |
+| 12.1 | SmartFileClassifier | ✅ | Actor, loads text/vision models, `classifyFile()` method |
+| 12.2 | Text file classification | ✅ | Reads first 2000 chars, prompts model, returns category |
+| 12.3 | Image file classification | ✅ | Vision model analyzes image content, returns category |
+| 12.4 | FileClassification struct | ✅ | Category, confidence, source (AI vs rule-based) |
+| 12.5 | On-device processing guarantee | ✅ | `processingLocation = .onDevice` enforced |
+| 12.6 | Fallback to rule-based | ✅ | If AI unavailable or returns nil, RuleEngine.evaluate() runs |
+| 12.7 | Integration with RuleEngine | 🚧 | `evaluateWithAI()` method that tries AI first, falls back to rules |
+| 12.8 | Graceful degradation on pre-Tahoe | ✅ | `if #available(macOS 26, *)` guard, no crash on older OS |
 
 ## 13. MLX Image Recognition
 
 | # | Item | Status | Acceptance Criteria |
 |---|------|--------|---------------------|
-| 13.1 | MLXImageClassifier | ⬜ | Actor, loads MLX model, configures neural accelerators |
-| 13.2 | M5 neural engine optimization | ⬜ | `MLX.configuration.useNeuralAccelerators = true` |
-| 13.3 | Image classification output | ⬜ | Returns category (screenshot/photo/document/receipt) + confidence |
+| 13.1 | MLXImageClassifier | ✅ | Actor, loads MLX model, configures neural accelerators |
+| 13.2 | M5 neural engine optimization | ✅ | `MLX.configuration.useNeuralAccelerators = true` |
+| 13.3 | Image classification output | ✅ | Returns category (screenshot/photo/document/receipt) + confidence |
 | 13.4 | OCR on images | ⬜ | Extracts text from document/receipt images |
 | 13.5 | Fallback chain | ⬜ | MLX → Foundation Model vision → rule-based |
 | 13.6 | Model bundling | ⬜ | Pre-trained classifier model included in app bundle |

@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreSpotlight
 
 @main
 struct FolderMindApp: App {
@@ -69,8 +70,21 @@ struct FolderMindApp: App {
                     }
                 }
             }
+            .onContinueUserActivity(CSSearchableItemActionType) { userActivity in
+                if let identifier = userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String,
+                   let uuid = UUID(uuidString: identifier) {
+                    if ruleStore.rules.contains(where: { $0.id == uuid }) {
+                        appVM.selectedSection = .rules
+                        appVM.highlightedRuleID = uuid
+                    } else if undoManager.entries.contains(where: { $0.id == uuid }) {
+                        appVM.selectedSection = .activity
+                        appVM.highlightedEntryID = uuid
+                    }
+                }
+            }
         }
         .windowStyle(.hiddenTitleBar)
+        .windowToolbarStyle(.unifiedCompact)
         .windowResizability(.contentSize)
         .defaultPosition(.center)
         

@@ -313,15 +313,29 @@ final class FileWatchCoordinator: ObservableObject {
     private func logResult(_ result: ActionResult, rule: FMRule, sourceURL: URL) {
         switch result {
         case .moved(let dest):
-            undoManager.logAction(ActivityEntry(
+            let entry = ActivityEntry(
                 ruleName: rule.name, sourceURL: sourceURL, destinationURL: dest, actionType: .moved
-            ))
+            )
+            undoManager.logAction(entry)
+            SpotlightIndexer.indexOrganizedFile(
+                sourceURL: sourceURL,
+                destinationURL: dest,
+                ruleName: rule.name,
+                entryID: entry.id.uuidString
+            )
             toastManager.showFileAction("Moved", filename: sourceURL.lastPathComponent, destination: dest.deletingLastPathComponent().lastPathComponent)
             
         case .copied(let dest):
-            undoManager.logAction(ActivityEntry(
+            let entry = ActivityEntry(
                 ruleName: rule.name, sourceURL: sourceURL, destinationURL: dest, actionType: .copied
-            ))
+            )
+            undoManager.logAction(entry)
+            SpotlightIndexer.indexOrganizedFile(
+                sourceURL: sourceURL,
+                destinationURL: dest,
+                ruleName: rule.name,
+                entryID: entry.id.uuidString
+            )
             toastManager.showFileAction("Copied", filename: sourceURL.lastPathComponent, destination: dest.deletingLastPathComponent().lastPathComponent)
             
         case .skipped(let msg):

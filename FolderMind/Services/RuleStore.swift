@@ -81,11 +81,13 @@ class RuleStore: ObservableObject {
             rules.append(rule)
         }
         save()
+        SpotlightIndexer.indexRule(rule)
     }
 
     func deleteRule(_ rule: FMRule) {
         rules.removeAll { $0.id == rule.id }
         save()
+        SpotlightIndexer.removeIndexedRule(ruleID: rule.id.uuidString)
     }
 
     func toggleRule(_ rule: FMRule) {
@@ -105,6 +107,7 @@ class RuleStore: ObservableObject {
             rules.append(copy)
         }
         save()
+        SpotlightIndexer.indexRule(copy)
     }
     
     func importRules(_ newRules: [FMRule]) {
@@ -115,6 +118,7 @@ class RuleStore: ObservableObject {
                 rule.id = UUID()
             }
             rules.append(rule)
+            SpotlightIndexer.indexRule(rule)
         }
         save()
     }

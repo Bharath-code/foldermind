@@ -56,6 +56,10 @@ struct SpotlightIndexer {
 
         CSSearchableIndex.default().indexSearchableItems([item])
     }
+
+    static func removeIndexedRule(ruleID: String) {
+        CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: [ruleID])
+    }
 }
 
 extension Logger {

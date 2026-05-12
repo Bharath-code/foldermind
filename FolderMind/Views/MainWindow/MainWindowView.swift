@@ -158,28 +158,6 @@ struct FDAWarningBanner: View {
     }
 }
 
-
-enum MainWindowSection: String, CaseIterable, Identifiable, Hashable {
-    case rules
-    case activity
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .rules: return "Rules"
-        case .activity: return "Activity"
-        }
-    }
-
-    var systemImage: String {
-        switch self {
-        case .rules: return "list.bullet"
-        case .activity: return "clock.arrow.circlepath"
-        }
-    }
-}
-
 struct SidebarView: View {
     @EnvironmentObject var watchCoordinator: FileWatchCoordinator
     @Binding var selection: MainWindowSection?

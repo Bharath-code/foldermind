@@ -48,6 +48,7 @@ class FMUndoManager: ObservableObject {
                         updatedEntry.isUndone = true
                         updateEntry(updatedEntry)
                     }
+                    SpotlightIndexer.removeIndexedFile(entryID: entry.id.uuidString)
                 } catch {
                     // Handle error
                 }
@@ -60,6 +61,7 @@ class FMUndoManager: ObservableObject {
                     updatedEntry.isUndone = true
                     updateEntry(updatedEntry)
                 }
+                SpotlightIndexer.removeIndexedFile(entryID: entry.id.uuidString)
             }
 
         case .renamed, .deleted, .createdFolder:
