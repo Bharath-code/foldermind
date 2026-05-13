@@ -66,9 +66,21 @@ struct MainWindowView: View {
                                 .transition(.scale.combined(with: .opacity))
                         }
                         
-                        Button("Add Rule", systemImage: "plus") {
+                        Button(action: {
                             ruleBuilderIntent = .create
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 13, weight: .semibold))
+                                Text("Add Rule")
+                                    .font(.system(size: 13, weight: .medium))
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
                         }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.blue)
+                        .controlSize(.regular)
                     }
                 }
                 // sheet(item:) — the item IS the data, so no nil-capture race.
@@ -171,8 +183,15 @@ struct SidebarView: View {
         List(selection: $selection) {
             Section("Library") {
                 ForEach(MainWindowSection.allCases) { section in
-                    Label(section.title, systemImage: section.systemImage)
-                        .tag(section)
+                    Label {
+                        Text(section.title)
+                            .font(.system(size: 14, weight: .medium))
+                    } icon: {
+                        Image(systemName: section.systemImage)
+                            .font(.system(size: 14))
+                    }
+                    .padding(.vertical, 2)
+                    .tag(section)
                 }
             }
         }
@@ -412,22 +431,22 @@ struct RuleRowView: View {
                 .font(.system(size: 14))
                 .foregroundStyle(.tertiary)
 
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
                     Text(rule.name)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(rule.isEnabled ? .primary : .secondary)
                     
                     Text(priorityString(for: rule.priority))
-                        .font(.system(size: 9, weight: .bold))
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 1)
-                        .background(Color.secondary.opacity(0.15))
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 10, weight: .bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(priorityColor(for: rule.priority).opacity(0.15))
+                        .foregroundStyle(priorityColor(for: rule.priority))
                         .cornerRadius(4)
                 }
                 Text(rule.summary)
-                    .font(.system(size: 11))
+                    .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
@@ -494,6 +513,14 @@ struct RuleRowView: View {
         if level >= 45 { return "NORMAL" }
         if level >= 25 { return "LOW" }
         return "LOWEST"
+    }
+
+    private func priorityColor(for level: Int) -> Color {
+        if level >= 90 { return .purple }
+        if level >= 70 { return .red }
+        if level >= 45 { return .blue }
+        if level >= 25 { return .orange }
+        return .secondary
     }
 }
 

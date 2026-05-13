@@ -6,19 +6,19 @@ struct TrialStatusPill: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: "clock.badge.exclamationmark")
-                .font(.system(size: 10, weight: .bold))
+                .font(.system(size: 11, weight: .bold))
             Text("\(daysRemaining) days left in trial")
-                .font(.system(size: 10, weight: .medium))
+                .font(.system(size: 12, weight: .semibold))
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
         .background(
             Capsule()
-                .fill(Color.accentColor.opacity(0.1))
+                .fill(Color.accentColor.opacity(0.15))
         )
         .overlay(
             Capsule()
-                .strokeBorder(Color.accentColor.opacity(0.2), lineWidth: 1)
+                .strokeBorder(Color.accentColor.opacity(0.3), lineWidth: 1)
         )
         .foregroundColor(.accentColor)
     }
