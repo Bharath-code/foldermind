@@ -26,7 +26,9 @@ class AppViewModel: ObservableObject {
         
         NotificationCenter.default.addObserver(forName: .didSelectSpotlightItem, object: nil, queue: .main) { [weak self] note in
             if let identifier = note.object as? String {
-                self?.handleSpotlightID(identifier)
+                Task { @MainActor [weak self] in
+                    self?.handleSpotlightID(identifier)
+                }
             }
         }
     }

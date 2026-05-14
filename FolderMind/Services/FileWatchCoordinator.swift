@@ -27,9 +27,7 @@ final class FileWatchCoordinator: ObservableObject {
     @Published private(set) var isWatching = false
     @Published private(set) var activeWatcherCount = 0
     @Published private(set) var isProcessing = false
-    private var processingCount = 0 {
-        didSet { isProcessing = processingCount > 0 }
-    }
+    private var processingCount = 0
 
     // MARK: – Init
 
@@ -51,14 +49,14 @@ final class FileWatchCoordinator: ObservableObject {
         PermissionChecker.logFDAStatus()
         print("[FileWatchCoordinator] Starting...")
 
+        // The subscription delivers the current value immediately, debounced by 200ms.
+        // This naturally triggers the first rebuild without needing a manual call.
         rulesCancellable = ruleStore.$rules
             .removeDuplicates()
             .debounce(for: .milliseconds(200), scheduler: RunLoop.main)
             .sink { [weak self] _ in
                 self?.rebuildWatchers()
             }
-
-        rebuildWatchers()
     }
 
     /// Call on app termination / when the user removes all watched folders.
@@ -204,8 +202,15 @@ final class FileWatchCoordinator: ObservableObject {
             }
         }
 
-        activeWatcherCount = watchers.count
-        isWatching = !watchers.isEmpty
+        let newCount = watchers.count
+        let newIsWatching = !watchers.isEmpty
+        
+        if activeWatcherCount != newCount || isWatching != newIsWatching {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                self.activeWatcherCount = newCount
+                self.isWatching = newIsWatching
+            }
+        }
     }
 
     private func stopAllWatchers() {
@@ -290,8 +295,17 @@ final class FileWatchCoordinator: ObservableObject {
 
     /// Evaluates `rules` against `fileURL` in priority order — first match wins.
     private func processFile(_ fileURL: URL, rules: [FMRule], engine: RuleEngine) async {
-        processingCount += 1
-        defer { processingCount -= 1 }
+        await MainActor.run {
+            processingCount += 1
+            if isProcessing != (processingCount > 0) { isProcessing = processingCount > 0 }
+        }
+        
+        defer {
+            Task { @MainActor in
+                self.processingCount -= 1
+                if self.isProcessing != (self.processingCount > 0) { self.isProcessing = self.processingCount > 0 }
+            }
+        }
         
         for rule in rules {
             print("[FileWatchCoordinator] Evaluating '\(rule.name)' against \(fileURL.lastPathComponent)")

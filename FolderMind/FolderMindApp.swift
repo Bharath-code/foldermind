@@ -108,19 +108,22 @@ struct FolderMindApp: App {
                             window.standardWindowButton(.zoomButton)?.isHidden = false
                         }
                         .onAppear {
-                            watchCoordinator.start()
-                            appVM.setup(ruleStore: ruleStore, undoManager: undoManager)
+                            Task { @MainActor in
+                                watchCoordinator.start()
+                                appVM.setup(ruleStore: ruleStore, undoManager: undoManager)
+                            }
                         }
                         .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
                             watchCoordinator.stop()
                         }
-                        .onReceive(Timer.publish(every: 3, on: .main, in: .common).autoconnect()) { _ in
-                            if PermissionChecker.hasFullDiskAccess {
-                                watchCoordinator.start()
-                            }
-                        }
                         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
                             appVM.appDidBecomeActive()
+                            if PermissionChecker.hasFullDiskAccess {
+                                Task { @MainActor in
+                                    watchCoordinator.start()
+                                }
+                            }
+     
                         }
                         .onReceive(NotificationCenter.default.publisher(for: NSApplication.willResignActiveNotification)) { _ in
                             appVM.appWillResignActive()

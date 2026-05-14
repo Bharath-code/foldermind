@@ -23,22 +23,25 @@ struct MainWindowView: View {
                         .environmentObject(watchCoordinator)
                         .environmentObject(toastManager)
                 } detail: {
-                    switch appVM.selectedSection ?? .rules {
-                    case .rules:
-                        RuleListView(
-                            onEdit: { rule in
-                                // sheet(item:) guarantees the item is set BEFORE the
-                                // sheet body is evaluated — no timing race with editingRule.
-                                ruleBuilderIntent = .edit(rule)
-                            },
-                            onToggle: { ruleStore.toggleRule($0) },
-                            onDelete: { ruleStore.deleteRule($0) }
-                        )
-                            .environmentObject(ruleStore)
-                    case .activity:
-                        ActivityFeedView()
-                            .environmentObject(undoManager)
+                    Group {
+                        switch appVM.selectedSection ?? .rules {
+                        case .rules:
+                            RuleListView(
+                                onEdit: { rule in
+                                    // sheet(item:) guarantees the item is set BEFORE the
+                                    // sheet body is evaluated — no timing race with editingRule.
+                                    ruleBuilderIntent = .edit(rule)
+                                },
+                                onToggle: { ruleStore.toggleRule($0) },
+                                onDelete: { ruleStore.deleteRule($0) }
+                            )
+                                .environmentObject(ruleStore)
+                        case .activity:
+                            ActivityFeedView()
+                                .environmentObject(undoManager)
+                        }
                     }
+                    .id(appVM.selectedSection)
                 }
                 .navigationTitle("FolderMind")
                 .toolbar {
@@ -92,7 +95,9 @@ struct MainWindowView: View {
                 .onChange(of: appVM.ruleToEditID) { oldValue, newValue in
                     if let id = newValue, let rule = ruleStore.rules.first(where: { $0.id == id }) {
                         ruleBuilderIntent = .edit(rule)
-                        appVM.ruleToEditID = nil // Reset so it can be triggered again
+                        Task { @MainActor in
+                            appVM.ruleToEditID = nil
+                        }
                     }
                 }
             }
@@ -142,8 +147,8 @@ struct MainWindowView: View {
             }
             return true
         }
-        // Poll FDA status every 2 seconds — banner disappears the moment FDA is granted.
-        .onReceive(Timer.publish(every: 2, on: .main, in: .common).autoconnect()) { _ in
+        // Check FDA status when the app becomes active, e.g., when returning from System Settings.
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             hasFDA = PermissionChecker.hasFullDiskAccess
         }
     }
@@ -256,16 +261,13 @@ struct RuleListView: View {
                         }
                         .onMove(perform: ruleStore.moveRules)
                     }
-                    .onChange(of: appVM.highlightedRuleID) { oldValue, newValue in
-                        if let id = newValue {
-                            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                                proxy.scrollTo(id, anchor: .center)
-                            }
-                            // Clear highlight after a few seconds
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                                withAnimation { appVM.highlightedRuleID = nil }
-                            }
+                    .task(id: appVM.highlightedRuleID) {
+                        guard let id = appVM.highlightedRuleID else { return }
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                            proxy.scrollTo(id, anchor: .center)
                         }
+                        try? await Task.sleep(for: .seconds(2.5))
+                        await MainActor.run { appVM.highlightedRuleID = nil }
                     }
                 }
             }
@@ -299,16 +301,13 @@ struct ActivityFeedView: View {
                         }
                     }
                     .listStyle(.inset(alternatesRowBackgrounds: true))
-                    .onChange(of: appVM.highlightedEntryID) { oldValue, newValue in
-                        if let id = newValue {
-                            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                                proxy.scrollTo(id, anchor: .center)
-                            }
-                            // Clear highlight after a few seconds
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                                withAnimation { appVM.highlightedEntryID = nil }
-                            }
+                    .task(id: appVM.highlightedEntryID) {
+                        guard let id = appVM.highlightedEntryID else { return }
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                            proxy.scrollTo(id, anchor: .center)
                         }
+                        try? await Task.sleep(for: .seconds(2.5))
+                        await MainActor.run { appVM.highlightedEntryID = nil }
                     }
                 }
             }

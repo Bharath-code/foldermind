@@ -63,7 +63,7 @@ final class FileWatcher: @unchecked Sendable {
             throw FileWatcherError.streamCreationFailed
         }
 
-        FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetMain(), CFRunLoopMode.commonModes.rawValue)
+        FSEventStreamSetDispatchQueue(stream, eventQueue)
 
         let started = FSEventStreamStart(stream)
         guard started else {
@@ -88,7 +88,7 @@ final class FileWatcher: @unchecked Sendable {
         isRunning = false
 
         FSEventStreamStop(stream)
-        FSEventStreamInvalidate(stream)
+        FSEventStreamSetDispatchQueue(stream, nil)
         FSEventStreamRelease(stream)
         streamRef = nil
 

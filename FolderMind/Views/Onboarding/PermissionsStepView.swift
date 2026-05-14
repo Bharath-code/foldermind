@@ -77,7 +77,7 @@ struct PermissionsStepView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear { checkPermission() }
-        .onReceive(Timer.publish(every: 1.5, on: .main, in: .common).autoconnect()) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             checkPermission()
         }
     }
