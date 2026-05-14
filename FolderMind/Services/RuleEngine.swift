@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 
 actor RuleEngine {
     static let shared = RuleEngine()
@@ -42,23 +43,24 @@ actor RuleEngine {
         return matches
     }
 
-    func executeActions(_ actions: [RuleAction], for fileURL: URL) async -> ActionResult {
+    func executeActions(_ actions: [RuleAction], for fileURL: URL) async -> ActionExecutionResult {
         print("[RuleEngine] Executing \(actions.count) actions for \(fileURL.lastPathComponent)")
         var destinationFolder = fileURL.deletingLastPathComponent()
         var newName: String? = nil
+        var scheduledDeleteDate: Date? = nil
 
         for action in actions {
-            if case .moveToFolder(let folder) = action {
+            switch action {
+            case .moveToFolder(let folder):
                 destinationFolder = folder
-            }
-            if case .copyToFolder(let folder) = action {
+            case .copyToFolder(let folder):
                 destinationFolder = folder
-            }
-        }
-
-        for action in actions {
-            if case .renameWith(let template) = action {
+            case .renameWith(let template):
                 newName = RenameEngine.apply(template: template, to: fileURL, date: Date())
+            case .deleteAfterDays(let days):
+                scheduledDeleteDate = Calendar.current.date(byAdding: .day, value: days, to: Date())
+            default:
+                break
             }
         }
 
@@ -70,16 +72,17 @@ actor RuleEngine {
             destinationFolder: destinationFolder,
             desiredName: desiredName
         )
-        
+
         print("[RuleEngine] Action resolution for \(source.lastPathComponent): \(resolution)")
 
         switch resolution {
         case .move(let src, let dest):
-            return await performMove(src, dest, actions: actions)
+            let result = await performMove(src, dest, actions: actions)
+            return ActionExecutionResult(outcome: result, scheduledDeleteDate: scheduledDeleteDate)
         case .skip:
-            return .skipped("Already in correct location")
+            return ActionExecutionResult(outcome: .skipped("Already in correct location"), scheduledDeleteDate: nil)
         case .error(let msg):
-            return .failed(msg)
+            return ActionExecutionResult(outcome: .failed(msg), scheduledDeleteDate: nil)
         }
     }
 
@@ -144,25 +147,72 @@ actor RuleEngine {
 
     private func performMove(_ source: URL, _ destination: URL, actions: [RuleAction]) async -> ActionResult {
         let fm = FileManager.default
-        
-        // Prevent race conditions where FSEvents and Drag-and-Drop both try to move the file.
+
         guard fm.fileExists(atPath: source.path) else {
             return .skipped("Source file no longer exists (likely already processed).")
         }
-        
+
+        let isCopy = actions.contains(where: { if case .copyToFolder = $0 { true } else { false } })
+
         do {
-            if actions.contains(where: { if case .copyToFolder = $0 { true } else { false } }) {
+            if isCopy {
                 print("[RuleEngine] Copying \(source.path) to \(destination.path)")
                 try fm.copyItem(at: source, to: destination)
-                return .copied(destination)
             } else {
                 print("[RuleEngine] Moving \(source.path) to \(destination.path)")
                 try fm.moveItem(at: source, to: destination)
-                return .moved(destination)
             }
         } catch {
             return .failed(ErrorMapper.userFriendlyError(from: error))
         }
+
+        let resultURL = destination
+
+        for action in actions {
+            switch action {
+            case .addFinderTag(let tag):
+                do {
+                    try (resultURL as NSURL).setResourceValue([tag], forKey: .tagNamesKey)
+                    print("[RuleEngine] Added Finder tag '\(tag)' to \(resultURL.lastPathComponent)")
+                } catch {
+                    print("[RuleEngine] Failed to add Finder tag '\(tag)': \(error.localizedDescription)")
+                }
+            case .openWithApp(let appURL):
+                let config = NSWorkspace.OpenConfiguration()
+                NSWorkspace.shared.open([resultURL], withApplicationAt: appURL, configuration: config) { _, error in
+                    if let error = error {
+                        print("[RuleEngine] Failed to open \(resultURL.lastPathComponent) with \(appURL.lastPathComponent): \(error.localizedDescription)")
+                    }
+                }
+            case .runShellScript(let script):
+                let process = Process()
+                process.executableURL = URL(fileURLWithPath: "/bin/sh")
+                process.arguments = ["-c", script]
+                process.currentDirectoryURL = resultURL.deletingLastPathComponent()
+                process.environment = ["FILE_PATH": resultURL.path, "FILE_NAME": resultURL.lastPathComponent]
+                let outPipe = Pipe()
+                let errPipe = Pipe()
+                process.standardOutput = outPipe
+                process.standardError = errPipe
+                do {
+                    try process.run()
+                    process.waitUntilExit()
+                    let stdout = String(data: outPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+                    if process.terminationStatus != 0 {
+                        let stderr = String(data: errPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+                        print("[RuleEngine] Shell script failed (exit \(process.terminationStatus)): \(stderr)")
+                    } else if !stdout.isEmpty {
+                        print("[RuleEngine] Shell script output: \(stdout)")
+                    }
+                } catch {
+                    print("[RuleEngine] Failed to run shell script: \(error.localizedDescription)")
+                }
+            default:
+                break
+            }
+        }
+
+        return isCopy ? .copied(resultURL) : .moved(resultURL)
     }
 
 }
@@ -172,6 +222,11 @@ struct DryRunMatch: Identifiable {
     let originalPath: URL
     let resultName: String
     let resultFolder: String
+}
+
+struct ActionExecutionResult: Sendable {
+    let outcome: ActionResult
+    let scheduledDeleteDate: Date?
 }
 
 enum ActionResult: Sendable {

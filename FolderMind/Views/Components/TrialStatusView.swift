@@ -56,7 +56,7 @@ struct TrialExpiredView: View {
             
             // Input
             VStack(alignment: .leading, spacing: 8) {
-                TextField("XXXX-XXXX-XXXX-XXXX-XXXX-XXXX", text: $licenseKey)
+                TextField("FMLM-XXXX-XXXX-XXXX", text: $licenseKey)
                     .textFieldStyle(.plain)
                     .font(.system(size: 14, design: .monospaced))
                     .padding(12)
@@ -68,7 +68,7 @@ struct TrialExpiredView: View {
                     )
                 
                 if showError {
-                    Text("Invalid license key format. Please check and try again.")
+                    Text("Invalid license key. Expected format: FMLM-XXXX-XXXX-XXXX")
                         .font(.system(size: 11))
                         .foregroundColor(.red)
                 }

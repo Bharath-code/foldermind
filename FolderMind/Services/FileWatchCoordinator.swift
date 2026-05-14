@@ -312,10 +312,10 @@ final class FileWatchCoordinator: ObservableObject {
             let matched = await engine.evaluate(rule: rule, for: fileURL)
             guard matched else { continue }
 
-            let result = await engine.executeActions(rule.actions, for: fileURL)
-            print("[FileWatchCoordinator] '\(rule.name)' → \(result)")
+            let executionResult = await engine.executeActions(rule.actions, for: fileURL)
+            print("[FileWatchCoordinator] '\(rule.name)' → \(executionResult.outcome)")
 
-            await MainActor.run { logResult(result, rule: rule, sourceURL: fileURL) }
+            await MainActor.run { logResult(executionResult, rule: rule, sourceURL: fileURL) }
             
             // First matching rule wins. This is critical to prevent infinite loops 
             // when multiple rules match the same file and try to move it to different folders.
@@ -323,13 +323,15 @@ final class FileWatchCoordinator: ObservableObject {
         }
     }
 
-    /// Map an `ActionResult` into an `ActivityEntry` and push it to the undo stack.
-    private func logResult(_ result: ActionResult, rule: FMRule, sourceURL: URL) {
+    /// Map an `ActionExecutionResult` into an `ActivityEntry` and push it to the undo stack.
+    private func logResult(_ executionResult: ActionExecutionResult, rule: FMRule, sourceURL: URL) {
+        let result = executionResult.outcome
         switch result {
         case .moved(let dest):
-            let entry = ActivityEntry(
+            var entry = ActivityEntry(
                 ruleName: rule.name, sourceURL: sourceURL, destinationURL: dest, actionType: .moved
             )
+            entry.scheduledDeleteDate = executionResult.scheduledDeleteDate
             undoManager.logAction(entry)
             SpotlightIndexer.indexOrganizedFile(
                 sourceURL: sourceURL,
@@ -340,9 +342,10 @@ final class FileWatchCoordinator: ObservableObject {
             toastManager.showFileAction("Moved", filename: sourceURL.lastPathComponent, destination: dest.deletingLastPathComponent().lastPathComponent)
             
         case .copied(let dest):
-            let entry = ActivityEntry(
+            var entry = ActivityEntry(
                 ruleName: rule.name, sourceURL: sourceURL, destinationURL: dest, actionType: .copied
             )
+            entry.scheduledDeleteDate = executionResult.scheduledDeleteDate
             undoManager.logAction(entry)
             SpotlightIndexer.indexOrganizedFile(
                 sourceURL: sourceURL,

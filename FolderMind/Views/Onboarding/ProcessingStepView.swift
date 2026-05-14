@@ -106,8 +106,8 @@ struct ProcessingStepView: View {
             for rule in fmRules {
                 let matched = await engine.evaluate(rule: rule, for: fileURL)
                 if matched {
-                    let result = await engine.executeActions(rule.actions, for: fileURL)
-                    if case .moved(let dest) = result {
+                    let executionResult = await engine.executeActions(rule.actions, for: fileURL)
+                    if case .moved(let dest) = executionResult.outcome {
                         let processed = ProcessedFile(
                             originalName: fileURL.lastPathComponent,
                             destinationFolder: dest.deletingLastPathComponent().lastPathComponent,

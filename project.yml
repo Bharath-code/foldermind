@@ -39,8 +39,12 @@ targets:
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: 1
         CODE_SIGN_STYLE: Automatic
-        DEVELOPMENT_TEAM: ""
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Debug:
+          DEVELOPMENT_TEAM: ""
+        Release:
+          DEVELOPMENT_TEAM: "XXXXXXXXXX"  # Replace with your Apple Developer Team ID
 
   FolderMindTests:
     type: bundle.unit-test

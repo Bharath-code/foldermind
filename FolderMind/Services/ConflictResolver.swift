@@ -37,13 +37,20 @@ struct ConflictResolver {
             let ext = keepExtension ? (targetName as NSString).pathExtension : ""
             var counter = 1
 
-            repeat {
+            while counter <= 999 && fm.fileExists(atPath: destination.path) {
                 let newName = ext.isEmpty
                     ? "\(name)_\(String(format: "%03d", counter))"
                     : "\(name)_\(String(format: "%03d", counter)).\(ext)"
                 destination = destinationFolder.appendingPathComponent(newName)
                 counter += 1
-            } while fm.fileExists(atPath: destination.path)
+            }
+
+            if fm.fileExists(atPath: destination.path) {
+                let uuidName = ext.isEmpty
+                    ? "\(name)_\(UUID().uuidString.prefix(8))"
+                    : "\(name)_\(UUID().uuidString.prefix(8)).\(ext)"
+                destination = destinationFolder.appendingPathComponent(uuidName)
+            }
         }
 
         return .move(source, destination)

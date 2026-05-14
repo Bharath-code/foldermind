@@ -55,7 +55,7 @@ class RuleStore: ObservableObject {
         encoder.outputFormatting = .prettyPrinted
         do {
             let data = try encoder.encode(sortedRules)
-            try data.write(to: storageURL)
+            try data.write(to: storageURL, options: .atomic)
             print("[RuleStore] Successfully saved \(sortedRules.count) rules to \(storageURL.lastPathComponent)")
         } catch {
             print("[RuleStore] FAILED to save rules: \(error)")

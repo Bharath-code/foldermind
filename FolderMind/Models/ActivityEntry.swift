@@ -9,6 +9,8 @@ struct ActivityEntry: Identifiable, Codable {
     var actionTypeRaw: String = ""
     var canUndo: Bool = true
     var isUndone: Bool = false
+    var isDeleted: Bool = false
+    var scheduledDeleteDate: Date? = nil
 
     var sourceURL: URL {
         get { URL(fileURLWithPath: sourcePath) }
