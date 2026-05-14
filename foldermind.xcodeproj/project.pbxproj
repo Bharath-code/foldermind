@@ -50,7 +50,9 @@
 		B027AB706587BC0A28F3770A /* ActivityEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6267399C058252AB54AEB251 /* ActivityEntry.swift */; };
 		B0AADA3CEB4AE76A00B2E882 /* LiquidGlassModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAA108386C8F257DDD91D82 /* LiquidGlassModifiers.swift */; };
 		B30C5E2F6721CC2419D9F773 /* ProcessingStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBFFDFC2B6BC4828D23DE92B /* ProcessingStepView.swift */; };
+		B55D11A8BDB839A208A8DCF7 /* SparkleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85AA015ADD091E7B64FC5883 /* SparkleManager.swift */; };
 		B9C2F0ECA0F67695CA081ABD /* RuleEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B8EF8160750FA9E5391ACC /* RuleEngineTests.swift */; };
+		C0BDAC07D793971E4771E99D /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 1E78E63FD4DCC3F68674C693 /* Sparkle */; };
 		C0F322FF7963C16E0BD197C3 /* RenameEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA100B278CE5758016047D60 /* RenameEngineTests.swift */; };
 		C7B11BE8F0E6E11347A014F6 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */; };
 		CA8C108EEF2C5531EFFB6936 /* StarterRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96B8B63DBC67873B8E574CF /* StarterRule.swift */; };
@@ -87,6 +89,7 @@
 		6B1860C32DFA52A8450BB411 /* DoneStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoneStepView.swift; sourceTree = "<group>"; };
 		7D6A9FC7E6A7E1803DCA0F18 /* SpotlightIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightIndexer.swift; sourceTree = "<group>"; };
 		7DCCDF34AE9B997BC3F32A4F /* MainWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowView.swift; sourceTree = "<group>"; };
+		85AA015ADD091E7B64FC5883 /* SparkleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleManager.swift; sourceTree = "<group>"; };
 		8B19BE2476A4459C27FEDEB9 /* WelcomeStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStepView.swift; sourceTree = "<group>"; };
 		90B8EF8160750FA9E5391ACC /* RuleEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleEngineTests.swift; sourceTree = "<group>"; };
 		94F19C59304352326E013A20 /* RuleEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleEngine.swift; sourceTree = "<group>"; };
@@ -119,6 +122,17 @@
 		F6A7D59CCDFF9665175FF658 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		FAC9121573B82F320BC730B5 /* RuleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C4E6F85A02DD093F2E32D541 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0BDAC07D793971E4771E99D /* Sparkle in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		00DED5E944CC75C50A117CEA /* Resources */ = {
@@ -266,6 +280,7 @@
 				2C99B38CEC3395154FAD1CC8 /* RuleBackupManager.swift */,
 				94F19C59304352326E013A20 /* RuleEngine.swift */,
 				EEC3AED58D2B463255C28D3E /* RuleStore.swift */,
+				85AA015ADD091E7B64FC5883 /* SparkleManager.swift */,
 				9897ED207F9ECCC681E3A139 /* ToastManager.swift */,
 			);
 			path = Services;
@@ -316,6 +331,7 @@
 			buildPhases = (
 				BE457E41ECB9746B4F0083F3 /* Sources */,
 				FE8C088E107CD9CA1846ACE4 /* Resources */,
+				C4E6F85A02DD093F2E32D541 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -323,6 +339,7 @@
 			);
 			name = FolderMind;
 			packageProductDependencies = (
+				1E78E63FD4DCC3F68674C693 /* Sparkle */,
 			);
 			productName = FolderMind;
 			productReference = 3B6B3268DC677FD747741038 /* FolderMind.app */;
@@ -335,7 +352,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2650;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					BC679BF877AFD51B0784FA2E = {
 						ProvisioningStyle = Automatic;
@@ -351,6 +368,9 @@
 			);
 			mainGroup = 7D8ABB0E951EB0D85D174155;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9BEF358E5C5498204D343E59 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 324244AE60484BB942814AE1 /* Products */;
 			projectDirPath = "";
@@ -430,6 +450,7 @@
 				F8C8C519EE9DDE025834FEF3 /* RuleStore.swift in Sources */,
 				9A0F295AEA065EC77DD8B828 /* SettingsView.swift in Sources */,
 				FF3AABB1429065246A340C97 /* SmartFileClassifier.swift in Sources */,
+				B55D11A8BDB839A208A8DCF7 /* SparkleManager.swift in Sources */,
 				D5D5E4ECDA7C6DAA55FCE277 /* SpotlightIndexer.swift in Sources */,
 				24369344BA142631E9B5421F /* SpotlightQuickActions.swift in Sources */,
 				CA8C108EEF2C5531EFFB6936 /* StarterRule.swift in Sources */,
@@ -454,7 +475,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = XXXXXXXXXX;
 				INFOPLIST_FILE = FolderMind/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -503,12 +523,10 @@
 				CODE_SIGN_ENTITLEMENTS = FolderMind/FolderMind.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -522,13 +540,18 @@
 				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLName\": \"app.foldermind.mac\", \"CFBundleURLSchemes\": [\"foldermind\"]]]";
 				INFOPLIST_KEY_NSFullDiskAccessUsageDescription = "FolderMind needs Full Disk Access to watch and organise your folders. Your files never leave your Mac.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_KEY_SUEnableAutomaticChecks = YES;
+				INFOPLIST_KEY_SUFeedURL = "https://foldermind.app/appcast.xml";
+				INFOPLIST_KEY_SUPublicEDKey = REPLACE_WITH_YOUR_EDDSA_PUBLIC_KEY;
+				INFOPLIST_KEY_SUScheduledCheckInterval = 86400;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				NSUserActivityTypes = com.apple.corespotlightitem;
+				NSUserActivityTypes = (
+					com.apple.corespotlightitem,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -572,12 +595,10 @@
 				CODE_SIGN_ENTITLEMENTS = FolderMind/FolderMind.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -597,14 +618,19 @@
 				INFOPLIST_KEY_CFBundleURLTypes = "[[\"CFBundleURLName\": \"app.foldermind.mac\", \"CFBundleURLSchemes\": [\"foldermind\"]]]";
 				INFOPLIST_KEY_NSFullDiskAccessUsageDescription = "FolderMind needs Full Disk Access to watch and organise your folders. Your files never leave your Mac.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_KEY_SUEnableAutomaticChecks = YES;
+				INFOPLIST_KEY_SUFeedURL = "https://foldermind.app/appcast.xml";
+				INFOPLIST_KEY_SUPublicEDKey = REPLACE_WITH_YOUR_EDDSA_PUBLIC_KEY;
+				INFOPLIST_KEY_SUScheduledCheckInterval = 86400;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				NSUserActivityTypes = com.apple.corespotlightitem;
+				NSUserActivityTypes = (
+					com.apple.corespotlightitem,
+				);
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -617,7 +643,6 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -635,7 +660,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = FolderMind/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -653,7 +677,6 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -695,6 +718,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9BEF358E5C5498204D343E59 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.7.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1E78E63FD4DCC3F68674C693 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9BEF358E5C5498204D343E59 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B30A4CFDD9A34D460D50C860 /* Project object */;
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+  <channel>
+    <title>FolderMind</title>
+    <link>https://foldermind.app/appcast.xml</link>
+    <description>Most recent updates to FolderMind</description>
+    <language>en</language>
+
+    <!--
+    RELEASE TEMPLATE — copy this block for each new release:
+
+    <item>
+      <title>Version X.X.X</title>
+      <pubDate>Day, DD Mon YYYY HH:MM:SS +0000</pubDate>
+      <sparkle:version>BUILD_NUMBER</sparkle:version>
+      <sparkle:shortVersionString>X.X.X</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <enclosure
+        url="https://foldermind.app/downloads/FolderMind-X.X.X.dmg"
+        sparkle:edSignature="SIGNATURE_FROM_GENERATE_APPCAST"
+        sparkle:version="BUILD_NUMBER"
+        sparkle:shortVersionString="X.X.X"
+        length="FILE_SIZE_IN_BYTES"
+        type="application/octet-stream" />
+      <description><![CDATA[
+        <h3>What's New</h3>
+        <ul>
+          <li>Feature or fix description</li>
+        </ul>
+      ]]></description>
+    </item>
+    -->
+
+  </channel>
+</rss>

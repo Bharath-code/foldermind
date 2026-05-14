@@ -9,6 +9,7 @@ struct FolderMindApp: App {
     @StateObject private var undoManager: FMUndoManager
     @StateObject private var watchCoordinator: FileWatchCoordinator
     @StateObject private var toastManager: ToastManager
+    @StateObject private var sparkleManager = SparkleManager()
 
     init() {
         let store = RuleStore()
@@ -67,6 +68,7 @@ struct FolderMindApp: App {
         
         Settings {
             SettingsView()
+                .environmentObject(sparkleManager)
         }
 
         MenuBarExtra {
@@ -74,6 +76,7 @@ struct FolderMindApp: App {
                 .environmentObject(ruleStore)
                 .environmentObject(undoManager)
                 .environmentObject(watchCoordinator)
+                .environmentObject(sparkleManager)
         } label: {
             Image(systemName: "folder.fill.badge.gearshape")
         }

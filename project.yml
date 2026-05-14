@@ -6,7 +6,12 @@ options:
   xcodeVersion: "15.0"
   createIntermediateGroups: true
   groupSortPosition: top
-  postGenCommand: open FolderMind.xcodeproj
+  postGenCommand: xcodebuild -resolvePackageDependencies -project FolderMind.xcodeproj && open FolderMind.xcodeproj
+
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.7.0"
 
 settings:
   base:
@@ -24,6 +29,10 @@ settings:
     INFOPLIST_KEY_CFBundleURLTypes:
       - CFBundleURLSchemes: [foldermind]
         CFBundleURLName: app.foldermind.mac
+    INFOPLIST_KEY_SUEnableAutomaticChecks: YES
+    INFOPLIST_KEY_SUScheduledCheckInterval: 86400
+    INFOPLIST_KEY_SUFeedURL: "https://foldermind.app/appcast.xml"
+    INFOPLIST_KEY_SUPublicEDKey: "REPLACE_WITH_YOUR_EDDSA_PUBLIC_KEY"
 
 targets:
   FolderMind:
@@ -33,6 +42,8 @@ targets:
       - path: FolderMind
         excludes:
           - "**/*.md"
+    dependencies:
+      - package: Sparkle
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.foldermind.mac

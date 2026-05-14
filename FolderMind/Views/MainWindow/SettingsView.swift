@@ -25,6 +25,7 @@ struct SettingsView: View {
 }
 
 struct GeneralSettingsView: View {
+    @EnvironmentObject var sparkleManager: SparkleManager
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
 
     var body: some View {
@@ -45,6 +46,23 @@ struct GeneralSettingsView: View {
                         }
                     }
                 Text("FolderMind will automatically start watching your folders when you log in.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            Divider()
+            
+            Section {
+                HStack {
+                    Text("Updates")
+                        .font(.headline)
+                    Spacer()
+                    Button("Check for Updates...") {
+                        sparkleManager.checkForUpdates()
+                    }
+                    .disabled(!sparkleManager.canCheckForUpdates)
+                }
+                Text("FolderMind checks for updates automatically once per day.")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
